@@ -21,8 +21,8 @@
 ### Requirements
 
 - A compatible 3D printer (currently supports Bambu Lab printers, with more to come)
-- Node.js (v16 or newer)
-- Basic command-line knowledge
+- A computer or server to host the PrintWeave software (Raspberry Pi recommended)
+- Node.js (v?? or higher)
 
 ### Installation Steps
 
@@ -35,24 +35,25 @@
    ```bash
    cd printweave
    ```
-
-3. Install the necessary dependencies:
+   
+3. Configure the environment variables:
    ```bash
-   npm install
+   cp .env.example .env
    ```
+   Edit the `.env` file to set your environment variables.
 
-4. Configure your printer settings by editing the configuration files in the `config` folder.
+TODO: add a step to install the dependencies
 
-5. Start the application:
-   ```bash
-   npm start
-   ```
+#### Optional: Set Up a Tunnel / Reverse Proxy
+
+If you want to access PrintWeave from outside your local network, you can set up a tunnel or reverse proxy. Here are a few options:
+
+
+- **Cloudflare Tunnel**: Use Cloudflare's Argo Tunnel to securely expose your local server to the internet. (https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
+- **ngrok**: Use ngrok to create a secure tunnel to your local server. (https://ngrok.com/our-product/secure-tunnels)
+- **Caddy Server**: Use Caddy Server to set up a reverse proxy with automatic HTTPS. (https://caddyserver.com/)
 
 ## Configuration Guide
-
-### Printer Setup
-
-To get started, configure your printer by providing its connection details (like IP address or serial port). You’ll find all the setup instructions in the `config` folder.
 
 ### Access the Interface
 
