@@ -1,0 +1,18 @@
+{
+  "name": "printweave",
+  "version": "0.0.1",
+  "workspaces": ["server"],
+  "scripts": {
+    "server:dev": "cd server && npm run dev",
+    "server:start": "cd server && npm start",
+    "server:build": "cd server && npm run build",
+    "dev": "concurrently -n server -c magenta,blue \"npm run server:dev\"",
+    "start": "concurrently -n server -c magenta,blue \"npm run server:start\"",
+    "build": "concurrently -n server -c magenta,blue \"npm run server:build\""
+  },
+  "author": "MMathijs",
+  "license": "MIT",
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
