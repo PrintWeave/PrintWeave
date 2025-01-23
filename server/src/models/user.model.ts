@@ -1,5 +1,7 @@
-import {CreationOptional, DataTypes, InferAttributes, Model, Optional} from "sequelize";
+import {DataTypes, Model, Optional} from "sequelize";
 import db from "../config/database.config";
+import {Printer} from "./printer.model";
+import {UserPrinter} from "./userprinter.model";
 
 interface UserAttributes {
     id: number;

@@ -5,7 +5,8 @@ export function printerRoutes (): Router  {
 
     router.get('/', (req: Request, res: Response) => {
         const user = req.user;
-        res.json({message: 'Printer list', user});
+        // TODO: Implement printer list
+        res.json({message: 'Printer list'});
     });
 
     return router;

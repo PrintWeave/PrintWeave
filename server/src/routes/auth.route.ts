@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import {User} from '../models/user.model';
 import {envInt} from "../environment";
+import {Printer} from "../models/printer.model";
 
 interface JwtPayload {
     id: string;

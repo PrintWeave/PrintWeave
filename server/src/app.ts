@@ -5,10 +5,12 @@ import db from "./config/database.config";
 import dotenv from "dotenv";
 import {envInt} from "./environment";
 import {apiRoutes} from "./routes/api.route";
+import {User} from "./models/user.model";
+import {Printer} from "./models/printer.model";
 
 dotenv.config({ path: '../.env' });
 
-db.sync().then(() => {
+db.sync({alter:true}).then(() => {
     console.log('Connected to database');
 });
 
