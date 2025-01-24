@@ -5,6 +5,12 @@ export interface BasePrinterAttributes {
 }
 
 
-export class BasePrinter<T extends BasePrinterAttributes, C extends Optional<BasePrinterAttributes, 'printerId'>> extends Model<T, C> {
+export abstract class BasePrinter<T extends BasePrinterAttributes, C extends Optional<BasePrinterAttributes, 'printerId'>> extends Model<T, C> {
     declare printerId: number;
+
+    abstract getVersion(): Promise<string>;
+
+    abstract stopPrint(): Promise<string>;
+    abstract pausePrint(): Promise<string>;
+    abstract resumePrint(): Promise<string>;
 }
