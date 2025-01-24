@@ -2,7 +2,7 @@ import {
     BelongsToManyGetAssociationsMixin,
     DataTypes,
     HasManyAddAssociationMixin,
-    HasManyGetAssociationsMixin,
+    HasManyGetAssociationsMixin, HasManyRemoveAssociationMixin,
     Model,
     Optional
 } from "sequelize";
@@ -36,6 +36,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
 
     declare getPrinters: HasManyGetAssociationsMixin<Printer>;
     declare addPrinter: HasManyAddAssociationMixin<Printer, number>;
+    declare removePrinter: HasManyRemoveAssociationMixin<Printer, number>
 
     test() {
         console.log('test');
@@ -78,3 +79,4 @@ User.init({
 
 Printer.belongsToMany(User, { through: UserPrinter, foreignKey: 'printerId' });
 User.belongsToMany(Printer, { through: UserPrinter });
+User.hasMany(UserPrinter, { foreignKey: 'userId' });
