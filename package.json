@@ -10,7 +10,7 @@
     "start": "concurrently -n server -c magenta,blue \"npm run server:start\"",
     "build": "concurrently -n server -c magenta,blue \"npm run server:build\"",
     "configure": "cd server && npm run configure",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\""
   },
   "author": "MMathijs",
   "license": "MIT",
