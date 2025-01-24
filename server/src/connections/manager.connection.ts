@@ -1,0 +1,58 @@
+import {MqttBambuConnection} from "./bambu/mqtt.bambu.connection";
+import {Printer} from "../models/printer.model";
+import {BambuPrinter} from "../models/printers/bambu.printer.model";
+
+interface ConnectionsList {
+    [printerId: number]: PrinterConnectionsBambu;
+}
+
+export interface PrinterConnectionsBambu {
+    mqtt: MqttBambuConnection
+}
+
+export class ConnectionManager {
+
+    connections: ConnectionsList = {};
+
+    private static instance: ConnectionManager;
+
+    static getConnectionManager() {
+        if (!ConnectionManager.instance) {
+            ConnectionManager.instance = new ConnectionManager();
+        }
+        return ConnectionManager.instance;
+    }
+
+
+
+    async generateConnectionsPrinter(printer: Printer) {
+        if (printer.type === 'bambu') {
+            const bambuPrinter = await BambuPrinter.findOne({where: {printerId: printer.id}});
+            await this.generateConnectionsBambu(bambuPrinter, printer);
+        } else {
+            throw new Error('Invalid printer type');
+        }
+    }
+
+    async generateConnectionsBambu(bambuPrinter: BambuPrinter, printer: Printer) {
+        let mqttBambuConnection = new MqttBambuConnection(bambuPrinter.ip, bambuPrinter.code, bambuPrinter.serial);
+        await mqttBambuConnection.connect();
+
+        this.connections[printer.id] = {
+            mqtt: mqttBambuConnection
+        }
+    }
+
+    async getConnection(printerId: number) {
+        let connection = this.connections[printerId];
+
+        if (!connection) {
+            const printer = await Printer.findByPk(printerId);
+            await this.generateConnectionsPrinter(printer);
+            connection = this.connections[printerId];
+        }
+
+        return connection;
+    }
+
+}

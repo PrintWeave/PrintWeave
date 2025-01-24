@@ -5,7 +5,8 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/app.js",
-    "dev": "nodemon src/app.ts"
+    "dev": "nodemon src/app.ts",
+    "configure": "node src/setup.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,12 @@
     "url": "https://github.com/PrintWeave/PrintWeave/issues"
   },
   "homepage": "https://github.com/PrintWeave/PrintWeave#readme",
+  "compilerOptions": {
+    "typeRoots": [
+      "node_modules/@types",
+      "./types"
+    ]
+  },
   "description": "",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -30,11 +37,13 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "bambu-node": "^3.22.21",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
     "jsonwebtoken": "^9.0.2",
+    "mqtt": "^5.10.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",

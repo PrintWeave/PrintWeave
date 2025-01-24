@@ -5,12 +5,18 @@ import db from "./config/database.config";
 import dotenv from "dotenv";
 import {envInt} from "./environment";
 import {apiRoutes} from "./routes/api.route";
+import {User} from "./models/user.model";
+import {Printer} from "./models/printer.model";
 
 dotenv.config({ path: '../.env' });
 
-db.sync().then(() => {
-    console.log('Connected to database');
-});
+(async () => {
+    await db.query('PRAGMA foreign_keys = false;');
+    await db.sync({alter: true}).then(() => {
+        console.log('Connected to database');
+    });
+    await db.query('PRAGMA foreign_keys = true;');
+})();
 
 const port = envInt("SERVER_PORT", 3000);
 const app = express();

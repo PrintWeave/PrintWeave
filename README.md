@@ -7,6 +7,23 @@
 
 **PrintWaeve**'s main purpose is to provide an alternative to the Bambulab Handy or the Bambulab Connect, using developer LAN mode on the new firmware.
 
+## Roadmap 
+All the features that are planned for the project are listed below. The features that are already implemented are marked with a checkmark. The version that the feature is planned to be released is also listed.
+**NOTE**: The versioning is not final and may change in the future.
+- [x] Create a basic structure for the project - v0.0.1
+- [x] Create users and authentication - v0.0.1
+- [x] Add Bambu Lab printer support - v0.0.1
+- [x] Create a basic API to interact with the printer (pause, resume, stop) - v0.0.1
+- [ ] Add MQTT command support - v0.1.0
+- [ ] Add MQTT websockets support - v0.1.0
+- [ ] Create a basic API to interact with the printer (status) - v0.1.0
+- [ ] Create a basic API to interact with the printer (upload file) - v0.1.1
+- [ ] Create a basic API to interact with the printer (list files) - v0.1.2
+- [ ] Add Simple Websockets - v0.2.0
+- [ ] Add a basic web interface - v0.2.0
+- [ ] Stable release - v1.0.0
+- [ ] Klipper support - v2.0.0
+
 ## Planned Features
 - **Secure Connection Management**: Safely connect your printer to the internet with encrypted connections.
 - **Bambu Lab Printer Support**: Works with Bambu Lab printers, with plans to support more manufacturers in the future.
@@ -26,21 +43,20 @@
 
 ### Installation Steps
 
-1. Clone the repository:
+1. Download the latest release via NPM:
    ```bash
-   git clone https://github.com/yourusername/printweave.git
-   ```
-
-2. Navigate to the project folder:
-   ```bash
-   cd printweave
+   npm install -g printweave
    ```
    
-3. Configure the environment variables:
+2. Configure the PrintWeave software: (TODO: implement this, use .env file for now)
    ```bash
-   cp .env.example .env
+   printweave configure
    ```
-   Edit the `.env` file to set your environment variables.
+   
+3. Start the PrintWeave server:
+   ```bash
+    printweave start
+    ```
 
 TODO: add a step to install the dependencies
 
@@ -48,28 +64,34 @@ TODO: add a step to install the dependencies
 
 If you want to access PrintWeave from outside your local network, you can set up a tunnel or reverse proxy. Here are a few options:
 
-
 - **Cloudflare Tunnel**: Use Cloudflare's Argo Tunnel to securely expose your local server to the internet. (https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
 - **ngrok**: Use ngrok to create a secure tunnel to your local server. (https://ngrok.com/our-product/secure-tunnels)
 - **Caddy Server**: Use Caddy Server to set up a reverse proxy with automatic HTTPS. (https://caddyserver.com/)
 
-## Configuration Guide
+## API Documentation
 
-### Access the Interface
+## Rest API
+A Full documentation of the API can be found [here](api.md)
+### Authentication
+All request (except for the login endpoint) require a valid JWT token to be included in the `Authorization` header. The token should be in the format `Bearer <token>`. If the token is missing or invalid, the server will respond with a `401 Unauthorized` status code.
+### POST /login
+Logs in a user and returns a JWT token.
 
-Once the app is up and running, you can access the web interface via your browser at `http://localhost:????` (or your server's IP address). The interface is designed to be simple and mobile-friendly, so you can manage your printer from anywhere.
+### POST /register
+Registers a new user.
 
-## Usage
+### GET /api/printer
+Returns all the printers that are connected to the current user.
 
-Once everything is set up, you can:
-- Upload GCode files directly to your printer.
-- Monitor your print progress in real-time, with up-to-date stats.
-- Control your printer remotely—start, pause, or stop prints with a click.
-- Use the API to create custom workflows or integrate with other services.
+### POST /api/printer/
+Creates a new printer.
 
-## Contributing
+### GET /api/printer/:id
+Returns the printer with the specified id.
 
-We welcome contributions! If you’d like to help improve PrintWeave, check out the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how you can get involved.
+### DELETE /api/printer/:id
+Deletes the printer with the specified id. (requires to be an admin of the printer)
+
 
 ## License
 
@@ -78,3 +100,4 @@ PrintWeave is released under the [MIT License](LICENSE).
 ## Acknowledgements
 
 A huge thank you to the open-source community for all the inspiration and contributions that make projects like PrintWeave possible. We also want to give special recognition to [OpenBambuAPI](https://github.com/Doridian/OpenBambuAPI) by Doridian. Their API for Bambu Lab printers has been a key part of bringing PrintWeave to life.
+And huge thanks to [THE-SIMPLE-MARK](https://github.com/THE-SIMPLE-MARK) for creating [Bambu Node](https://github.com/THE-SIMPLE-MARK/bambu-node) which is the base for the Bambu Lab printer support.
