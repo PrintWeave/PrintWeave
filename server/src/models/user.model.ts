@@ -1,4 +1,11 @@
-import {DataTypes, Model, Optional} from "sequelize";
+import {
+    BelongsToManyGetAssociationsMixin,
+    DataTypes,
+    HasManyAddAssociationMixin,
+    HasManyGetAssociationsMixin,
+    Model,
+    Optional
+} from "sequelize";
 import db from "../config/database.config";
 import {Printer} from "./printer.model";
 import {UserPrinter} from "./userprinter.model";
@@ -14,6 +21,11 @@ interface UserAttributes {
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 
+interface UserAssociations {
+    getPrinters: HasManyGetAssociationsMixin<Printer>;
+    addPrinter: HasManyAddAssociationMixin<Printer, number>;
+}
+
 export class User extends Model<UserAttributes, UserCreationAttributes> {
     declare id: number;
     username!: string;
@@ -21,6 +33,13 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     email!: string;
     role!: 'user' | 'admin';
     active!: boolean;
+
+    declare getPrinters: HasManyGetAssociationsMixin<Printer>;
+    declare addPrinter: HasManyAddAssociationMixin<Printer, number>;
+
+    test() {
+        console.log('test');
+    }
 
     static async findById(id: string) {
         return User.findByPk(id);
@@ -56,3 +75,6 @@ User.init({
     sequelize: db,
     modelName: 'users'
 });
+
+Printer.belongsToMany(User, { through: UserPrinter, foreignKey: 'printerId' });
+User.belongsToMany(Printer, { through: UserPrinter });

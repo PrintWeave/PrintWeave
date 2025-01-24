@@ -10,9 +10,13 @@ import {Printer} from "./models/printer.model";
 
 dotenv.config({ path: '../.env' });
 
-db.sync({alter:true}).then(() => {
-    console.log('Connected to database');
-});
+(async () => {
+    await db.query('PRAGMA foreign_keys = false;');
+    await db.sync({alter: true}).then(() => {
+        console.log('Connected to database');
+    });
+    await db.query('PRAGMA foreign_keys = true;');
+})();
 
 const port = envInt("SERVER_PORT", 3000);
 const app = express();

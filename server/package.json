@@ -18,6 +18,9 @@
     "url": "https://github.com/PrintWeave/PrintWeave/issues"
   },
   "homepage": "https://github.com/PrintWeave/PrintWeave#readme",
+  "compilerOptions": {
+    "typeRoots": ["node_modules/@types", "./types"]
+  },
   "description": "",
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

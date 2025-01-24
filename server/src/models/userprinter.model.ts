@@ -26,10 +26,18 @@ UserPrinter.init({
         primaryKey: true
     },
     userId: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        references: {
+            model: User,
+            key: 'id'
+        }
     },
     printerId: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        references: {
+            model: Printer,
+            key: 'id'
+        }
     },
     permission: {
         type: DataTypes.ENUM('view', 'operate', 'admin'),

@@ -22,6 +22,7 @@ const jwtOptions = {
     secretOrKey: JWT_SECRET
 };
 
+
 passport.use(new JwtStrategy(jwtOptions, async (payload: JwtPayload, done: VerifiedCallback) => {
     try {
         const user = await User.findById(payload.id);

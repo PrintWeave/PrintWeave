@@ -2,6 +2,8 @@ import {DataTypes, Model, Optional, Sequelize} from "sequelize";
 import db from "../config/database.config";
 import {User} from "./user.model";
 import {UserPrinter} from "./userprinter.model";
+import {BambuPrinter} from "./printers/bambu.printer.model";
+import {BasePrinter} from "./printers/base.printer.model";
 
 interface PrinterAttributes {
     id: number;
@@ -9,15 +11,26 @@ interface PrinterAttributes {
     type: string;
 }
 
-interface PrinterCreationAttributes extends Optional<PrinterAttributes, 'id'> {}
+interface PrinterCreationAttributes extends Optional<PrinterAttributes, 'id'> {
+}
 
 export class Printer extends Model<PrinterAttributes, PrinterCreationAttributes> {
     declare id: number;
     name!: string;
     type!: string;
+    declare printer: BasePrinter<any, any>;
 
     static async findById(id: string) {
         return Printer.findByPk(id);
+    }
+
+    async getPrinter(): Promise<BasePrinter<any, any>> {
+        switch (this.type) {
+            case 'bambu':
+                return BambuPrinter.findOne({where: {printerId: this.id}});
+            default:
+                return null;
+        }
     }
 }
 
@@ -39,5 +52,5 @@ Printer.init({
     modelName: 'printers'
 });
 
-Printer.belongsToMany(User, { through: UserPrinter, foreignKey: 'printerId' });
-User.belongsToMany(Printer, { through: UserPrinter });
+// Printer.belongsToMany(User, { through: UserPrinter, foreignKey: 'printerId' });
+// User.belongsToMany(Printer, { through: UserPrinter });
