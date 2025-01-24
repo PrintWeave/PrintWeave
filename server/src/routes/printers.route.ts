@@ -101,7 +101,8 @@ export function printersRoutes(): Router {
         const userPrinter = await UserPrinter.findOne({
             where: {
                 userId: user.id,
-                printerId: parseInt(printerId)
+                printerId: parseInt(printerId),
+                permission: 'admin'
             }
         });
 
