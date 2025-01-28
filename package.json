@@ -12,7 +12,9 @@
     "start": "concurrently -n server -c magenta,blue \"npm run server:start\"",
     "build": "concurrently -n server -c magenta,blue \"npm run server:build\"",
     "configure": "cd server && npm run configure",
-    "test": "echo \"Error: no test specified\""
+    "test": "echo \"Error: no test specified\"",
+    "install:server": "cd server && npm install --ignore-scripts",
+    "postinstall": "npm run install:server"
   },
   "author": "MMathijs",
   "repository": "https://github.com/PrintWeave/PrintWeave",
@@ -28,7 +30,6 @@
   "dependencies": {
     "commander": "^13.1.0",
     "concurrently": "^9.1.2",
-    "server": "*",
     "shelljs": "^0.8.5"
   },
   "files": [
