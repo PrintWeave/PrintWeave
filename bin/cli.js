@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 var shell   = require('shelljs');
 const { Command } = require('commander');
+const { default: concurrently } = require('concurrently');
 
 const program = new Command();
 
@@ -15,7 +16,10 @@ program
   .action((options) => {
     method = options.method || 'node';
     if (methodIsInstalled(method)) {
-      shell.exec(`npx concurrently -n api,frontend -c magenta,blue "${launchByMethod(method, __dirname + '/../server/dist/app.js')}" "echo 'Frontend server is not implemented yet'"`);
+      concurrently([
+        { command: launchByMethod(method, __dirname + '/../server/dist/app.js'), name: 'api', prefixColor: 'magenta' },
+        { command: 'echo "Frontend server is not implemented yet"', name: 'frontend', prefixColor: 'blue' }
+      ]);
     } else {
       console.log(`Method ${method} is not installed`);
     }
