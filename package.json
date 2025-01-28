@@ -12,7 +12,10 @@
     "start": "concurrently -n server -c magenta,blue \"npm run server:start\"",
     "build": "concurrently -n server -c magenta,blue \"npm run server:build\"",
     "configure": "cd server && npm run configure",
-    "test": "echo \"Error: no test specified\""
+    "test": "echo \"Error: no test specified\"",
+    "install:server": "cd server && npm install",
+    "install:all": "npm install && npm run install:server",
+    "postinstall": "npm run install:all"
   },
   "author": "MMathijs",
   "repository": "https://github.com/PrintWeave/PrintWeave",
