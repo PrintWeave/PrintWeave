@@ -15,7 +15,7 @@ program
   .action((options) => {
     method = options.method || 'node';
     if (methodIsInstalled(method)) {
-      shell.exec(`concurrently -n api,frontend -c magenta,blue "${launchByMethod(method, __dirname + '/../server/dist/app.js')}" "echo 'Frontend server is not implemented yet'"`);
+      shell.exec(`npx concurrently -n api,frontend -c magenta,blue "${launchByMethod(method, __dirname + '/../server/dist/app.js')}" "echo 'Frontend server is not implemented yet'"`);
     } else {
       console.log(`Method ${method} is not installed`);
     }
