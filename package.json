@@ -1,6 +1,6 @@
 {
   "name": "printweave",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "workspaces": ["server"],
   "scripts": {
     "server:dev": "cd server && npm run dev",
