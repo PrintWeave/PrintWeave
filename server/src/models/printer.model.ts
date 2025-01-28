@@ -1,9 +1,9 @@
 import {DataTypes, Model, Optional, Sequelize} from "sequelize";
-import db from "../config/database.config";
-import {User} from "./user.model";
-import {UserPrinter} from "./userprinter.model";
-import {BambuPrinter} from "./printers/bambu.printer.model";
-import {BasePrinter} from "./printers/base.printer.model";
+import db from "../config/database.config.js";
+import {User} from "./user.model.js";
+import {UserPrinter} from "./userprinter.model.js";
+import {BambuPrinter} from "./printers/bambu.printer.model.js";
+import {BasePrinter} from "./printers/base.printer.model.js";
 
 interface PrinterAttributes {
     id: number;

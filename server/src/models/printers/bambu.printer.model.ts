@@ -1,10 +1,10 @@
 import {DataTypes, Model, Optional, Sequelize} from "sequelize";
-import db from "../../config/database.config";
-import {Printer} from "../printer.model";
-import {BasePrinter, BasePrinterAttributes} from "./base.printer.model";
-import {ConnectionManager, PrinterConnectionsBambu} from "../../connections/manager.connection";
+import db from "../../config/database.config.js";
+import {Printer} from "../printer.model.js";
+import {BasePrinter, BasePrinterAttributes} from "./base.printer.model.js";
+import {ConnectionManager, PrinterConnectionsBambu} from "../../connections/manager.connection.js";
 import {GetVersionResponse, PrintMessage, PrintMessageCommand} from "bambu-node";
-import {OwnPrintMessageCommand} from "../../connections/bambu/mqtt/OwnBambuClient";
+import {OwnPrintMessageCommand} from "../../connections/bambu/mqtt/OwnBambuClient.js";
 
 interface BambuPrinterAttributes extends BasePrinterAttributes {
     id: number;

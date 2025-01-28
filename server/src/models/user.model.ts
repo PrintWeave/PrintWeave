@@ -6,9 +6,9 @@ import {
     Model,
     Optional
 } from "sequelize";
-import db from "../config/database.config";
-import {Printer} from "./printer.model";
-import {UserPrinter} from "./userprinter.model";
+import db from "../config/database.config.js";
+import {Printer} from "./printer.model.js";
+import {UserPrinter} from "./userprinter.model.js";
 
 interface UserAttributes {
     id: number;

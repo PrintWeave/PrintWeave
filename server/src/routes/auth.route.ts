@@ -4,9 +4,9 @@ import {Strategy as JwtStrategy, ExtractJwt, VerifiedCallback} from 'passport-jw
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
-import {User} from '../models/user.model';
-import {envInt} from "../environment";
-import {Printer} from "../models/printer.model";
+import {User} from '../models/user.model.js';
+import {envInt} from "../environment.js";
+import {Printer} from "../models/printer.model.js";
 
 interface JwtPayload {
     id: string;

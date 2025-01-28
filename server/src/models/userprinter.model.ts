@@ -1,7 +1,7 @@
 import {DataTypes, Model, Optional} from "sequelize";
-import db from "../config/database.config";
-import {User} from "./user.model";
-import {Printer} from "./printer.model";
+import db from "../config/database.config.js";
+import { Printer } from "./printer.model.js";
+import { User } from "./user.model.js";
 
 interface UserPrinterAttributes {
     id: number;
@@ -27,17 +27,9 @@ UserPrinter.init({
     },
     userId: {
         type: DataTypes.INTEGER,
-        references: {
-            model: User,
-            key: 'id'
-        }
     },
     printerId: {
         type: DataTypes.INTEGER,
-        references: {
-            model: Printer,
-            key: 'id'
-        }
     },
     permission: {
         type: DataTypes.ENUM('view', 'operate', 'admin'),

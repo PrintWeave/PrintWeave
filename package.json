@@ -1,7 +1,9 @@
 {
   "name": "printweave",
-  "version": "0.0.2",
-  "workspaces": ["server"],
+  "version": "0.0.3",
+  "workspaces": [
+    "server"
+  ],
   "scripts": {
     "server:dev": "cd server && npm run dev",
     "server:start": "cd server && npm start",
@@ -13,8 +15,18 @@
     "test": "echo \"Error: no test specified\""
   },
   "author": "MMathijs",
+  "repository": "https://github.com/PrintWeave/PrintWeave",
+  "homepage": "https://github.com/PrintWeave/PrintWeave#readme",
+  "bin": {
+    "printweave": "./bin/cli.js"
+  },
+  "bugs": {
+    "url": "https://github.com/PrintWeave/PrintWeave/issues"
+  },
   "license": "MIT",
   "dependencies": {
-    "concurrently": "^9.1.2"
+    "commander": "^13.1.0",
+    "concurrently": "^9.1.2",
+    "shelljs": "^0.8.5"
   }
 }
