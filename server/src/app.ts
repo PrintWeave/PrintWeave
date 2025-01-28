@@ -23,6 +23,8 @@ authRoutes(app);
 app.use('/api', apiRoutes());
 
 (async () => {
+    await db.authenticate();
+
     await db.query('PRAGMA foreign_keys = false;');
     await db.sync({alter: true}).then(() => {
         console.log('Connected to database');
