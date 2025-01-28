@@ -1,23 +1,17 @@
 {
   "name": "server",
-  "version": "0.0.1",
   "main": "src/app.ts",
+  "type": "module",
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/app.js",
-    "dev": "nodemon src/app.ts",
+    "dev": "nodemon --exec tsx src/app.ts",
     "configure": "node src/setup.js"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:PrintWeave/PrintWeave.git"
   },
-  "author": "MMathijs",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/PrintWeave/PrintWeave/issues"
-  },
-  "homepage": "https://github.com/PrintWeave/PrintWeave#readme",
   "compilerOptions": {
     "typeRoots": [
       "node_modules/@types",
@@ -28,12 +22,12 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.0",
-    "@types/node": "^22.10.7",
+    "@types/node": "^16.18.125",
     "@types/passport": "^1.0.17",
     "@types/passport-jwt": "^4.0.1",
     "concurrently": "^9.1.2",
     "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {

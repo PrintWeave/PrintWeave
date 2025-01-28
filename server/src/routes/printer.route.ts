@@ -1,6 +1,6 @@
 import {Router} from "express";
-import {UserPrinter} from "../models/userprinter.model";
-import {Printer} from "../models/printer.model";
+import {UserPrinter} from "../models/userprinter.model.js";
+import {Printer} from "../models/printer.model.js";
 
 export function printerRoutes(printerId: number): Router {
     const router = Router();

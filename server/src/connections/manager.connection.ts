@@ -1,6 +1,6 @@
-import {MqttBambuConnection} from "./bambu/mqtt.bambu.connection";
-import {Printer} from "../models/printer.model";
-import {BambuPrinter} from "../models/printers/bambu.printer.model";
+import {MqttBambuConnection} from "./bambu/mqtt.bambu.connection.js";
+import {Printer} from "../models/printer.model.js";
+import {BambuPrinter} from "../models/printers/bambu.printer.model.js";
 
 interface ConnectionsList {
     [printerId: number]: PrinterConnectionsBambu;
@@ -28,6 +28,11 @@ export class ConnectionManager {
     async generateConnectionsPrinter(printer: Printer) {
         if (printer.type === 'bambu') {
             const bambuPrinter = await BambuPrinter.findOne({where: {printerId: printer.id}});
+            
+            if (!bambuPrinter) {
+                throw new Error('Bambu printer not found');
+            }
+            
             await this.generateConnectionsBambu(bambuPrinter, printer);
         } else {
             throw new Error('Invalid printer type');
@@ -48,6 +53,11 @@ export class ConnectionManager {
 
         if (!connection) {
             const printer = await Printer.findByPk(printerId);
+
+            if (!printer) {
+                throw new Error('Printer not found');
+            }
+
             await this.generateConnectionsPrinter(printer);
             connection = this.connections[printerId];
         }

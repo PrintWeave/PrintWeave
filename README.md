@@ -57,8 +57,22 @@ All the features that are planned for the project are listed below. The features
    ```bash
     printweave start
     ```
+   
+#### API Server Launch Methods
 
-TODO: add a step to install the dependencies
+The PrintWeave API server can be launched in different ways using the `printweave api` command. 
+
+Launch Methods:
+
+- `node` (default): Basic Node.js process, suitable for development
+- `forever`: Keeps the server running continuously, auto-restarts on crashes
+
+To use a specific method:
+Use the --method flag: `printweave api --method=forever`
+
+Prerequisites by method:
+- forever: Install globally using `npm install -g forever`
+
 
 #### Optional: Set Up a Tunnel / Reverse Proxy
 

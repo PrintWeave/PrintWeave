@@ -1,22 +1,13 @@
-import mqtt from 'mqtt';
-import {
-    AbstractCommand,
-    BambuClient,
-    CommandResponse,
-    GetVersionCommand, IncomingMessageData,
-    isInfoMessage,
-    isMCPrintMessage, isPrintMessage
-} from "bambu-node";
-import {StopPrintCommand} from "./mqtt/StopPrintCommand";
-import {OwnBambuClient} from "./mqtt/OwnBambuClient";
-import {PausePrintCommand} from "./mqtt/PausePrintCommand";
-import {ResumePrintCommand} from "./mqtt/ResumePrintCommand";
+import {StopPrintCommand} from "./mqtt/StopPrintCommand.js";
+import {OwnBambuClient} from "./mqtt/OwnBambuClient.js";
+import {PausePrintCommand} from "./mqtt/PausePrintCommand.js";
+import {ResumePrintCommand} from "./mqtt/ResumePrintCommand.js";
+import { GetVersionCommand } from "bambu-node";
 
 export class MqttBambuConnection {
 
-    client: BambuClient;
+    client: OwnBambuClient;
     status: string = 'OFFLINE';
-    serial: string;
 
     constructor(ip: string, code: string, serial: string) {
         this.client = new OwnBambuClient({
