@@ -14,8 +14,7 @@
     "configure": "cd server && npm run configure",
     "test": "echo \"Error: no test specified\"",
     "install:server": "cd server && npm install",
-    "install:all": "npm install && npm run install:server",
-    "postinstall": "npm run install:all"
+    "postinstall": "run install:server"
   },
   "author": "MMathijs",
   "repository": "https://github.com/PrintWeave/PrintWeave",
