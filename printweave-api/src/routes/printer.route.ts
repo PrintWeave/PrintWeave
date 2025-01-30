@@ -13,7 +13,7 @@ export function printerRoutes(printerId: number): Router {
         }
 
         // get the user's printers by printerId
-        const printer = await user.getPrinters({where: {id: printerId}});
+        const printer = (await user.getPrinters()).find(printer => printer.id === printerId);
 
         res.json({user, printer});
     });

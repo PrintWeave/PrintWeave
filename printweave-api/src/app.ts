@@ -7,6 +7,8 @@ import {envInt} from "./environment.js";
 import {apiRoutes} from "./routes/api.route.js";
 import {User} from "./models/user.model.js";
 import {Printer} from "./models/printer.model.js";
+import { Umzug } from "umzug";
+import { umzug } from "./migrations.js";
 
 dotenv.config({ path: '../.env' });
 
@@ -24,12 +26,19 @@ app.use('/api', apiRoutes());
 
 (async () => {
     await db.authenticate();
+    
+    console.log('Database connected');  
 
-    await db.query('PRAGMA foreign_keys = false;');
-    await db.sync({alter: true}).then(() => {
-        console.log('Connected to database');
-    });
-    await db.query('PRAGMA foreign_keys = true;');
+    // Check if migrations are pending
+    if ((await umzug.pending()).length > 0) {
+        process.on('exit', () => {
+            console.log('------------------------------------');
+            console.log('Migrations pending, please run: printweave migrate');
+            console.log('------------------------------------');
+        });
+
+        process.exit(1);
+    }
 
     // Start server
     app.listen(port, () => console.log('Server running on port ' + port));

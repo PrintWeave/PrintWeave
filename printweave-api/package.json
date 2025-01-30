@@ -6,7 +6,8 @@
     "build": "npx tsc",
     "start": "node dist/app.js",
     "dev": "nodemon --exec tsx src/app.ts",
-    "configure": "node src/setup.js"
+    "configure": "node dist/configure.js",
+    "migrate": "node dist/migrate.js"
   },
   "repository": {
     "type": "git",
@@ -25,12 +26,14 @@
     "@types/node": "^16.18.125",
     "@types/passport": "^1.0.17",
     "@types/passport-jwt": "^4.0.1",
+    "@types/validator": "^13.12.2",
     "concurrently": "^9.1.2",
     "nodemon": "^3.1.9",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@ariga/ts-atlas-provider-sequelize": "^0.1.6",
     "bambu-node": "^3.22.21",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.7",
@@ -42,6 +45,8 @@
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "sequelize": "^6.37.5",
-    "sqlite3": "^5.1.7"
+    "sequelize-typescript": "^2.1.6",
+    "sqlite3": "^5.1.7",
+    "umzug": "^3.8.2"
   }
 }
