@@ -25,22 +25,4 @@ export class MqttBambuConnection {
     async connect() {
         await this.client.connect();
     }
-
-
-    getVersion() {
-        // send command info.get_version and wait for response
-        return this.client.executeCommand(new GetVersionCommand());
-    }
-
-    async stopPrint() {
-        return this.client.executeCommand(new StopPrintCommand());
-    }
-
-    async pausePrint() {
-        return this.client.executeCommand(new PausePrintCommand());
-    }
-
-    async resumePrint() {
-        return this.client.executeCommand(new ResumePrintCommand());
-    }
 }

@@ -25,7 +25,7 @@ const jwtOptions = {
 
 passport.use(new JwtStrategy(jwtOptions, async (payload: JwtPayload, done: VerifiedCallback) => {
     try {
-        const user = await User.findById(payload.id);
+        const user = await User.findByPk(payload.id);
         if (user) {
             return done(null, user);
         }
