@@ -1,6 +1,6 @@
 {
   "name": "@printweave/cli",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "bin/cli.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0"
@@ -32,7 +32,7 @@
   "homepage": "https://github.com/PrintWeave/PrintWeave#readme",
   "description": "",
   "dependencies": {
-    "@printweave/api": "^0.0.3",
+    "@printweave/api": "^0.0.4",
     "commander": "^13.1.0",
     "concurrently": "^9.1.2",
     "shelljs": "^0.8.4"
