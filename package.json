@@ -8,10 +8,7 @@
     "start": "concurrently -n server -c magenta,blue \"npm run server:start\"",
     "build": "concurrently -n server -c magenta,blue \"npm run server:build\"",
     "configure": "cd packages/printweave-api && npm run configure",
-    "test": "echo \"Error: no test specified\"",
-    "sync:readme": "node scripts/sync-readme.js",
-    "preversion": "npm run sync:readme",
-    "prepublishOnly": "npm run sync:readme"
+    "test": "echo \"Error: no test specified\""
   },
   "author": "MMathijs",
   "repository": "https://github.com/PrintWeave/PrintWeave",
