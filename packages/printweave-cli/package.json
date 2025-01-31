@@ -1,0 +1,40 @@
+{
+  "name": "@printweave/cli",
+  "version": "0.0.2",
+  "main": "bin/cli.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PrintWeave/PrintWeave.git"
+  },
+  "bin": {
+    "printweave": "bin/cli.mjs"
+  },
+  "keywords": [
+    "bambulab",
+    "3dprinting",
+    "cli"
+  ],
+  "author": {
+    "name": "MMathijs",
+    "email": "printweave@mmathijs.nl",
+    "url": "https://mmathijs.nl"
+  },
+  "sponsor": {
+    "url": "https://github.com/sponsors/printweave"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PrintWeave/PrintWeave/issues"
+  },
+  "homepage": "https://github.com/PrintWeave/PrintWeave#readme",
+  "description": "",
+  "dependencies": {
+    "@printweave/api": "^0.0.2",
+    "commander": "^13.1.0",
+    "concurrently": "^9.1.2",
+    "shelljs": "^0.8.4"
+  }
+}

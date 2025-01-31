@@ -1,38 +1,30 @@
 {
   "name": "printweave",
-  "version": "0.0.11",
   "scripts": {
-    "server:dev": "cd printweave-api && npm run dev",
-    "server:start": "cd printweave-api && npm start",
-    "server:build": "cd printweave-api && npm run build",
+    "server:dev": "cd packages/printweave-api && npm run dev",
+    "server:start": "cd packages/printweave-api && npm start",
+    "server:build": "cd packages/printweave-api && npm run build",
     "dev": "concurrently -n server -c magenta,blue \"npm run server:dev\"",
     "start": "concurrently -n server -c magenta,blue \"npm run server:start\"",
     "build": "concurrently -n server -c magenta,blue \"npm run server:build\"",
-    "configure": "cd printweave-api && npm run configure",
+    "configure": "cd packages/printweave-api && npm run configure",
     "test": "echo \"Error: no test specified\""
   },
   "author": "MMathijs",
   "repository": "https://github.com/PrintWeave/PrintWeave",
   "homepage": "https://github.com/PrintWeave/PrintWeave#readme",
-  "bin": {
-    "printweave": "./bin/cli.mjs"
-  },
   "bugs": {
     "url": "https://github.com/PrintWeave/PrintWeave/issues"
   },
   "workspaces": [
-    "printweave-api"
+    "packages/*"
   ],
   "license": "MIT",
-  "prepublish": "npm run build",
   "dependencies": {
-    "commander": "^13.1.0",
-    "concurrently": "^9.1.2",
-    "shelljs": "^0.8.5"
+    "concurrently": "^9.1.2"
   },
-  "files": [
-    "bin",
-    "printweave-api/dist",
-    "printweave-api/package.json"
-  ]
+  "devDependencies": {
+    "fs-extra": "^11.3.0",
+    "lerna": "^8.1.9"
+  }
 }

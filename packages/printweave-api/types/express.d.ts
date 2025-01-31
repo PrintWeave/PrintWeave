@@ -1,4 +1,4 @@
-import {User as OwnUser} from "../src/models/user.model.js";
+import {User as OwnUser} from "../src/models/user.model.ts";
 
 declare global {
     namespace Express {

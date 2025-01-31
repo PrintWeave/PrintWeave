@@ -1,7 +1,8 @@
 {
-  "name": "server",
-  "main": "src/app.ts",
+  "name": "@printweave/api",
+  "main": "dist/app.js",
   "type": "module",
+  "version": "0.0.2",
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/app.js",
@@ -44,6 +45,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "reflect-metadata": "^0.1.14",
     "sequelize": "^6.37.5",
     "sequelize-typescript": "^2.1.6",
     "sqlite3": "^5.1.7",

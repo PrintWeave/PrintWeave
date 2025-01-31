@@ -14,6 +14,7 @@ All the features that are planned for the project are listed below. The features
 - [x] Create users and authentication - v0.0.1
 - [x] Add Bambu Lab printer support - v0.0.1
 - [x] Create a basic API to interact with the printer (pause, resume, stop) - v0.0.1
+- [ ] Correct setup monorepo using lerna - v0.0.1
 - [ ] Add MQTT command support - v0.1.0
 - [ ] Add MQTT websockets support - v0.1.0
 - [ ] Create a basic API to interact with the printer (status) - v0.1.0
@@ -45,7 +46,7 @@ All the features that are planned for the project are listed below. The features
 
 1. Download the latest release via NPM:
    ```bash
-   npm install -g printweave
+   npm install -g @printweave/cli
    ```
    
 2. Configure the PrintWeave software: (TODO: implement this, for now use .env file and use `printweave migrate`)
