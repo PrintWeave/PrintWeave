@@ -1,6 +1,6 @@
 {
   "name": "printweave",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "scripts": {
     "server:dev": "cd printweave-api && npm run dev",
     "server:start": "cd printweave-api && npm start",
