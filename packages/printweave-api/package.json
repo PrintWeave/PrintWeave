@@ -2,7 +2,7 @@
   "name": "@printweave/api",
   "main": "src/app.ts",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/app.js",
