@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "@printweave/api",
   "main": "src/app.ts",
   "type": "module",
   "version": "0.0.1",
