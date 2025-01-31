@@ -85,8 +85,23 @@ jobs:
           if command -v lerna-changelog &> /dev/null; then
             CHANGELOG=$(lerna-changelog)
           else
-            # Default changelog from git log
-            CHANGELOG=$(git log --pretty=format:"* %s (%h)" "v$(echo $VERSION | sed 's/\..*/.x/')..."HEAD)
+            # Find the most recent tag
+            LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            
+            if [ -n "$LATEST_TAG" ]; then
+              # If we found a tag, get changes since that tag
+              echo "Getting changes since $LATEST_TAG"
+              CHANGELOG=$(git log --pretty=format:"* %s (%h)" "$LATEST_TAG..HEAD")
+            else
+              # If no tags exist, get the entire history
+              echo "No previous tags found, getting all changes"
+              CHANGELOG=$(git log --pretty=format:"* %s (%h)")
+            fi
+          fi
+          
+          # If changelog is empty, provide a default message
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="* Initial release"
           fi
           
           gh release create "v$VERSION" \
