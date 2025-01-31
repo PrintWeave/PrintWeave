@@ -34,7 +34,6 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@ariga/ts-atlas-provider-sequelize": "^0.1.6",
     "bambu-node": "^3.22.21",
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.7",
