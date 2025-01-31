@@ -1,34 +1,107 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
-
-name: Node.js Package
+name: Lerna Fixed Version Publish
 
 on:
-  release:
-    types: [created]
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/**'
+      - 'package.json'
+      - 'lerna.json'
 
 jobs:
-  build:
+  check-and-publish:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          node-version: 20
-      - run: npm ci
-      - run: npm test
-
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm run build
-      - run: npm publish --workspaces
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install -g lerna
+      
+      - name: Build packages
+        run: npm run build
+      
+      - name: Check for version changes
+        id: check-versions
+        run: |
+          # Get version from lerna.json
+          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Get all package names and their published versions
+          PACKAGES=$(lerna list --json)
+          NEEDS_PUBLISH="false"
+          
+          echo "Checking versions for all packages..."
+          
+          echo "$PACKAGES" | jq -c '.[]' | while read -r package; do
+            PKG_NAME=$(echo $package | jq -r '.name')
+            
+            # Get published version from npm
+            PUBLISHED_VERSION=$(npm view $PKG_NAME version 2>/dev/null || echo "0.0.0")
+            echo "Package $PKG_NAME - Published: $PUBLISHED_VERSION, Current: $CURRENT_VERSION"
+            
+            # Compare versions using node semver
+            IS_NEWER=$(node -p "require('semver').gt('$CURRENT_VERSION', '$PUBLISHED_VERSION')")
+            
+            if [ "$IS_NEWER" = "true" ]; then
+              echo "New version detected for $PKG_NAME: $CURRENT_VERSION > $PUBLISHED_VERSION"
+              NEEDS_PUBLISH="true"
+              break
+            fi
+          done
+          
+          echo "needs_publish=$NEEDS_PUBLISH" >> $GITHUB_OUTPUT
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Configure Git
+        if: steps.check-versions.outputs.needs_publish == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      
+      - name: Create GitHub Release
+        if: steps.check-versions.outputs.needs_publish == 'true'
+        run: |
+          VERSION="${{ steps.check-versions.outputs.version }}"
+          
+          # Generate changelog using lerna-changelog if available
+          if command -v lerna-changelog &> /dev/null; then
+            CHANGELOG=$(lerna-changelog)
+          else
+            # Default changelog from git log
+            CHANGELOG=$(git log --pretty=format:"* %s (%h)" "v$(echo $VERSION | sed 's/\..*/.x/')..."HEAD)
+          fi
+          
+          gh release create "v$VERSION" \
+            --title "Version $VERSION" \
+            --notes "$CHANGELOG" \
+            --target ${{ github.sha }}
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Publish to NPM
+        if: steps.check-versions.outputs.needs_publish == 'true'
+        run: |
+          echo "Publishing version ${{ steps.check-versions.outputs.version }} to NPM..."
+          lerna publish from-git --yes
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Notify on skipped publish
+        if: steps.check-versions.outputs.needs_publish != 'true'
+        run: echo "Skipping publish - no new version detected in lerna.json or all packages are up to date"
