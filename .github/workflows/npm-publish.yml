@@ -42,13 +42,11 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./lerna.json').version")
           echo "Current version: $CURRENT_VERSION"
           
-          # Get all package names and their published versions
-          PACKAGES=$(lerna list --json)
-          NEEDS_PUBLISH="false"
+          # Create a temporary file to store the result
+          echo "false" > needs_publish.txt
           
-          echo "Checking versions for all packages..."
-          
-          echo "$PACKAGES" | jq -c '.[]' | while read -r package; do
+          # Get all package names and check their versions
+          while IFS= read -r package; do
             PKG_NAME=$(echo $package | jq -r '.name')
             
             # Get published version from npm
@@ -60,10 +58,14 @@ jobs:
             
             if [ "$IS_NEWER" = "true" ]; then
               echo "New version detected for $PKG_NAME: $CURRENT_VERSION > $PUBLISHED_VERSION"
-              NEEDS_PUBLISH="true"
+              echo "true" > needs_publish.txt
               break
             fi
-          done
+          done < <(lerna list --json | jq -c '.[]')
+          
+          # Read the result from the temporary file
+          NEEDS_PUBLISH=$(cat needs_publish.txt)
+          rm needs_publish.txt
           
           echo "needs_publish=$NEEDS_PUBLISH" >> $GITHUB_OUTPUT
           echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
