@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Umzug, SequelizeStorage } from 'umzug';
 import db from './config/database.config.js';
+import path from 'path';
 
 db.authenticate()
 
@@ -10,6 +11,9 @@ const umzug = new Umzug({
     storage: new SequelizeStorage({ sequelize: db }),
     logger: console,
 });
+
+
+console.log('Current working directory:', process.cwd());
 
 export { umzug };
 

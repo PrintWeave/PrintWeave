@@ -9,7 +9,9 @@
     "type": "git",
     "url": "git+https://github.com/PrintWeave/PrintWeave.git"
   },
-  "bin": "bin/cli.mjs",
+  "bin": {
+    "printweave": "bin/cli.mjs"
+  },
   "keywords": [
     "bambulab",
     "3dprinting",
