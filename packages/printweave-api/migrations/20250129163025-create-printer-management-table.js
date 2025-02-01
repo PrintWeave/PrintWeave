@@ -164,15 +164,10 @@ export async function up({context: queryInterface}) {
   });
 }
 
-export async function down(queryInterface) {
+export async function down({context: queryInterface}) {
   // Drop tables in reverse order to handle foreign key constraints
   await queryInterface.dropTable('user_printers');
   await queryInterface.dropTable('bambu_printers');
   await queryInterface.dropTable('printers');
   await queryInterface.dropTable('users');
-
-  // Remove ENUMs
-  await queryInterface.sequelize.query('DROP TYPE IF EXISTS enum_users_role;');
-  await queryInterface.sequelize.query('DROP TYPE IF EXISTS enum_printers_type;');
-  await queryInterface.sequelize.query('DROP TYPE IF EXISTS enum_user_printers_permission;');
 }

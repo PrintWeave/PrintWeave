@@ -12,9 +12,6 @@ const umzug = new Umzug({
     logger: console,
 });
 
-
-console.log('Current working directory:', process.cwd());
-
 export { umzug };
 
 // Run migrations
