@@ -1,6 +1,12 @@
 
 # PrintWeave
 
+## Installation Instructions Below
+
+Before diving into installation, please take a moment to review the project overview, roadmap, and planned features. The installation guide can be found further down in this document, [here](#installation).
+
+## Project Overview
+
 **Disclaimer**: PrintWeave is in the early stages of development and is not yet fully functional. Many features are still under construction, and the software may not work as expected. Please use it with caution and keep in mind that it's still a work in progress.
 
 **PrintWeave** **WILL BE** an open-source tool that acts as a bridge between your 3D printer and the internet, making it easier to manage and monitor your 3D prints remotely. Whether you're at home, in the office, or on the go, PrintWeave offers a secure, customizable, and efficient way to keep track of your prints and control your printer from anywhere.
