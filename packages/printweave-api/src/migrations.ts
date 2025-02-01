@@ -12,9 +12,6 @@ const umzug = new Umzug({
     logger: console,
 });
 
-
-console.log('Current working directory:', process.cwd());
-
 export { umzug };
 
 // Run migrations
@@ -42,4 +39,12 @@ export async function rollback() {
     finally {
         await db.close();
     }
+}
+
+if (process.argv.includes('rollback')) {
+    rollback();
+}
+
+if (process.argv.includes('migrate')) {
+    migrate();
 }
