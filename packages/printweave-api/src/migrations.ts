@@ -40,11 +40,3 @@ export async function rollback() {
         await db.close();
     }
 }
-
-if (process.argv.includes('rollback')) {
-    rollback();
-}
-
-if (process.argv.includes('migrate')) {
-    migrate();
-}

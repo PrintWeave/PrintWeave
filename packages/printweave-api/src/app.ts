@@ -25,6 +25,8 @@ authRoutes(app);
 app.use('/api', apiRoutes());
 
 (async () => {
+    console.log('Current working directory:', process.cwd());
+    
     await db.authenticate();
     
     console.log('Database connected');  
