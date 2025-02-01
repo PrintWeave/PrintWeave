@@ -2,6 +2,9 @@
   "version": "0.0.16",
   "npmClient": "npm",
   "command": {
+    "version": {
+      "conventionalCommits": true
+    },
     "publish": {
       "conventionalCommits": true,
       "yes": true
