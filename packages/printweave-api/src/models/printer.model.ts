@@ -1,5 +1,5 @@
-import { Table, Column, Model, DataType, HasOne } from 'sequelize-typescript';
-import { BasePrinter } from './printers/base.printer.model.js';
+import { Table, Column, Model, DataType, HasOne, ForeignKey } from 'sequelize-typescript';
+import { BasePrinter } from './printers/base.printer.js';
 import BambuPrinter from './printers/bambu.printer.model.js';
 
 @Table({

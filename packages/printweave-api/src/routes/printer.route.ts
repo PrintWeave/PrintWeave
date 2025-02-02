@@ -1,6 +1,7 @@
 import {Router} from "express";
 import {UserPrinter} from "../models/userprinter.model.js";
 import {Printer} from "../models/printer.model.js";
+import { bambuPrinterRoutes } from "./printer/bambu.printer.route.js";
 
 export function printerRoutes(printerId: number): Router {
     const router = Router();
@@ -100,6 +101,16 @@ export function printerRoutes(printerId: number): Router {
         const result = await printer.getPrinter().then(printer => printer?.resumePrint());
 
         res.json({user, printer, result});
+    });
+
+    router.use('/bambu', async (req, res, next) => {
+        const printer = await  Printer.findByPk(printerId);
+        if (printer?.type !== 'bambu') {
+            res.status(404).json({message: 'Not Found'});
+            return;
+        }
+
+        bambuPrinterRoutes(printerId, printer)(req, res, next);
     });
 
     return router;
