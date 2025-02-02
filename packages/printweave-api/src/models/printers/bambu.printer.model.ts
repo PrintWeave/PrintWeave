@@ -67,7 +67,7 @@ export class BambuPrinter extends BasePrinter {
         return 'unknown';
     }
 
-    private async getConnection(): Promise<PrinterConnectionsBambu> {
+    public async getConnection(): Promise<PrinterConnectionsBambu> {
         const connection = await ConnectionManager.getConnectionManager().getConnection(this.printerId);
         if (!connection) {
             throw new Error('Printer connection not found');
