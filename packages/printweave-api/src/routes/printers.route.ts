@@ -1,7 +1,7 @@
 import {Request, Response, Router} from "express";
 import {User} from "../models/user.model.js";
 import {Printer} from "../models/printer.model.js";
-import {BasePrinter} from "../models/printers/base.printer.model.js";
+import {BasePrinter} from "../models/printers/base.printer.js";
 import {BambuPrinter} from "../models/printers/bambu.printer.model.js";
 import {Optional} from "sequelize";
 import {UserPrinter} from "../models/userprinter.model.js";
