@@ -1,5 +1,5 @@
 import { Table, Column, DataType } from 'sequelize-typescript';
-import { BasePrinter } from './base.printer.model.js';
+import { BasePrinter } from './base.printer.js';
 import { ConnectionManager, PrinterConnectionsBambu } from '../../connections/manager.connection.js';
 import { GetVersionCommand, GetVersionResponse, PrintMessage, PrintMessageCommand } from 'bambu-node';
 import { OwnPrintMessageCommand } from '../../connections/bambu/mqtt/OwnBambuClient.js';

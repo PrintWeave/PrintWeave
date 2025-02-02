@@ -4,7 +4,7 @@ import Printer from "../../models/printer.model.js";
 import BambuPrinter from "../../models/printers/bambu.printer.model.js";
 import { ConnectionManager } from "../../connections/manager.connection.js";
 
-export function bambuPrinterRoutes(printerId: number): Router {
+export function bambuPrinterRoutes(printerId: number, printer: Printer): Router {
     const router = Router();
 
     router.post('/mqtt', async (req, res) => {
@@ -22,7 +22,6 @@ export function bambuPrinterRoutes(printerId: number): Router {
             return;
         }
 
-        const printer = await Printer.findByPk(printerId);
         const bambuPrinter = await printer.getPrinter();
 
         if (!bambuPrinter || !(bambuPrinter instanceof BambuPrinter)) {
