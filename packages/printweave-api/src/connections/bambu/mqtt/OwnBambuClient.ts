@@ -72,4 +72,8 @@ export class OwnBambuClient extends BambuClient {
             });
         }
     }
+
+    public async sendJSONMessage(message: any) {
+
+    }
 }
