@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.1.0-beta.0](https://github.com/PrintWeave/PrintWeave/compare/v0.0.22...v0.1.0-beta.0) (2025-02-03)
+
+### Bug Fixes
+
+* **api:** Remove es2022.full tsconfig.json ([66e343b](https://github.com/PrintWeave/PrintWeave/commit/66e343bf655c6f47205357dda4aa1f69c3bf098e)) (@mmathijs)
+
+### Features
+
+* **api:** Added MQTT websockets ([f2f23ba](https://github.com/PrintWeave/PrintWeave/commit/f2f23ba02218958bef123edd28a4db04cc18539f)) (@mmathijs)
+
 ## [0.0.22](https://github.com/PrintWeave/PrintWeave/compare/v0.0.21...v0.0.22) (2025-02-03)
 
 **Note:** Version bump only for package @printweave/api
