@@ -12,19 +12,19 @@ export class Printer extends Model {
     unique: true,
     allowNull: false
   })
-  name: string;
+  declare name: string;
 
   @Column({
     type: DataType.ENUM('bambu', 'other'),
     allowNull: false
   })
-  type: 'bambu' | 'other';
+  declare type: 'bambu' | 'other';
 
   @Column({
     type: DataType.BOOLEAN,
     defaultValue: true
   })
-  active: boolean;
+  declare active: boolean;
 
   @HasOne(() => BambuPrinter)
   bambuPrinter: BambuPrinter;

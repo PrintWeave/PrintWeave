@@ -17,7 +17,7 @@ export function printersRoutes(): Router {
             return
         }
 
-        let printers = await user.getPrinters();
+        let printers = await user.$get('printers');
 
         res.json({user: user, printers: printers});
     });
@@ -38,22 +38,23 @@ export function printersRoutes(): Router {
 
         if (await Printer.findOne({where: {name}})) {
             res.status(400).json({message: 'Name must be unique'});
+            return
         }
 
         let fullPrinter: BasePrinter = null;
 
         switch (type) {
             case 'bambu':
-                const {ip, code, amsVersion}: { ip: string, code: string, amsVersion: string } = req.body.bambu;
-                if (!ip || !code || !amsVersion) {
-                    res.status(400).json({message: 'IP, code, amsVersion are required'});
+                const {ip, code, serial}: { ip: string, code: string, serial: string } = req.body.bambu;
+                if (!ip || !code || !serial) {
+                    res.status(400).json({message: 'IP, code, serial are required'});
                     return
                 }
-                fullPrinter = await BambuPrinter.create({
+                fullPrinter = BambuPrinter.build({
                     type: type,
                     ip: ip,
                     code: code,
-                    amsVersion: amsVersion,
+                    serial: serial
                 })
                 break;
             default:
@@ -67,7 +68,7 @@ export function printersRoutes(): Router {
         });
 
 
-        fullPrinter.printerId = printer.id;
+        fullPrinter.dataValues.printerId = printer.id;
         await fullPrinter.save();
 
         await user.$add('printer', printer, {
