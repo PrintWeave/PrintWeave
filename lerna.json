@@ -6,8 +6,10 @@
       "conventionalCommits": true,
       "message": "chore(release): publish %s",
       "changelogIncludeCommitsClientLogin": true,
+      "generateReleaseNotes": true,
       "allowBranch": [
-        "main"
+        "main",
+        "beta"
       ],
       "remoteClient": "github"
     },
