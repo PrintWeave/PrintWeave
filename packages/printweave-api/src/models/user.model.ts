@@ -1,6 +1,6 @@
-import { Table, Column, Model, DataType, BelongsToMany, BeforeCreate, BeforeUpdate } from 'sequelize-typescript';
-import { Printer } from './printer.model.js';
-import { UserPrinter } from './userprinter.model.js';
+import {Table, Column, Model, DataType, BelongsToMany, BeforeCreate, BeforeUpdate} from 'sequelize-typescript';
+import {Printer} from './printer.model.js';
+import {UserPrinter} from './userprinter.model.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -14,13 +14,13 @@ export class User extends Model {
         unique: true,
         allowNull: false
     })
-    username: string;
+    declare username: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false
     })
-    password: string;
+    declare password: string;
 
     @Column({
         type: DataType.STRING,
@@ -30,19 +30,19 @@ export class User extends Model {
             isEmail: true
         }
     })
-    email: string;
+    declare email: string;
 
     @Column({
         type: DataType.ENUM('user', 'admin'),
         defaultValue: 'user'
     })
-    role: 'user' | 'admin';
+    declare role: 'user' | 'admin';
 
     @Column({
         type: DataType.BOOLEAN,
         defaultValue: true
     })
-    active: boolean;
+    declare active: boolean;
 
     @BelongsToMany(() => Printer, () => UserPrinter)
     printers: Printer[];
@@ -51,31 +51,31 @@ export class User extends Model {
     @BeforeUpdate
     static async hashPassword(instance: User) {
         if (instance.changed('password')) {
-            const salt = await bcrypt.genSalt(10);
-            instance.password = await bcrypt.hash(instance.password, salt);
+            console.log('Hashing password');
+            instance.dataValues.password = await bcrypt.hash(instance.dataValues.password, 10);
         }
     }
 
     async validatePassword(password: string): Promise<boolean> {
-        return bcrypt.compare(password, this.password);
+        return bcrypt.compare(password, this.dataValues.password);
     }
 
     generateToken(): string {
         return jwt.sign(
-            { id: this.id, username: this.username, role: this.role },
+            {id: this.id, username: this.username, role: this.role},
             process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: '24h' }
+            {expiresIn: '24h'}
         );
     }
 
-    async getPrinters(options?: { permission?: 'view' | 'operate' | 'admin' }): Promise<Printer[]> {
-        return this.$get('printers', {
-            include: [{
-                model: UserPrinter,
-                where: options?.permission ? { permission: options.permission } : undefined
-            }]
-        });
-    }
+    /*    async getPrinters(options?: { permission?: 'view' | 'operate' | 'admin' }): Promise<Printer[]> {
+            return this.$get('printers', {
+                include: [{
+                    model: UserPrinter,
+                    where: options?.permission ? { permission: options.permission } : undefined
+                }]
+            });
+        }*/
 }
 
 export default User;

@@ -63,15 +63,15 @@ const authRoutes = (app: Application) => {
                 return
             }
 
-            const hash = await bcrypt.hash(password, 10);
-
-            await User.create({
+            const newUser = User.build({
                 username: username,
-                password: hash,
+                password: password,
                 email: email,
                 role: 'user',
                 active: true,
             });
+
+            await newUser.save();
 
             res.json({message: 'User created successfully'});
         } catch (error) {
@@ -100,7 +100,7 @@ const authRoutes = (app: Application) => {
                 return
             }
 
-            const isMatch = await bcrypt.compare(password, user.password);
+            const isMatch = await user.validatePassword(password);
 
             if (!isMatch) {
                 res.status(401).json({message: 'Authentication failed'});

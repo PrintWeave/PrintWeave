@@ -16,31 +16,26 @@ export class BambuPrinter extends BasePrinter {
         type: DataType.STRING,
         allowNull: false
     })
-    type: string;
+    declare type: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false
     })
-    ip: string;
+    declare ip: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false
     })
-    code: string;
+    declare code: string;
 
-    @Column({
-        type: DataType.STRING,
-        allowNull: true
-    })
-    amsVersion: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false
     })
-    serial: string;
+    declare serial: string;
 
     // Implement abstract methods
     async getVersion(): Promise<string> {
@@ -52,23 +47,23 @@ export class BambuPrinter extends BasePrinter {
     async stopPrint(): Promise<string> {
         const connection = await this.getConnection();
         await connection.mqtt.client.executeCommand(new StopPrintCommand, false);
-        return 'unknown';
+        return 'requested';
     }
 
     async pausePrint(): Promise<string> {
         const connection = await this.getConnection();
         await connection.mqtt.client.executeCommand(new PausePrintCommand, false);
-        return 'unknown';
+        return 'requested';
     }
 
     async resumePrint(): Promise<string> {
         const connection = await this.getConnection();
         await connection.mqtt.client.executeCommand(new ResumePrintCommand, false);
-        return 'unknown';
+        return 'requested';
     }
 
     public async getConnection(): Promise<PrinterConnectionsBambu> {
-        const connection = await ConnectionManager.getConnectionManager().getConnection(this.printerId);
+        const connection = await ConnectionManager.getConnectionManager().getConnection(this.dataValues.printerId);
         if (!connection) {
             throw new Error('Printer connection not found');
         }
