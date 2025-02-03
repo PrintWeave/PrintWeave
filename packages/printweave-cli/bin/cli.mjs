@@ -160,6 +160,17 @@ program
         console.log('Setting the API port');
         setEnvValue('PORT', port, envPath);
 
+        const {websocketPort} = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'websocketPort',
+                message: 'Enter the API websocket port',
+                default: env.WEBSOCKET_PORT || 3001
+            }]);
+
+        console.log('Setting the API websocket port');
+        setEnvValue('WEBSOCKET_PORT', websocketPort, envPath);
+
         const {username, password, email} = await inquirer.prompt([
             {
                 type: 'input',
@@ -228,10 +239,14 @@ function setEnvValue(key, value, path) {
         return line.match(new RegExp(key));
     }));
 
-    // replace the key/value with the new value
-    ENV_VARS.splice(target, 1, `${key}=${value}`);
+    if (target === -1) {
+        // if the key does not exist, add it to the end of the file
+        ENV_VARS.push(`${key}=${value}`);
+    } else {
+        // replace the key/value with the new value
+        ENV_VARS.splice(target, 1, `${key}=${value}`);
+    }
 
     // write everything back to the file system
     fs.writeFileSync(path, ENV_VARS.join(os.EOL));
-
 }
