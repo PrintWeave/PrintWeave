@@ -3,7 +3,13 @@
   "npmClient": "npm",
   "command": {
     "version": {
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "message": "chore(release): publish %s",
+      "changelogIncludeCommitsClientLogin": true,
+      "allowBranch": [
+        "main"
+      ],
+      "remoteClient": "github"
     },
     "publish": {
       "conventionalCommits": true,
