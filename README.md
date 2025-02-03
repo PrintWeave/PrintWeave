@@ -55,7 +55,7 @@ All the features that are planned for the project are listed below. The features
    npm install -g @printweave/cli
    ```
    
-2. Configure the PrintWeave software: (TODO: implement this, for now use .env file and use `printweave migrate`)
+2. Configure the PrintWeave software:
    ```bash
    printweave configure
    ```
