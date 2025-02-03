@@ -5,7 +5,6 @@ export class CustomMessageCommand extends AbstractCommand {
     public command: string;
 
     constructor(data: any) {
-        super();
 
         const allKeys = Object.keys(data);
         if (allKeys.length !== 1) {
@@ -18,6 +17,8 @@ export class CustomMessageCommand extends AbstractCommand {
             throw new Error('Invalid message');
         }
 
+        super(value);
+
         this.category = key as ("info" | "pushing" | "system" | "print");
         this.command = value.command;
 
@@ -25,12 +26,6 @@ export class CustomMessageCommand extends AbstractCommand {
             throw new Error('Invalid message');
         }
 
-        const keys = Object.keys(value);
-        for (const key of keys) {
-            if (key !== 'command') {
-                this[key] = value[key];
-            }
-        }
     }
 
     ownsResponse = (data: any): data is CustomMessageCommand => {
