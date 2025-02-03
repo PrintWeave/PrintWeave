@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.21](https://github.com/PrintWeave/PrintWeave/compare/v0.0.20...v0.0.21) (2025-02-03)
+
+### Bug Fixes
+
+* **publish:** Add NODE_AUTH_TOKEN ([976090d](https://github.com/PrintWeave/PrintWeave/commit/976090d7e34974d0eb4701def7b071a0abcf1295)) (@mmathijs)
+
 ## [0.0.20](https://github.com/PrintWeave/PrintWeave/compare/v0.0.19...v0.0.20) (2025-02-03)
 
 ### Bug Fixes
