@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.22](https://github.com/PrintWeave/PrintWeave/compare/v0.0.21...v0.0.22) (2025-02-03)
+
+### Bug Fixes
+
+* **cli:** Fix Overriding .env file ([1b22b88](https://github.com/PrintWeave/PrintWeave/commit/1b22b88a13194b83c1733ddba5e7fff6c69b407b)) (@mmathijs)
+
 ## [0.0.21](https://github.com/PrintWeave/PrintWeave/compare/v0.0.20...v0.0.21) (2025-02-03)
 
 **Note:** Version bump only for package @printweave/cli
