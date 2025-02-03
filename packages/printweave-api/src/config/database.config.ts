@@ -10,7 +10,7 @@ import UserPrinter from "../models/userprinter.model.js";
 const db = new Sequelize({
     dialect: "sqlite",
     storage: path.resolve(process.cwd(), "printweave.sqlite"),
-    logging: console.log,
+    logging: false,
     models: [User, Printer, BambuPrinter, UserPrinter]
 });
 
