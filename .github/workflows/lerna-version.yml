@@ -56,3 +56,5 @@ jobs:
         run: |
           # Publish packages to npm
           lerna publish from-git
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
