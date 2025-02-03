@@ -13,6 +13,13 @@ on:
           - 'premajor'
           - 'preminor'
           - 'prepatch'
+      preid:
+        description: 'Prerelease identifier'
+        required: false
+        options:
+          - 'alpha'
+          - 'beta'
+          - 'rc'
 
 permissions:
   contents: write
@@ -26,7 +33,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
@@ -46,12 +52,22 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Update version
+      - name: Update version, no --preid
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.event.inputs.preid == '' }}
         run: |
           # Update version in lerna.json
           lerna version ${{ github.event.inputs.version }} --create-release github --yes
+      - name: Update version, with --preid
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: ${{ github.event.inputs.preid != '' }}
+        run: |
+          # Update version in lerna.json
+          lerna version ${{ github.event.inputs.version }} --preid ${{ github.event.inputs.preid }} --create-release github --yes
+        
+
       - name: Publish packages
         run: |
           # Publish packages to npm
