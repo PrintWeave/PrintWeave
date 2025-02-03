@@ -14,7 +14,7 @@ interface JwtPayload {
 }
 
 // Configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secure_secret_key';
+const JWT_SECRET = process.env.SECRET_KEY || 'your_secure_secret_key';
 
 // JWT Strategy Configuration
 const jwtOptions = {
