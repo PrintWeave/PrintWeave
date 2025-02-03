@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.1.0](https://github.com/PrintWeave/PrintWeave/compare/v0.1.0-beta.1...v0.1.0) (2025-02-03)
+
+### Bug Fixes
+
+* **api:** Fix CustomMessageCommand.ts Now Working ([dda1422](https://github.com/PrintWeave/PrintWeave/commit/dda142214c73ec3868e66f8facabad7846d34e3a)) (@mmathijs)
+
 # [0.1.0-beta.1](https://github.com/PrintWeave/PrintWeave/compare/v0.1.0-beta.0...v0.1.0-beta.1) (2025-02-03)
 
 ### Bug Fixes

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.1.0](https://github.com/PrintWeave/PrintWeave/compare/v0.1.0-beta.1...v0.1.0) (2025-02-03)
+
+### Bug Fixes
+
+* **api:** Fix CustomMessageCommand.ts Now Working ([dda1422](https://github.com/PrintWeave/PrintWeave/commit/dda142214c73ec3868e66f8facabad7846d34e3a)) (@mmathijs)
+* **publish:** Improve Publish Workflow ([c0b80c2](https://github.com/PrintWeave/PrintWeave/commit/c0b80c2be063a3211596575fcebe64f2ba3a3f2c)) (@mmathijs)
+* **publish:** Rollback version to 0.1.0-beta-1 in package-lock.json ([5928c6a](https://github.com/PrintWeave/PrintWeave/commit/5928c6a625e771ae6f6b03a275a5a74db111c20c)) (@mmathijs)
+
 # [0.1.0-beta.1](https://github.com/PrintWeave/PrintWeave/compare/v0.1.0-beta.0...v0.1.0-beta.1) (2025-02-03)
 
 ### Bug Fixes
