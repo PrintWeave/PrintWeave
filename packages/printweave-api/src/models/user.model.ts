@@ -67,15 +67,6 @@ export class User extends Model {
             {expiresIn: '24h'}
         );
     }
-
-    /*    async getPrinters(options?: { permission?: 'view' | 'operate' | 'admin' }): Promise<Printer[]> {
-            return this.$get('printers', {
-                include: [{
-                    model: UserPrinter,
-                    where: options?.permission ? { permission: options.permission } : undefined
-                }]
-            });
-        }*/
 }
 
 export default User;

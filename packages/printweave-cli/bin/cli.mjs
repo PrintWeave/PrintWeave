@@ -1,95 +1,237 @@
 #!/usr/bin/env node
-import shell from 'shelljs';
+import shell, {env} from 'shelljs';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { Command } from 'commander';
+import {fileURLToPath} from 'url';
+import {Command} from 'commander';
 import concurrently from 'concurrently';
-import { createRequire } from 'module';
+import {createRequire} from 'module';
 import url from 'url';
+
 const require = createRequire(import.meta.url);
 const program = new Command();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import { getPathPackage } from './paths.js';
+import {getPathPackage} from './paths.js';
+import inquirer from 'inquirer';
+import User from "@printweave/api/dist/models/user.model.js";
+import dotenv from 'dotenv';
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as crypto from "node:crypto";
 
 program
-  .version(require('../package.json').version)
-  .description('PrintWeave CLI');
+    .version(require('../package.json').version)
+    .description('PrintWeave CLI');
 
 program
-  .command('start')
-  .description('Start the frontend and API server')
-  .option('-m, --method <method>', 'Method to start the server, default is node, available methods: node, forever', 'node')
-  .action(async (options) => {
-    const method = options.method || 'node';
-    if (methodIsInstalled(method)) {
-      const apiPath = getPathPackage('@printweave/api');
-      const apiDir = path.resolve(path.dirname(apiPath), '..');
+    .command('start')
+    .description('Start the frontend and API server')
+    .option('-m, --method <method>', 'Method to start the server, default is node, available methods: node, forever', 'node')
+    .action(async (options) => {
+        const method = options.method || 'node';
+        if (methodIsInstalled(method)) {
+            const apiPath = getPathPackage('@printweave/api');
+            const apiDir = path.resolve(path.dirname(apiPath), '..');
 
-      const { result } = concurrently([
-        { command: "cd " + apiDir + " && " + launchByMethod(method, apiPath), name: 'api', prefixColor: 'magenta' },
-        { command: 'echo "Frontend server is not implemented yet"', name: 'frontend', prefixColor: 'blue' }
-      ]);
+            const {result} = concurrently([
+                {
+                    command: "cd " + apiDir + " && " + launchByMethod(method, apiPath),
+                    name: 'api',
+                    prefixColor: 'magenta'
+                },
+                {command: 'echo "Frontend server is not implemented yet"', name: 'frontend', prefixColor: 'blue'}
+            ]);
 
-      result.then(() => {
-        console.log('Exited with code 0');
-      }, () => {
-        console.log('Exited with code 1');
-      });
-    } else {
-      console.log(`Method ${method} is not installed`);
-    }
-  });
-
-program
-  .command('api')
-  .description('Start the API server')
-  .option('-m, --method <method>', 'Method to start the server, default is node, available methods: node, forever', 'node')
-  .action((options) => {
-    const method = options.method || 'node';
-    const apiPath = getPathPackage('@printweave/api');
-    const apiDir = path.resolve(path.dirname(apiPath), '..');
-
-    if (methodIsInstalled(method)) {
-      shell.cd(apiDir);
-      shell.exec(launchByMethod(method, apiPath));
-    } else {
-      console.log(`Method ${method} is not installed`);
-    }
-  });
+            result.then(() => {
+                console.log('Exited with code 0');
+            }, () => {
+                console.log('Exited with code 1');
+            });
+        } else {
+            console.log(`Method ${method} is not installed`);
+        }
+    });
 
 program
-  .command('migrate')
-  .option('-r, --rollback', 'Rollback the last migration', false)
-  .description('Run database migrations')
-  .action(async (options, sCommand) => {
-    const apiPath = getPathPackage('@printweave/api');
-    const apiDir = path.resolve(path.dirname(apiPath), '..');
+    .command('api')
+    .description('Start the API server')
+    .option('-m, --method <method>', 'Method to start the server, default is node, available methods: node, forever', 'node')
+    .action((options) => {
+        const method = options.method || 'node';
+        const apiPath = getPathPackage('@printweave/api');
+        const apiDir = path.resolve(path.dirname(apiPath), '..');
 
-    process.chdir(apiDir);
-    const migrations = await import("file://" + apiDir + '/dist/migrations.js');
-    
-    if (options.rollback) {
-      migrations.rollback();
-    } else {
-      migrations.migrate();
-    }
-  });
+        if (methodIsInstalled(method)) {
+            shell.cd(apiDir);
+            shell.exec(launchByMethod(method, apiPath));
+        } else {
+            console.log(`Method ${method} is not installed`);
+        }
+    });
+
+program
+    .command('migrate')
+    .option('-r, --rollback', 'Rollback the last migration', false)
+    .description('Run database migrations')
+    .action(async (options, sCommand) => {
+        const apiPath = getPathPackage('@printweave/api');
+        const apiDir = path.resolve(path.dirname(apiPath), '..');
+
+        process.chdir(apiDir);
+        const migrations = await import("file://" + apiDir + '/dist/migrations.js');
+
+        if (options.rollback) {
+            migrations.rollback();
+        } else {
+            migrations.migrate();
+        }
+    });
+
+program
+    .command('configure')
+    .description('Configure the PrintWeave API')
+    .action(async () => {
+        console.log('Let\'s configure the API');
+
+        const apiPath = getPathPackage('@printweave/api');
+        const apiDir = path.resolve(path.dirname(apiPath), '..');
+
+        process.chdir(apiDir);
+
+        const envPath = path.resolve(apiDir, '.env');
+
+        if (!fs.existsSync(envPath)) {
+            fs.writeFileSync(envPath, '');
+        }
+
+        const envContent = fs.readFileSync(envPath, 'utf8');
+
+        const env = dotenv.parse(envContent);
+
+        const hasSecretKey = env.SECRET_KEY !== undefined;
+
+        const {generateKey} = await inquirer.prompt([
+            {
+                type: 'confirm',
+                name: 'generateKey',
+                message: 'Do you want to generate a new secret key?' + (hasSecretKey ? ' (This will overwrite the existing key)' : ' (There is no secret key set)'),
+                default: !hasSecretKey
+            }]);
+
+        if (generateKey) {
+            const secretKey = crypto.randomBytes(64).toString('hex');
+            console.log('Setting the secret key');
+            setEnvValue('SECRET_KEY', secretKey, envPath);
+        }
+
+        const migrations = await import("file://" + apiDir + '/dist/migrations.js');
+        console.log('Checking for pending migrations');
+        if ((await migrations.umzug.pending()).length > 0) {
+            console.log('There are pending migrations, do you want to run them?');
+
+            const {runMigrations} = await inquirer.prompt([
+                {
+                    type: 'confirm',
+                    name: 'runMigrations',
+                    message: 'Are you sure you want to run the migrations?',
+                    default: true
+                }
+            ]);
+
+            if (runMigrations) {
+                await migrations.migrate();
+            } else {
+                console.log('Please run the migrations before configuring the API');
+                return;
+            }
+        } else {
+            console.log('There are no pending migrations');
+        }
+
+        const {port} = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'port',
+                message: 'Enter the API port',
+                default: env.PORT || 3000
+            }
+        ]);
+
+        console.log('Setting the API port');
+        setEnvValue('PORT', port, envPath);
+
+        const {username, password, email} = await inquirer.prompt([
+            {
+                type: 'input',
+                name: 'username',
+                message: 'Enter the admin username'
+            },
+            {
+                type: 'password',
+                name: 'password',
+                message: 'Enter the admin password'
+            },
+            {
+                type: 'input',
+                name: 'email',
+                message: 'Enter the admin email'
+            }
+        ]);
+
+        console.log('Creating the admin user');
+        const user = User.build({
+            username,
+            password,
+            email
+        });
+
+        try {
+            await user.save();
+        } catch (error) {
+            console.error('Error creating the admin user', error.message);
+            return;
+        }
+
+        console.log('Admin user created');
+
+        console.log('Configuration completed');
+
+        console.log('You can start the API server by running `printweave api`');
+        console.log('You can start the frontend and API by running `printweave start`');
+    });
 
 program.parse(process.argv);
 
 function methodIsInstalled(method) {
-  return shell.which(method);
+    return shell.which(method);
 }
 
 function launchByMethod(method, file) {
-  switch (method) {
-    case 'node':
-      return `node ${file}`;
-    case 'forever':
-      return `forever start ${file}`;
-    default:
-      console.log(`Method ${method} is not supported`);
-      return false;
-  }
+    switch (method) {
+        case 'node':
+            return `node ${file}`;
+        case 'forever':
+            return `forever start ${file}`;
+        default:
+            console.log(`Method ${method} is not supported`);
+            return false;
+    }
+}
+
+function setEnvValue(key, value, path) {
+
+    // read file from hdd & split if from a linebreak to a array
+    const ENV_VARS = fs.readFileSync(path, "utf8").split(os.EOL);
+
+    // find the env we want based on the key
+    const target = ENV_VARS.indexOf(ENV_VARS.find((line) => {
+        return line.match(new RegExp(key));
+    }));
+
+    // replace the key/value with the new value
+    ENV_VARS.splice(target, 1, `${key}=${value}`);
+
+    // write everything back to the file system
+    fs.writeFileSync(path, ENV_VARS.join(os.EOL));
+
 }
