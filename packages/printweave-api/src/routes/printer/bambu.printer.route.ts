@@ -3,6 +3,7 @@ import UserPrinter from "../../models/userprinter.model.js";
 import Printer from "../../models/printer.model.js";
 import BambuPrinter from "../../models/printers/bambu.printer.model.js";
 import { ConnectionManager } from "../../connections/manager.connection.js";
+import {CustomMessageCommand} from "../../connections/bambu/mqtt/CustomMessageCommand.js";
 
 export function bambuPrinterRoutes(printerId: number, printer: Printer): Router {
     const router = Router();
@@ -32,8 +33,8 @@ export function bambuPrinterRoutes(printerId: number, printer: Printer): Router 
         const ConnectionManager = await bambuPrinter.getConnection();
 
         try {
-            await ConnectionManager.mqtt.client.executeCommand(req.body, false);
-            res.json({ user, printer, result: "success" });
+            await ConnectionManager.mqtt.client.executeCommand(new CustomMessageCommand(req.body), false);
+            res.json({ user, printer, result: "requested" });
         } catch (e) {
             res.status(500).json({ user, printer, error: e.message });
         }
