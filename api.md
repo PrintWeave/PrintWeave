@@ -90,3 +90,32 @@ Content-Type: application/json
 ```
 
 TODO: Add more API endpoints
+
+
+## Websocket API
+
+### Authenticate
+Add the Authorization header with the JWT token to authenticate the user.
+
+```http request
+Authorization: Bearer <token>
+```
+
+
+### Subscribe to bambu printer's mqtt
+```json
+{
+    "message" : "subscribe",
+    "subscription_type": "bambu",
+    "printer_id": 1
+}
+```
+**Response**
+```json
+{
+    "message": "subscribed",
+    "printer_id": 1,
+    "subscription_type": "bambu"
+}
+
+```

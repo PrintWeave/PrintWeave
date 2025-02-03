@@ -110,6 +110,9 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": false,
     "declaration": true,
+    "lib": [
+      "dom"
+    ]
     /* Skip type checking all .d.ts files. */
   },
   "include": [
