@@ -26,9 +26,6 @@ export class Printer extends Model {
   })
   declare active: boolean;
 
-  @HasOne(() => BambuPrinter)
-  bambuPrinter: BambuPrinter;
-
   async getPrinter(): Promise<BasePrinter> {
     switch (this.type) {
       case 'bambu':

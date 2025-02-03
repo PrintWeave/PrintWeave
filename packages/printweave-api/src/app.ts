@@ -10,9 +10,9 @@ import {Printer} from "./models/printer.model.js";
 import { Umzug } from "umzug";
 import { umzug } from "./migrations.js";
 
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: './.env' });
 
-const port = envInt("SERVER_PORT", 3000);
+const port = envInt("PORT", 3000);
 const app = express();
 
 app.use(express.json());
@@ -26,10 +26,10 @@ app.use('/api', apiRoutes());
 
 (async () => {
     console.log('Current working directory:', process.cwd());
-    
+
     await db.authenticate();
-    
-    console.log('Database connected');  
+
+    console.log('Database connected');
 
     // Check if migrations are pending
     if ((await umzug.pending()).length > 0) {
