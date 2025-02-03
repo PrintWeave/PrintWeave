@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-beta.0](https://github.com/PrintWeave/PrintWeave/compare/v0.1.0-beta.0...v0.2.0-beta.0) (2025-02-03)
+
+### Bug Fixes
+
+* **api:** Send MQTT api messages via CustomMessageCommand ([bc7787a](https://github.com/PrintWeave/PrintWeave/commit/bc7787a2e6fd5bb2d0927d463960ed1e67f94af4)) (@mmathijs)
+
 # [0.1.0-beta.0](https://github.com/PrintWeave/PrintWeave/compare/v0.0.22...v0.1.0-beta.0) (2025-02-03)
 
 ### Bug Fixes
