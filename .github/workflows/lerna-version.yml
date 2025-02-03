@@ -3,20 +3,24 @@ on:
   workflow_dispatch:
     inputs:
       version:
+        type: choice
         description: 'Version to publish'
-        required: true
         default: 'patch'
         options:
+          - ''
           - 'major'
           - 'minor'
           - 'patch'
           - 'premajor'
           - 'preminor'
           - 'prepatch'
+          - 'prerelease'
       preid:
+        type: choice
         description: 'Prerelease identifier'
         required: false
         options:
+          - ''
           - 'alpha'
           - 'beta'
           - 'rc'
