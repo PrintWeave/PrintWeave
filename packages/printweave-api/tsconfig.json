@@ -111,7 +111,6 @@
     "skipLibCheck": false,
     "declaration": true,
     "lib": [
-      "es2022.full",
       "dom"
     ]
     /* Skip type checking all .d.ts files. */
