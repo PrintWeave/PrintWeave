@@ -6,15 +6,15 @@ import db from "./config/database.config.js";
 import dotenv from "dotenv";
 import {envInt} from "./environment.js";
 import {apiRoutes} from "./routes/api.route.js";
-import { WebSocketServer, WebSocket } from 'ws';
-import { umzug } from "./migrations.js";
+import {WebSocketServer, WebSocket} from 'ws';
+import {umzug} from "./migrations.js";
 import {WebsocketsManager} from "./websockets/manager.websockets.js";
 import User from "./models/user.model.js";
 import {createServer} from "node:http";
 
 const JWT_SECRET = process.env.SECRET_KEY || 'your_secure_secret_key';
 
-dotenv.config({ path: './.env' });
+dotenv.config({path: './.env'});
 
 const port = envInt("PORT", 3000);
 const app = express();

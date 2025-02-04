@@ -3,12 +3,13 @@ import {Printer} from './printer.model.js';
 import {UserPrinter} from './userprinter.model.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import {IUser} from "@printweave/api-types";
 
 @Table({
     tableName: 'users',
     timestamps: true
 })
-export class User extends Model {
+export class User extends Model implements IUser {
     @Column({
         type: DataType.STRING,
         unique: true,
