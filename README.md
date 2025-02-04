@@ -23,7 +23,7 @@ All the features that are planned for the project are listed below. The features
 - [x] Correct setup monorepo using lerna - v0.0.20
 - [x] Add MQTT command support - v0.1.0
 - [x] Add MQTT websockets support - v0.1.0
-- [ ] Create a basic API to interact with the printer (status) - v0.1.3
+- [x] Create a basic API to interact with the printer (status) - v0.1.3
 - [ ] Create a basic API to interact with the printer (upload file) - v0.2
 - [ ] Create a basic API to interact with the printer (list files) - v0.2.1
 - [ ] Add Simple Websockets - v0.3.0
