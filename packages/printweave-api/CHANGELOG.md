@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.2](https://github.com/PrintWeave/PrintWeave/compare/v0.1.1...v0.1.2) (2025-02-04)
+
+### Bug Fixes
+
+* **api:** Remove old Database ([76a8ab0](https://github.com/PrintWeave/PrintWeave/commit/76a8ab0bf2ad2538193f46e52b44a3c4c7792a99)) (@mmathijs)
+
 # [0.1.0](https://github.com/PrintWeave/PrintWeave/compare/v0.1.0-beta.1...v0.1.0) (2025-02-03)
 
 ### Bug Fixes
