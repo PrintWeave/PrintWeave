@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.1](https://github.com/PrintWeave/PrintWeave/compare/v0.1.0...v0.1.1) (2025-02-03)
+
+### Bug Fixes
+
+* **cli:** Fix Dependency @printweave/api ([6fc475f](https://github.com/PrintWeave/PrintWeave/commit/6fc475f170c423ffef43b33496958a1ee2976d3c)) (@mmathijs)
+
 # [0.1.0](https://github.com/PrintWeave/PrintWeave/compare/v0.1.0-beta.1...v0.1.0) (2025-02-03)
 
 ### Bug Fixes
