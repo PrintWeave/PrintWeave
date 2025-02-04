@@ -174,6 +174,11 @@ export function printerRoutes(printerId: number): Router {
         }
     });
 
+    /**
+     * Get printer status
+     * GET /api/printers/:printerId/status
+     * Response: {@link PrinterStatusResponse} | {@link PrinterStatusError}
+     */
     router.get('/status', async (req, res) => {
         const user = req.user;
         if (!user) {
