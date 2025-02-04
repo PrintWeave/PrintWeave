@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import {User} from '../models/user.model.js';
 import {envInt} from "../environment.js";
 import {Printer} from "../models/printer.model.js";
+import {SimpleUnauthorizedError, UnauthorizedError} from "@printweave/api-types";
 
 interface JwtPayload {
     id: string;
@@ -36,8 +37,20 @@ passport.use(new JwtStrategy(jwtOptions, async (payload: JwtPayload, done: Verif
 }));
 
 // Authentication Middleware
-const authMiddleware = passport.authenticate('jwt', {session: false});
-
+const authMiddleware = function (req, res, next) {
+    passport.authenticate('jwt', {session: false},
+        (err, user, info) => {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return res.status(401).json(new SimpleUnauthorizedError(401));
+            }
+            // Forward user information to the next middleware
+            req.user = user;
+            next();
+        })(req, res, next);
+};
 // Rate Limiter
 const loginLimiter = rateLimit({
     windowMs: envInt("SERVER_LOGIN_WINDOW", 15 * 60 * 1000),

@@ -4,7 +4,8 @@ import {Printer} from './printer.model.js';
 
 @Table({
     tableName: 'user_printers',
-    timestamps: true
+    timestamps: true,
+    modelName: 'userPrinter'
 })
 export class UserPrinter extends Model {
     @ForeignKey(() => User)

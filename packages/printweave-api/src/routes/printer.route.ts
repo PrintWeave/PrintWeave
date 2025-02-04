@@ -3,27 +3,38 @@ import {UserPrinter} from "../models/userprinter.model.js";
 import {Printer} from "../models/printer.model.js";
 import {bambuPrinterRoutes} from "./printer/bambu.printer.route.js";
 import User from "../models/user.model.js";
+import {
+    GetPrinterError,
+    GetPrinterResponse,
+    PrinterActionError,
+    PrinterActionResponse, SimpleUnauthorizedError,
+} from "@printweave/api-types";
 
 export function printerRoutes(printerId: number): Router {
     const router = Router();
 
+    /**
+     * Get printer by printerId
+     * GET /api/printers/:printerId
+     * Response: {@link GetPrinterResponse} | {@link GetPrinterError}
+     */
     router.get('/', async (req, res) => {
         const user = req.user;
         if (!user) {
-            res.status(401).json({message: 'Unauthorized'});
+            res.status(401).json(new SimpleUnauthorizedError(401));
             return;
         }
 
         // get the user's printers by printerId
         const printer = (await user.$get('printers')).find(printer => printer.id === printerId);
 
-        res.json({user, printer});
+        res.json({user, printer} as GetPrinterResponse);
     });
 
     router.get('/version', async (req, res) => {
         const user = req.user;
         if (!user) {
-            res.status(401).json({message: 'Unauthorized'});
+            res.status(401).json(new SimpleUnauthorizedError(401));
             return;
         }
 
@@ -37,7 +48,7 @@ export function printerRoutes(printerId: number): Router {
         });
 
         if (!userPrinter) {
-            res.status(403).json({message: 'Unauthorized'});
+            res.status(403).json(new SimpleUnauthorizedError(403));
             return;
         }
 
@@ -51,10 +62,15 @@ export function printerRoutes(printerId: number): Router {
         }
     });
 
+    /**
+     * Stop current print job
+     * POST /api/printers/:printerId/stop
+     * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
+     */
     router.post('/stop', async (req, res) => {
         const user = req.user;
         if (!user) {
-            res.status(401).json({message: 'Unauthorized'});
+            res.status(401).json(new SimpleUnauthorizedError(401));
             return;
         }
 
@@ -68,7 +84,7 @@ export function printerRoutes(printerId: number): Router {
         });
 
         if (!userPrinter) {
-            res.status(403).json({message: 'Unauthorized'});
+            res.status(403).json(new SimpleUnauthorizedError(403));
             return;
         }
 
@@ -79,14 +95,19 @@ export function printerRoutes(printerId: number): Router {
 
             res.json({user, printer, result});
         } catch (error) {
-            res.status(500).json({message: 'Error', error: error.message});
+            res.status(500).json({message: 'Error', error: error.message, code: 500} as PrinterActionError);
         }
     });
 
+    /**
+     * Pause current print job
+     * POST /api/printers/:printerId/pause
+     * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
+     */
     router.post('/pause', async (req, res) => {
         const user = req.user;
         if (!user) {
-            res.status(401).json({message: 'Unauthorized'});
+            res.status(401).json(new SimpleUnauthorizedError(401));
             return;
         }
 
@@ -100,7 +121,7 @@ export function printerRoutes(printerId: number): Router {
         });
 
         if (!userPrinter) {
-            res.status(403).json({message: 'Unauthorized'});
+            res.status(403).json(new SimpleUnauthorizedError(403));
             return;
         }
 
@@ -111,14 +132,19 @@ export function printerRoutes(printerId: number): Router {
 
             res.json({user, printer, result});
         } catch (error) {
-            res.status(500).json({message: 'Error', error: error.message});
+            res.status(500).json({message: 'Error', error: error.message, code: 500} as PrinterActionError);
         }
     });
 
+    /**
+     * Resume current print job
+     * POST /api/printers/:printerId/resume
+     * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
+     */
     router.post('/resume', async (req, res) => {
         const user: User | undefined = req.user
         if (!user) {
-            res.status(401).json({message: 'Unauthorized'});
+            res.status(401).json(new SimpleUnauthorizedError(401));
             return
         }
 
@@ -132,7 +158,7 @@ export function printerRoutes(printerId: number): Router {
         });
 
         if (!userPrinter) {
-            res.status(403).json({message: 'Unauthorized'});
+            res.status(403).json(new SimpleUnauthorizedError(403));
             return;
         }
 
@@ -141,9 +167,9 @@ export function printerRoutes(printerId: number): Router {
         try {
             const result = await printer.getPrinter().then(printer => printer?.resumePrint());
 
-            res.json({user, printer, result});
+            res.json({user, printer, result} as PrinterActionResponse);
         } catch (error) {
-            res.status(500).json({message: 'Error', error: error.message});
+            res.status(500).json({message: 'Error', error: error.message, code: 500} as PrinterActionError);
         }
     });
 

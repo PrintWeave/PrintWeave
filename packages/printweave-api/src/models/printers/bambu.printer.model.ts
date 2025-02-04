@@ -41,33 +41,74 @@ export class BambuPrinter extends BasePrinter {
     async getVersion(): Promise<string> {
         const connection = await this.getConnection();
         const response = await connection.mqtt.client.executeCommand(new GetVersionCommand);
+
+        // TODO: Respond with the version
+        throw new Error('Method not implemented.');
+
         return "";
     }
 
     async stopPrint(): Promise<string> {
-        const connection = await this.getConnection();
-        await connection.mqtt.client.executeCommand(new StopPrintCommand, false);
-        return 'requested';
+        try {
+            const connection = await this.getConnection();
+            await connection.mqtt.client.executeCommand(new StopPrintCommand, false);
+            return 'requested';
+        } catch (error) {
+            if (error instanceof PrinterTimeOutError) {
+                return 'timeout';
+            }
+        }
     }
 
     async pausePrint(): Promise<string> {
-        const connection = await this.getConnection();
-        await connection.mqtt.client.executeCommand(new PausePrintCommand, false);
-        return 'requested';
+        try {
+            const connection = await this.getConnection();
+            await connection.mqtt.client.executeCommand(new PausePrintCommand, false);
+            return 'requested';
+        } catch (error) {
+            if (error instanceof PrinterTimeOutError) {
+                return 'timeout';
+            } else {
+                throw error;
+            }
+        }
     }
 
     async resumePrint(): Promise<string> {
-        const connection = await this.getConnection();
-        await connection.mqtt.client.executeCommand(new ResumePrintCommand, false);
-        return 'requested';
+        try {
+            const connection = await this.getConnection();
+            await connection.mqtt.client.executeCommand(new ResumePrintCommand, false);
+            return 'requested';
+        } catch (error) {
+            if (error instanceof PrinterTimeOutError) {
+                return 'timeout';
+            } else {
+                throw error;
+            }
+        }
     }
 
     public async getConnection(): Promise<PrinterConnectionsBambu> {
-        const connection = await ConnectionManager.getConnectionManager().getConnection(this.dataValues.printerId);
-        if (!connection) {
-            throw new Error('Printer connection not found');
+        try {
+            const connection = await ConnectionManager.getConnectionManager().getConnection(this.dataValues.printerId);
+            if (!connection) {
+                throw new Error('Printer connection not found');
+            }
+            return connection as PrinterConnectionsBambu;
+        } catch (error) {
+            if (error.code === 'ETIMEDOUT') {
+                throw new PrinterTimeOutError(error);
+            } else {
+                throw error;
+            }
         }
-        return connection as PrinterConnectionsBambu;
+    }
+}
+
+export class PrinterTimeOutError extends Error {
+    constructor(error: Error) {
+        super(error.message);
+        this.name = 'PrinterTimeOutError';
     }
 }
 
