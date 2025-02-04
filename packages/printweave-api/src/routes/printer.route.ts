@@ -7,8 +7,9 @@ import {
     GetPrinterError,
     GetPrinterResponse,
     PrinterActionError,
-    PrinterActionResponse, SimpleUnauthorizedError,
+    PrinterActionResponse, PrinterStatusError, PrinterStatusResponse, SimpleUnauthorizedError,
 } from "@printweave/api-types";
+import {PrinterTimeOutError} from "../models/printers/bambu.printer.model.js";
 
 export function printerRoutes(printerId: number): Router {
     const router = Router();
@@ -170,6 +171,44 @@ export function printerRoutes(printerId: number): Router {
             res.json({user, printer, result} as PrinterActionResponse);
         } catch (error) {
             res.status(500).json({message: 'Error', error: error.message, code: 500} as PrinterActionError);
+        }
+    });
+
+    router.get('/status', async (req, res) => {
+        const user = req.user;
+        if (!user) {
+            res.status(401).json(new SimpleUnauthorizedError(401));
+            return;
+        }
+
+        // get the user's printers by printerId
+        const userPrinter = await UserPrinter.findOne({
+            where: {
+                userId: user.id,
+                printerId: printerId,
+                permission: ['admin', 'operate', 'view']
+            }
+        });
+
+        if (!userPrinter) {
+            res.status(403).json(new SimpleUnauthorizedError(403));
+            return;
+        }
+
+        const printer = await Printer.findByPk(printerId);
+
+        try {
+            const status = await printer.getPrinter().then(printer => printer?.getStatus());
+
+            res.json({user, printer, status} as PrinterStatusResponse);
+        } catch (error) {
+
+            if (error instanceof PrinterTimeOutError) {
+                res.status(408).json({message: 'timeout', code: 408} as PrinterStatusError);
+                return;
+            }
+
+            res.status(500).json({message: 'Error', error: error.message, code: 500} as PrinterStatusError);
         }
     });
 

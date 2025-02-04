@@ -1,11 +1,19 @@
-import { Table, Column, DataType } from 'sequelize-typescript';
-import { BasePrinter } from './base.printer.js';
-import { ConnectionManager, PrinterConnectionsBambu } from '../../connections/manager.connection.js';
-import { GetVersionCommand, GetVersionResponse, PrintMessage, PrintMessageCommand } from 'bambu-node';
-import { OwnPrintMessageCommand } from '../../connections/bambu/mqtt/OwnBambuClient.js';
-import { PausePrintCommand } from '../../connections/bambu/mqtt/PausePrintCommand.js';
-import { ResumePrintCommand } from '../../connections/bambu/mqtt/ResumePrintCommand.js';
-import { StopPrintCommand } from '../../connections/bambu/mqtt/StopPrintCommand.js';
+import {Table, Column, DataType} from 'sequelize-typescript';
+import {BasePrinter} from './base.printer.js';
+import {ConnectionManager, PrinterConnectionsBambu} from '../../connections/manager.connection.js';
+import {
+    GetVersionCommand,
+    GetVersionResponse,
+    PrintMessage,
+    PrintMessageCommand,
+    PushAllCommand,
+    PushAllResponse
+} from 'bambu-node';
+import {OwnPrintMessageCommand} from '../../connections/bambu/mqtt/OwnBambuClient.js';
+import {PausePrintCommand} from '../../connections/bambu/mqtt/PausePrintCommand.js';
+import {ResumePrintCommand} from '../../connections/bambu/mqtt/ResumePrintCommand.js';
+import {StopPrintCommand} from '../../connections/bambu/mqtt/StopPrintCommand.js';
+import {Light, PrinterStatus} from "@printweave/api-types";
 
 @Table({
     tableName: 'bambu_printers',
@@ -103,6 +111,51 @@ export class BambuPrinter extends BasePrinter {
             }
         }
     }
+
+    async getStatus(): Promise<PrinterStatus> {
+        let status: PrinterStatus = {
+            bedTargetTemp: 0,
+            bedTemp: 0,
+            fanSpeeds: [],
+            gcode_file: "",
+            nozzles: [],
+            progress: undefined,
+            status: undefined,
+            wifiSignal: '-0dBm',
+            lights: []
+        }
+
+        const connection = await this.getConnection();
+        const response = await connection.mqtt.client.executeCommand(new PushAllCommand()) as PushAllResponse;
+
+        status.bedTargetTemp = response.bed_target_temper;
+        status.bedTemp = response.bed_temper;
+        status.wifiSignal = response.wifi_signal;
+        status.fanSpeeds = [
+            {fan: 'chamber', speed: parseInt(response.big_fan2_speed)},
+            {fan: 'part', speed: parseInt(response.cooling_fan_speed)},
+            {fan: 'aux', speed: parseInt(response.big_fan1_speed)}
+        ];
+
+        status.status = response.gcode_state;
+        status.gcode_file = response.gcode_file;
+
+        status.progress = {
+            percentage: response.mc_percent,
+            timeLeft: response.mc_remaining_time,
+            layer: response.layer_num,
+            totalLayers: response.total_layer_num
+        }
+
+        status.lights = response.lights_report.map(
+            light => ({
+                name: light.node,
+                status: light.mode === 'on' ? 'on' : 'off'
+            } as Light)
+        )
+
+        return status;
+    };
 }
 
 export class PrinterTimeOutError extends Error {
