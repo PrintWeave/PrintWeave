@@ -154,6 +154,8 @@ export class BambuPrinter extends BasePrinter {
             } as Light)
         )
 
+        // TODO: Implement nozzles and current filament
+
         return status;
     };
 }
