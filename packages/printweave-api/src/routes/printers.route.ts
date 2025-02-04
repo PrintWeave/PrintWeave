@@ -109,7 +109,7 @@ export function printersRoutes(): Router {
         const {printerId} = req.params;
 
         if (isNaN(parseInt(printerId))) {
-            res.status(400).json({code: 400, message: 'Invalid printer ID'} as RemovePrinterError);
+            res.status(404).json({code: 404, message: 'Invalid printer ID'} as RemovePrinterError);
             return
         }
 

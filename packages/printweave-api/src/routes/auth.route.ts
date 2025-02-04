@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 import {User} from '../models/user.model.js';
 import {envInt} from "../environment.js";
 import {Printer} from "../models/printer.model.js";
-import {UnauthorizedError} from "@printweave/api-types";
+import {SimpleUnauthorizedError, UnauthorizedError} from "@printweave/api-types";
 
 interface JwtPayload {
     id: string;

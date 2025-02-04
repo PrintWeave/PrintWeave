@@ -5,7 +5,7 @@ export interface UnauthorizedError {
 
 export class SimpleUnauthorizedError implements UnauthorizedError {
     code: 401 | 403;
-    message: "Unauthorized";
+    message: "Unauthorized" = "Unauthorized";
 
     constructor(code: 401 | 403) {
         this.code = code;

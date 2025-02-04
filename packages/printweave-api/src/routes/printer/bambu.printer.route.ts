@@ -1,42 +1,74 @@
-import { Router } from "express";
+import {Router} from "express";
 import UserPrinter from "../../models/userprinter.model.js";
 import Printer from "../../models/printer.model.js";
-import BambuPrinter from "../../models/printers/bambu.printer.model.js";
-import { ConnectionManager } from "../../connections/manager.connection.js";
+import BambuPrinter, {PrinterTimeOutError} from "../../models/printers/bambu.printer.model.js";
+import {ConnectionManager, PrinterConnectionsBambu} from "../../connections/manager.connection.js";
 import {CustomMessageCommand} from "../../connections/bambu/mqtt/CustomMessageCommand.js";
+import {
+    SimpleUnauthorizedError, BambuMQTTMessageError,
+    BambuMQTTMessageResponse
+} from "@printweave/api-types";
 
 export function bambuPrinterRoutes(printerId: number, printer: Printer): Router {
     const router = Router();
 
+    /**
+     * Send a MQTT message to the printer
+     * POST /api/printers/:printerId/bambu/mqtt
+     * Response: {@link BambuMQTTMessageResponse} | {@link BambuMQTTMessageError}
+     */
     router.post('/mqtt', async (req, res) => {
         const user = req.user;
         if (!user) {
-            res.status(401).json({ message: 'Unauthorized' });
+            res.status(401).json(new SimpleUnauthorizedError(401));
             return;
         }
 
         // get the user's printers by printerId
-        const userPrinter = await UserPrinter.findOne({ where: { userId: user.id, printerId: printerId, permission: ['admin', 'operate'] } });
+        const userPrinter = await UserPrinter.findOne({
+            where: {
+                userId: user.id,
+                printerId: printerId,
+                permission: ['admin', 'operate']
+            }
+        });
 
         if (!userPrinter) {
-            res.status(403).json({ message: 'Unauthorized' });
+            res.status(403).json(new SimpleUnauthorizedError(403));
             return;
         }
 
         const bambuPrinter = await printer.getPrinter();
 
         if (!bambuPrinter || !(bambuPrinter instanceof BambuPrinter)) {
-            res.status(404).json({ message: 'Printer not a Bambu printer' });
+            res.status(404).json({message: 'Printer not a Bambu printer', code: 404} as BambuMQTTMessageError);
             return;
         }
 
-        const ConnectionManager = await bambuPrinter.getConnection();
+        let ConnectionManager: PrinterConnectionsBambu;
+
+        try {
+            ConnectionManager = await bambuPrinter.getConnection();
+        } catch (error) {
+            if (error instanceof PrinterTimeOutError) {
+                res.json({user, printer, result: "timeout"} as BambuMQTTMessageResponse);
+                return;
+            } else {
+                throw error;
+            }
+        }
 
         try {
             await ConnectionManager.mqtt.client.executeCommand(new CustomMessageCommand(req.body), false);
-            res.json({ user, printer, result: "requested" });
+            res.json({user, printer, result: "requested"} as BambuMQTTMessageResponse);
         } catch (e) {
-            res.status(500).json({ user, printer, error: e.message });
+            res.status(500).json({
+                user,
+                printer,
+                error: e.message,
+                code: 500,
+                message: "Error"
+            } as BambuMQTTMessageError);
         }
     });
 
