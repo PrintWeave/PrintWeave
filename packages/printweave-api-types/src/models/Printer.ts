@@ -29,8 +29,33 @@ export interface FanSpeed {
     fan: "chamber" | "part" | "aux";
     speed: number;
 }
-export interface FilamentType {
-    type: string;
+
+declare enum FilamentType {
+    PLA = "PLA",
+    ABS = "ABS",
+    TPU = "TPU",
+    PC = "PC",
+    ASA = "ASA",
+    PA_CF = "PA-CF",
+    PA6_CF = "PA6-CF",
+    PET_CF = "PET-CF",
+    PETG = "PETG",
+    PETG_CF = "PETG-CF",
+    PLA_AERO = "PLA-AERO",
+    PLA_CF = "PLA-CF",
+    PPA_CF = "PPA-CF",
+    PPA_GF = "PPA-GF",
+    PA = "PA",
+    HIPS = "HIPS",
+    PPS = "PPS",
+    PPS_CF = "PPS-CF",
+    PVA = "PVA",
+    PLA_S = "PLA-S",
+    PA_S = "PLA-S"
+}
+
+export interface Filament {
+    type: FilamentType;
     color: string;
     nozzleTemp: FilamentTemperature;
     bedTemp: FilamentTemperature;
@@ -47,7 +72,7 @@ export interface PrinterNozzle {
     id: number;
     nozzleTemp: number;
     nozzleTargetTemp: number;
-    currentFilament: FilamentType;
+    currentFilament?: Filament;
     multiMaterials: MultiMaterial[];
     diameter: number;
     type: "Brass" | "Stainless Steel";
@@ -61,7 +86,7 @@ export interface MultiMaterial {
 }
 export interface MultiMaterialTray {
     id: number;
-    material: FilamentType;
+    material: Filament;
 }
 export interface PrintProgress {
     percentage: number;

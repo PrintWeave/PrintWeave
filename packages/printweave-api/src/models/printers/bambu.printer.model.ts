@@ -2,6 +2,8 @@ import {Table, Column, DataType} from 'sequelize-typescript';
 import {BasePrinter} from './base.printer.js';
 import {ConnectionManager, PrinterConnectionsBambu} from '../../connections/manager.connection.js';
 import {
+    AMS,
+    AMSTray,
     GetVersionCommand,
     GetVersionResponse,
     PrintMessage,
@@ -13,7 +15,7 @@ import {OwnPrintMessageCommand} from '../../connections/bambu/mqtt/OwnBambuClien
 import {PausePrintCommand} from '../../connections/bambu/mqtt/PausePrintCommand.js';
 import {ResumePrintCommand} from '../../connections/bambu/mqtt/ResumePrintCommand.js';
 import {StopPrintCommand} from '../../connections/bambu/mqtt/StopPrintCommand.js';
-import {Light, PrinterStatus} from "@printweave/api-types";
+import {Light, PrinterStatus, Filament, MultiMaterial} from "@printweave/api-types";
 
 @Table({
     tableName: 'bambu_printers',
@@ -154,7 +156,74 @@ export class BambuPrinter extends BasePrinter {
             } as Light)
         )
 
+        const getFilamentType = (response: AMSTray): Filament => {
+            if (!response.tray_type) {
+                return null;
+            }
+
+            return {
+                type: response.tray_type,
+                color: response.tray_color,
+                nozzleTemp: {
+                    minTemp: parseInt(response.nozzle_temp_min),
+                    maxTemp: parseInt(response.nozzle_temp_max)
+                },
+                bedTemp: {
+                    minTemp: parseInt(response.bed_temp),
+                    maxTemp: parseInt(response.bed_temp)
+                },
+                dryTemp: parseInt(response.drying_temp),
+                dryTime: parseInt(response.drying_time),
+                weight: parseFloat(response.tray_weight),
+                diameter: response.tray_diameter
+            } as Filament;
+        }
+
+        let currentFilament: Filament = null
+        const trayTar = parseInt(response.ams.tray_tar);
+
+        if (trayTar === 254) {
+            currentFilament = getFilamentType(response.vt_tray);
+        } else if (trayTar === 255) {
+            currentFilament = null;
+        } else {
+            const amsIndex = Math.floor(trayTar / 4);
+            console.log("amsIndex", amsIndex);
+            const trayIndex = trayTar % 4;
+            let am = response.ams.ams[amsIndex];
+            currentFilament = getFilamentType(am.tray[trayIndex]);
+        }
+
         // TODO: Implement nozzles and current filament
+        status.nozzles = [
+            {
+                id: 0,
+                nozzleTemp: response.nozzle_temper,
+                nozzleTargetTemp: response.nozzle_target_temper,
+                multiMaterials: [
+                    {
+                        id: 0,
+                        type: 'single',
+                        trays: [{
+                            id: 0,
+                            material: getFilamentType(response.vt_tray)
+                        }]
+                    },
+                    ...response.ams.ams.map((am: AMS, index: number) => ({
+                        id: index + 1,
+                        type: 'multi',
+                        humidity: parseInt(am.humidity),
+                        trays: am.tray.map((tray, trayIndex) => ({
+                            id: trayIndex,
+                            material: getFilamentType(tray)
+                        }))
+                    } as MultiMaterial))
+                ],
+                currentFilament,
+                diameter: 0,
+                type: 'Brass'
+            }
+        ]
 
         return status;
     };
