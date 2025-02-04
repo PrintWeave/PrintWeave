@@ -21,7 +21,7 @@ export class MqttBambuConnection {
         })
 
         this.client.on("printer:statusUpdate", (oldStatus, newStatus) => {
-            console.log(`Printer status changed from ${oldStatus} to ${newStatus}`);
+            console.log(`Printer with id: ${printerId} status changed from ${oldStatus} to ${newStatus}`);
             this.status = newStatus;
         })
 
@@ -31,8 +31,6 @@ export class MqttBambuConnection {
 
             const firstKey = Object.keys(data)[0];
             const topicName = `${firstKey}.${data[firstKey].command}`;
-
-            console.log(`Received message from topic ${topic}:`, data);
 
             WebsocketsManager.getWebsocketsManager().sendBambuMessage(this.printerId, topicName, data);
         });
