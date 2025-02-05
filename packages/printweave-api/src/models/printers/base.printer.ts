@@ -1,6 +1,6 @@
 import {Column, DataType, ForeignKey, Model} from "sequelize-typescript";
 import Printer from "../printer.model.js";
-import {PrinterStatus} from "@printweave/api-types";
+import {PrinterStatus, PrintFileReport} from "@printweave/api-types";
 
 export abstract class BasePrinter extends Model {
 
@@ -15,8 +15,12 @@ export abstract class BasePrinter extends Model {
     abstract getVersion(): Promise<string>;
 
     abstract stopPrint(): Promise<string>;
+
     abstract pausePrint(): Promise<string>;
+
     abstract resumePrint(): Promise<string>;
 
     abstract getStatus(): Promise<PrinterStatus>;
-  }
+
+    abstract uploadFile(file: Express.Multer.File, report: PrintFileReport): Promise<PrintFileReport>;
+}
