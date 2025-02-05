@@ -4,13 +4,14 @@ import jwt, {JwtPayload} from 'jsonwebtoken';
 import {authRoutes} from "./routes/auth.route.js";
 import db from "./config/database.config.js";
 import dotenv from "dotenv";
-import {envInt} from "./environment.js";
+import {envInt, envString} from "./environment.js";
 import {apiRoutes} from "./routes/api.route.js";
 import {WebSocketServer, WebSocket} from 'ws';
 import {umzug} from "./migrations.js";
 import {WebsocketsManager} from "./websockets/manager.websockets.js";
 import User from "./models/user.model.js";
 import {createServer} from "node:http";
+import multer from 'multer';
 
 const JWT_SECRET = process.env.SECRET_KEY || 'your_secure_secret_key';
 
@@ -18,6 +19,8 @@ dotenv.config({path: './.env'});
 
 const port = envInt("PORT", 3000);
 const app = express();
+
+export const storage = multer({dest: envString("UPLOAD_DIR", "./tmp")});
 
 app.use(express.json());
 app.use(passport.initialize());

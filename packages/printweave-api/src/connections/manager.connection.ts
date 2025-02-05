@@ -1,13 +1,15 @@
 import {MqttBambuConnection} from "./bambu/mqtt.bambu.connection.js";
 import {Printer} from "../models/printer.model.js";
 import {BambuPrinter} from "../models/printers/bambu.printer.model.js";
+import {FtpsBambuConnection} from "./bambu/ftps.connection.js";
 
 interface ConnectionsList {
     [printerId: number]: PrinterConnectionsBambu;
 }
 
 export interface PrinterConnectionsBambu {
-    mqtt: MqttBambuConnection
+    mqtt: MqttBambuConnection,
+    ftps: FtpsBambuConnection
 }
 
 export class ConnectionManager {
@@ -45,7 +47,8 @@ export class ConnectionManager {
         await mqttBambuConnection.connect();
 
         this.connections[printer.id] = {
-            mqtt: mqttBambuConnection
+            mqtt: mqttBambuConnection,
+            ftps: new FtpsBambuConnection(bambuPrinter.ip, bambuPrinter.code)
         }
     }
 

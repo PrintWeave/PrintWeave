@@ -7,3 +7,5 @@ export * from './printer-action';
 export * from './printer-status';
 
 export * from './bambu-printer';
+
+export * from './upload-file';

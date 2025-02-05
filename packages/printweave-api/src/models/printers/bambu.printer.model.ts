@@ -15,7 +15,7 @@ import {OwnPrintMessageCommand} from '../../connections/bambu/mqtt/OwnBambuClien
 import {PausePrintCommand} from '../../connections/bambu/mqtt/PausePrintCommand.js';
 import {ResumePrintCommand} from '../../connections/bambu/mqtt/ResumePrintCommand.js';
 import {StopPrintCommand} from '../../connections/bambu/mqtt/StopPrintCommand.js';
-import {Light, PrinterStatus, Filament, MultiMaterial} from "@printweave/api-types";
+import {Light, PrinterStatus, Filament, MultiMaterial, PrintFileReport} from "@printweave/api-types";
 
 @Table({
     tableName: 'bambu_printers',
@@ -227,6 +227,14 @@ export class BambuPrinter extends BasePrinter {
 
         return status;
     };
+
+    override async uploadFile(file: Express.Multer.File, report: PrintFileReport): Promise<string> {
+        const connection = await this.getConnection();
+        const response = await connection.ftps.connect();
+
+
+        return ''; // response.message;
+    }
 }
 
 export class PrinterTimeOutError extends Error {
