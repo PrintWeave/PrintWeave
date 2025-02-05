@@ -4,6 +4,7 @@ export interface PrintFileReport {
         id: string,
         name: string,
         thumbnail: string,
+        thumbnailRaw?: Blob,
         internal: {
             gcodeFile: string,
             thumbnailFile: string,

@@ -1,4 +1,6 @@
 import {Client} from 'basic-ftp';
+import path from "path";
+import {Readable} from "node:stream";
 
 export class FtpsBambuConnection {
 
@@ -13,34 +15,10 @@ export class FtpsBambuConnection {
     }
 
     async connect(): Promise<FtpsBambuConnection> {
-/*
-        this.client = new Client();
-
-        this.client.ftp.verbose = true;
-
-        console.log(await this.client.access({
-            host: this.ip,
-            user: 'bblp',
-            password: this.code,
-            secure: true,
-            port: 990,
-            secureOptions: {
-                rejectUnauthorized: false
-            }
-        }));
-
-        console.log(await this.client.features())
-
-        console.log(await this.client.ensureDir('printweave/models'))
-        console.log(await this.client.ensureDir('printweave/images'))
-
-        console.log(await this.client.list())
-*/
-
-        const client = new Client()
-        client.ftp.verbose = true
+        this.client = new Client()
+        this.client.ftp.verbose = true
         try {
-            await client.access({
+            await this.client.access({
                 host: this.ip,
                 user: 'bblp',
                 password: this.code,
@@ -52,16 +30,48 @@ export class FtpsBambuConnection {
                     rejectUnauthorized: false,
                 },
             })
-
-            console.log(await client.list())
         }
         catch(err) {
             console.log(err)
         }
-        client.close()
 
-        // Connect to the FTPS server
         return this;
+    }
+
+    disconnect() {
+        this.client.close()
+    }
+
+    async uploadFile(localPath: string, remotePath: string): Promise<void> {
+        await this.client.cd('/')
+
+        const allDirs = path.dirname(remotePath).split(path.sep)
+
+        console.log(allDirs)
+
+        for (const dir of allDirs) {
+            if (dir === '') {
+                continue
+            }
+            await this.client.ensureDir(dir)
+        }
+
+        await this.client.uploadFrom(localPath, path.basename(remotePath))
+    }
+
+    async uploadFileFromReadable(readStream: Readable, remotePath: string): Promise<void> {
+        await this.client.cd('/')
+
+        const allDirs = path.dirname(remotePath).split('/')
+
+        for (const dir of allDirs) {
+            if (dir === '') {
+                continue
+            }
+            await this.client.ensureDir(dir)
+        }
+
+        await this.client.uploadFrom(readStream, path.basename(remotePath))
     }
 
 }

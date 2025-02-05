@@ -22,5 +22,5 @@ export abstract class BasePrinter extends Model {
 
     abstract getStatus(): Promise<PrinterStatus>;
 
-    abstract uploadFile(file: Express.Multer.File, report: PrintFileReport): Promise<string>;
+    abstract uploadFile(file: Express.Multer.File, report: PrintFileReport): Promise<PrintFileReport>;
 }

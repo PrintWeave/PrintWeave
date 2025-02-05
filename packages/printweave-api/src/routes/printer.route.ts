@@ -20,6 +20,7 @@ import {BlobReader, BlobWriter, TextWriter, ZipReader} from "@zip.js/zip.js";
 import {promises as fs} from "fs";
 import {XMLParser} from "fast-xml-parser";
 import {BasePrinter} from "../models/printers/base.printer.js";
+import {Readable} from "node:stream";
 
 const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Record<string, any>>): Promise<PrintFileReport> => {
     let result = {} as PrintFileReport;
@@ -38,8 +39,6 @@ const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Rec
         res.status(400).json({message: 'Invalid 3mf file', code: 400} as Invalid3mfFileError);
         return null;
     }
-
-    console.log(metadata);
 
     const metadataStream = new TransformStream();
     const metadataPromise = new Response(metadataStream.readable).text();
@@ -60,21 +59,31 @@ const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Rec
     result.plates = await Promise.all(metadataPlates.map(async (plate: any) => {
         const thumbnailPath = plate.metadata.find((metadata: any) => metadata["@_key"] === 'thumbnail_file')['@_value'];
 
+        console.log(thumbnailPath);
+
         const thumbnailEntry = entries.find(entry => entry.filename === thumbnailPath);
-        let thumbnail = '';
+        let thumbnail: Blob = null;
+
+        console.log(thumbnailEntry);
 
         if (thumbnailEntry) {
             const thumbnailStream = new TransformStream();
-            const thumbnailPromise = new Response(thumbnailStream.readable).text();
+            const thumbnailPromise = new Response(thumbnailStream.readable).bytes()
             await thumbnailEntry.getData(thumbnailStream.writable);
-            thumbnail = await thumbnailPromise;
+
+            console.log(thumbnailPromise);
+
+            thumbnail = new Blob([new Uint8Array(await thumbnailPromise)]);
         }
+
+
 
         return {
             hasGcode: plate.metadata.some((metadata: any) => metadata["@_key"] === 'gcode_file' && metadata['@_value'] !== ''),
             id: plate.metadata.find((metadata: any) => metadata["@_key"] === 'plater_id')['@_value'],
             name: plate.metadata.find((metadata: any) => metadata["@_key"] === 'plater_name')['@_value'],
-            thumbnail: thumbnail,
+            thumbnail: '',
+            thumbnailRaw: thumbnail,
             internal: {
                 gcodeFile: plate.metadata.find((metadata: any) => metadata["@_key"] === 'gcode_file')['@_value'],
                 thumbnailFile: plate.metadata.find((metadata: any) => metadata["@_key"] === 'thumbnail_file')['@_value'],

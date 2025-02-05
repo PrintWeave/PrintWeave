@@ -16,6 +16,8 @@ import {PausePrintCommand} from '../../connections/bambu/mqtt/PausePrintCommand.
 import {ResumePrintCommand} from '../../connections/bambu/mqtt/ResumePrintCommand.js';
 import {StopPrintCommand} from '../../connections/bambu/mqtt/StopPrintCommand.js';
 import {Light, PrinterStatus, Filament, MultiMaterial, PrintFileReport} from "@printweave/api-types";
+import path from "path";
+import {Readable} from "node:stream";
 
 @Table({
     tableName: 'bambu_printers',
@@ -228,12 +230,51 @@ export class BambuPrinter extends BasePrinter {
         return status;
     };
 
-    override async uploadFile(file: Express.Multer.File, report: PrintFileReport): Promise<string> {
+    override async uploadFile(file: Express.Multer.File, report: PrintFileReport): Promise<PrintFileReport> {
         const connection = await this.getConnection();
         const response = await connection.ftps.connect();
 
+        console.log(file.path)
+        await response.uploadFile(file.path, path.join('/printweave', 'gcode', file.originalname));
 
-        return ''; // response.message;
+        for (const plate of report.plates) {
+            console.log(plate)
+            if (plate.thumbnailRaw) {
+                const thumbnailName = file.originalname.split('.').slice(0, -1).join('.') + '.plate_' + plate.id + '.png';
+
+                const readStream = await this.convertToReadable(plate.thumbnailRaw.stream());
+                await response.uploadFileFromReadable(readStream, path.join('/printweave', 'thumbnails', thumbnailName));
+
+                plate.thumbnail = thumbnailName;
+            }
+        }
+
+        const reportJson = JSON.stringify(report);
+        const reportName = file.originalname.split('.').slice(0, -1).join('.') + '.json';
+        await response.uploadFileFromReadable(Readable.from(reportJson), path.join('/printweave', 'reports', reportName));
+
+        response.disconnect();
+
+        return report;
+    }
+
+    async convertToReadable(webStream: ReadableStream<Uint8Array>): Promise<Readable> {
+        const reader = webStream.getReader();
+
+        return new Readable({
+            async read() {
+                try {
+                    const { done, value } = await reader.read();
+                    if (done) {
+                        this.push(null); // End the Node.js stream
+                    } else {
+                        this.push(Buffer.from(value)); // Convert Uint8Array to Buffer and push
+                    }
+                } catch (error) {
+                    this.destroy(error); // Handle errors gracefully
+                }
+            }
+        });
     }
 }
 
