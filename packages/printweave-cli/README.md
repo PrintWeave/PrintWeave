@@ -49,7 +49,7 @@ Configuration instructions coming soon. Currently, use .env file and printweave 
 
 ## License
 
-PrintWeave is released under the [MIT License](../../LICENSE).
+PrintWeave is released under the [MIT License](https://github.com/PrintWeave/PrintWeave/blob/main/LICENSE).
 
 ## Acknowledgements
 

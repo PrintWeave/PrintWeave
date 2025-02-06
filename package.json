@@ -4,11 +4,17 @@
     "server:dev": "cd packages/printweave-api && npm run dev",
     "server:start": "cd packages/printweave-api && npm start",
     "server:build": "cd packages/printweave-api && npm run build",
-    "dev": "concurrently -n server -c magenta,blue \"npm run server:dev\"",
-    "start": "concurrently -n server -c magenta,blue \"npm run server:start\"",
-    "build": "concurrently -n server -c magenta,blue \"npm run server:build\"",
+    "api-types:build": "cd packages/printweave-api-types && npm run build",
+    "api-types:watch": "cd packages/printweave-api-types && npm run watch",
+    "dev": "concurrently -n server,api-types -c magenta,cyan \"npm run server:dev\" \"npm run api-types:watch\"",
+    "start": "concurrently -n server -c magenta \"npm run server:start\"",
+    "build": "npm run api-types:build && npm run server:build",
     "configure": "cd packages/printweave-api && npm run configure",
-    "test": "echo \"Error: no test specified\""
+    "test": "echo \"Error: no test specified\"",
+    "new-version": "lerna version",
+    "new-publish": "lerna publish from-package",
+    "preview:new-version": "lerna version --dry-run",
+    "run-tests": "lerna run test"
   },
   "author": "MMathijs",
   "repository": "https://github.com/PrintWeave/PrintWeave",
@@ -24,7 +30,9 @@
     "concurrently": "^9.1.2"
   },
   "devDependencies": {
-    "fs-extra": "^11.3.0",
-    "lerna": "^8.1.9"
+    "@lerna-lite/publish": "^3.12.0",
+    "@lerna-lite/run": "^3.12.0",
+    "@lerna-lite/version": "^3.12.0",
+    "fs-extra": "^11.3.0"
   }
 }

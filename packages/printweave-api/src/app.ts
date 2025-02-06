@@ -1,18 +1,22 @@
 import express from "express";
 import passport from "passport";
-import {authMiddleware, authRoutes} from "./routes/auth.route.js";
+import jwt, {JwtPayload} from 'jsonwebtoken';
+import {authRoutes} from "./routes/auth.route.js";
 import db from "./config/database.config.js";
 import dotenv from "dotenv";
 import {envInt} from "./environment.js";
 import {apiRoutes} from "./routes/api.route.js";
-import {User} from "./models/user.model.js";
-import {Printer} from "./models/printer.model.js";
-import { Umzug } from "umzug";
-import { umzug } from "./migrations.js";
+import {WebSocketServer, WebSocket} from 'ws';
+import {umzug} from "./migrations.js";
+import {WebsocketsManager} from "./websockets/manager.websockets.js";
+import User from "./models/user.model.js";
+import {createServer} from "node:http";
 
-dotenv.config({ path: '../.env' });
+const JWT_SECRET = process.env.SECRET_KEY || 'your_secure_secret_key';
 
-const port = envInt("SERVER_PORT", 3000);
+dotenv.config({path: './.env'});
+
+const port = envInt("PORT", 3000);
 const app = express();
 
 app.use(express.json());
@@ -26,10 +30,10 @@ app.use('/api', apiRoutes());
 
 (async () => {
     console.log('Current working directory:', process.cwd());
-    
+
     await db.authenticate();
-    
-    console.log('Database connected');  
+
+    console.log('Database connected');
 
     // Check if migrations are pending
     if ((await umzug.pending()).length > 0) {
@@ -44,4 +48,53 @@ app.use('/api', apiRoutes());
 
     // Start server
     app.listen(port, () => console.log('Server running on port ' + port));
+
+    const server = createServer(app);
+    const wss = new WebSocketServer({
+        noServer: true
+    });
+
+    server.on('upgrade', async (request, socket, head) => {
+        const token = extractTokenFromRequest(request);
+        const user = await token ? await authenticate(token) : null;
+
+        if (!user) {
+            socket.destroy();
+            return;
+        }
+
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit('connection', ws, request, user);
+        });
+    });
+
+    server.listen(envInt("WEBSOCKET_PORT", 3001));
+
+    // Helper to extract token from request
+
+    console.log('Websockets server running on port ' + envInt("WEBSOCKET_PORT", 3001));
+
+    wss.on('connection', (ws: WebSocket, req, user: User) => {
+        ws.on('message', async (message) => {
+            await WebsocketsManager.getWebsocketsManager().handleMessage(ws, message, user);
+        });
+
+        ws.send('Connected to Printweave API');
+    });
+
+
+    function extractTokenFromRequest(request) {
+        const authHeader = request.headers.authorization;
+        return authHeader ? authHeader.split(' ')[1] : null;
+    }
+
+    const authenticate = async (token: string): Promise<User | null> => {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+            return await User.findByPk(decoded.id);
+        } catch {
+            return null;
+        }
+    };
+
 })();

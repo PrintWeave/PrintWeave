@@ -28,11 +28,11 @@ export class ConnectionManager {
     async generateConnectionsPrinter(printer: Printer) {
         if (printer.type === 'bambu') {
             const bambuPrinter = await BambuPrinter.findOne({where: {printerId: printer.id}});
-            
+
             if (!bambuPrinter) {
                 throw new Error('Bambu printer not found');
             }
-            
+
             await this.generateConnectionsBambu(bambuPrinter, printer);
         } else {
             throw new Error('Invalid printer type');
@@ -40,7 +40,8 @@ export class ConnectionManager {
     }
 
     async generateConnectionsBambu(bambuPrinter: BambuPrinter, printer: Printer) {
-        let mqttBambuConnection = new MqttBambuConnection(bambuPrinter.ip, bambuPrinter.code, bambuPrinter.serial);
+        let mqttBambuConnection = new MqttBambuConnection(bambuPrinter.ip, bambuPrinter.code, bambuPrinter.serial, printer.id);
+
         await mqttBambuConnection.connect();
 
         this.connections[printer.id] = {

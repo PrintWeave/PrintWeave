@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import {User} from '../models/user.model.js';
 import {envInt} from "../environment.js";
 import {Printer} from "../models/printer.model.js";
+import {SimpleUnauthorizedError, UnauthorizedError} from "@printweave/api-types";
 
 interface JwtPayload {
     id: string;
@@ -14,7 +15,7 @@ interface JwtPayload {
 }
 
 // Configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'your_secure_secret_key';
+const JWT_SECRET = process.env.SECRET_KEY || 'your_secure_secret_key';
 
 // JWT Strategy Configuration
 const jwtOptions = {
@@ -36,8 +37,20 @@ passport.use(new JwtStrategy(jwtOptions, async (payload: JwtPayload, done: Verif
 }));
 
 // Authentication Middleware
-const authMiddleware = passport.authenticate('jwt', {session: false});
-
+const authMiddleware = function (req, res, next) {
+    passport.authenticate('jwt', {session: false},
+        (err, user, info) => {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return res.status(401).json(new SimpleUnauthorizedError(401));
+            }
+            // Forward user information to the next middleware
+            req.user = user;
+            next();
+        })(req, res, next);
+};
 // Rate Limiter
 const loginLimiter = rateLimit({
     windowMs: envInt("SERVER_LOGIN_WINDOW", 15 * 60 * 1000),
@@ -63,15 +76,15 @@ const authRoutes = (app: Application) => {
                 return
             }
 
-            const hash = await bcrypt.hash(password, 10);
-
-            await User.create({
+            const newUser = User.build({
                 username: username,
-                password: hash,
+                password: password,
                 email: email,
                 role: 'user',
                 active: true,
             });
+
+            await newUser.save();
 
             res.json({message: 'User created successfully'});
         } catch (error) {
@@ -100,7 +113,7 @@ const authRoutes = (app: Application) => {
                 return
             }
 
-            const isMatch = await bcrypt.compare(password, user.password);
+            const isMatch = await user.validatePassword(password);
 
             if (!isMatch) {
                 res.status(401).json({message: 'Authentication failed'});

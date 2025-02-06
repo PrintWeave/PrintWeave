@@ -20,14 +20,14 @@ All the features that are planned for the project are listed below. The features
 - [x] Create users and authentication - v0.0.1
 - [x] Add Bambu Lab printer support - v0.0.1
 - [x] Create a basic API to interact with the printer (pause, resume, stop) - v0.0.1
-- [ ] Correct setup monorepo using lerna - v0.0.1
-- [ ] Add MQTT command support - v0.1.0
-- [ ] Add MQTT websockets support - v0.1.0
-- [ ] Create a basic API to interact with the printer (status) - v0.1.0
-- [ ] Create a basic API to interact with the printer (upload file) - v0.1.1
-- [ ] Create a basic API to interact with the printer (list files) - v0.1.2
-- [ ] Add Simple Websockets - v0.2.0
-- [ ] Add a basic web interface - v0.2.0
+- [x] Correct setup monorepo using lerna - v0.0.20
+- [x] Add MQTT command support - v0.1.0
+- [x] Add MQTT websockets support - v0.1.0
+- [x] Create a basic API to interact with the printer (status) - v0.1.3
+- [ ] Create a basic API to interact with the printer (upload file) - v0.2
+- [ ] Create a basic API to interact with the printer (list files) - v0.2.1
+- [ ] Add Simple Websockets - v0.3.0
+- [ ] Add a basic web interface - v0.3.0
 - [ ] Stable release - v1.0.0
 - [ ] Klipper support - v2.0.0
 
@@ -55,7 +55,7 @@ All the features that are planned for the project are listed below. The features
    npm install -g @printweave/cli
    ```
    
-2. Configure the PrintWeave software: (TODO: implement this, for now use .env file and use `printweave migrate`)
+2. Configure the PrintWeave software:
    ```bash
    printweave configure
    ```

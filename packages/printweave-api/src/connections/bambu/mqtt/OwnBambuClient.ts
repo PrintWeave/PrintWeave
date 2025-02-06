@@ -32,7 +32,7 @@ export function isOwnPrintMessage(data: any): data is OwnPrintMessage {
 }
 
 export class OwnBambuClient extends BambuClient {
-    public override async executeCommand(command: AbstractCommand, block: boolean = false): Promise<CommandResponse> {
+    public override async executeCommand(command: AbstractCommand, block: boolean = true): Promise<CommandResponse> {
         if (!(this.status === "OFFLINE") && this.config.throwOnOfflineCommands)
             throw new Error(`Unable to send commands while disconnected from printer!`)
 
@@ -71,5 +71,9 @@ export class OwnBambuClient extends BambuClient {
                 resolve(null)
             });
         }
+    }
+
+    public async sendJSONMessage(message: any) {
+
     }
 }
