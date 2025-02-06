@@ -56,6 +56,19 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Check if prerelease
+        run: |
+      - name: Set distribution tag
+        id: set-distribution-tag
+        run: |
+          if [[ "${{ github.event.inputs.version }}" == "prerelease" || \
+                "${{ github.event.inputs.version }}" == "premajor" || \
+                "${{ github.event.inputs.version }}" == "preminor" || \
+                "${{ github.event.inputs.version }}" == "prepatch" ]]; then
+            echo "dist_tag=next" >> $GITHUB_OUTPUT
+          else
+            echo "dist_tag=latest" >> $GITHUB_OUTPUT
+          fi
       - name: Update version, no --preid
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -71,10 +84,9 @@ jobs:
           # Update version in lerna.json
           lerna version ${{ github.event.inputs.version }} --preid ${{ github.event.inputs.preid }} --create-release github --yes
         
-
       - name: Publish packages
         run: |
           # Publish packages to npm
-          lerna publish from-git
+          lerna publish from-git --dist-tag ${{ steps.set-distribution-tag.outputs.dist_tag }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

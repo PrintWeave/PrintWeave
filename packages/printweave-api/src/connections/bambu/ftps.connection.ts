@@ -16,7 +16,7 @@ export class FtpsBambuConnection {
 
     async connect(): Promise<FtpsBambuConnection> {
         this.client = new Client()
-        this.client.ftp.verbose = true
+
         try {
             await this.client.access({
                 host: this.ip,
@@ -46,8 +46,6 @@ export class FtpsBambuConnection {
         await this.client.cd('/')
 
         const allDirs = path.dirname(remotePath).split(path.sep)
-
-        console.log(allDirs)
 
         for (const dir of allDirs) {
             if (dir === '') {
