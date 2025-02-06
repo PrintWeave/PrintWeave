@@ -12,6 +12,8 @@ import {WebsocketsManager} from "./websockets/manager.websockets.js";
 import User from "./models/user.model.js";
 import {createServer} from "node:http";
 import multer from 'multer';
+import * as fs from "node:fs";
+import path from "path";
 
 const JWT_SECRET = process.env.SECRET_KEY || 'your_secure_secret_key';
 
@@ -32,7 +34,33 @@ authRoutes(app);
 app.use('/api', apiRoutes());
 
 (async () => {
-    console.log('Current working directory:', process.cwd());
+    const storageDir = envString("UPLOAD_DIR", "./tmp");
+    fs.promises.readdir(storageDir).then(files => {
+        if (files.length === 0) {
+            return;
+        }
+
+        console.log(`Removing old files from ${storageDir} directory`);
+
+        files.forEach(file => {
+            const stats = fs.statSync(path.join(storageDir, file));
+            const mtime = new Date(stats.mtime);
+            const now = new Date();
+            const diff = Math.abs(now.getTime() - mtime.getTime());
+            const minutes = Math.floor((diff / 1000) / 60);
+            if (minutes > 60) {
+                fs.unlink(path.join(storageDir, file), (err) => {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    console.log(`File ${file} was deleted`);
+                });
+            }
+        });
+
+        console.log('Old files removed');
+    })
 
     await db.authenticate();
 
