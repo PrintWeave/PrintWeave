@@ -56,20 +56,33 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Check if prerelease
+        run: |
+      - name: Set distribution tag
+        id: set-distribution-tag
+        run: |
+          if [[ "${{ github.event.inputs.version }}" == "prerelease" || \
+                "${{ github.event.inputs.version }}" == "premajor" || \
+                "${{ github.event.inputs.version }}" == "preminor" || \
+                "${{ github.event.inputs.version }}" == "prepatch" ]]; then
+            echo "dist-tag=next" >> $GITHUB_ENV
+          else
+            echo "dist-tag=latest" >> $GITHUB_ENV
+          fi
       - name: Update version, no --preid
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.event.inputs.preid == '' }}
         run: |
           # Update version in lerna.json
-          lerna version ${{ github.event.inputs.version }} --create-release github --yes
+          lerna version ${{ github.event.inputs.version }} --create-release github --yes --dist-tag ${{ steps.set-distribution-tag.outputs.dist-tag }}
       - name: Update version, with --preid
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.event.inputs.preid != '' }}
         run: |
           # Update version in lerna.json
-          lerna version ${{ github.event.inputs.version }} --preid ${{ github.event.inputs.preid }} --create-release github --yes
+          lerna version ${{ github.event.inputs.version }} --preid ${{ github.event.inputs.preid }} --create-release github --yes --dist-tag ${{ steps.set-distribution-tag.outputs.dist-tag }}
         
 
       - name: Publish packages
