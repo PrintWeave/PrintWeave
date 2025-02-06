@@ -75,19 +75,19 @@ jobs:
         if: ${{ github.event.inputs.preid == '' }}
         run: |
           # Update version in lerna.json
-          lerna version ${{ github.event.inputs.version }} --create-release github --yes --dist-tag ${{ steps.set-distribution-tag.outputs.dist-tag }}
+          lerna version ${{ github.event.inputs.version }} --create-release github --yes
       - name: Update version, with --preid
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.event.inputs.preid != '' }}
         run: |
           # Update version in lerna.json
-          lerna version ${{ github.event.inputs.version }} --preid ${{ github.event.inputs.preid }} --create-release github --yes --dist-tag ${{ steps.set-distribution-tag.outputs.dist-tag }}
+          lerna version ${{ github.event.inputs.version }} --preid ${{ github.event.inputs.preid }} --create-release github --yes
         
 
       - name: Publish packages
         run: |
           # Publish packages to npm
-          lerna publish from-git
+          lerna publish from-git --dist-tag ${{ steps.set-distribution-tag.outputs.dist-tag }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
