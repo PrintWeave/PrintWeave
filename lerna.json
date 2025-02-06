@@ -9,7 +9,8 @@
       "generateReleaseNotes": true,
       "allowBranch": [
         "main",
-        "beta"
+        "beta",
+        "develop"
       ],
       "remoteClient": "github"
     },
