@@ -65,9 +65,9 @@ jobs:
                 "${{ github.event.inputs.version }}" == "premajor" || \
                 "${{ github.event.inputs.version }}" == "preminor" || \
                 "${{ github.event.inputs.version }}" == "prepatch" ]]; then
-            echo "dist-tag=next" >> $GITHUB_ENV
+            echo "dist_tag=next" >> $GITHUB_OUTPUT
           else
-            echo "dist-tag=latest" >> $GITHUB_ENV
+            echo "dist_tag=latest" >> $GITHUB_OUTPUT
           fi
       - name: Update version, no --preid
         env:
@@ -84,10 +84,9 @@ jobs:
           # Update version in lerna.json
           lerna version ${{ github.event.inputs.version }} --preid ${{ github.event.inputs.preid }} --create-release github --yes
         
-
       - name: Publish packages
         run: |
           # Publish packages to npm
-          lerna publish from-git --dist-tag ${{ steps.set-distribution-tag.outputs.dist-tag }}
+          lerna publish from-git --dist-tag ${{ steps.set-distribution-tag.outputs.dist_tag }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
