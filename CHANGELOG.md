@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-beta.3](https://github.com/PrintWeave/PrintWeave/compare/v0.2.0-beta.2...v0.2.0-beta.3) (2025-02-06)
+
+### Bug Fixes
+
+* **publish:** Push dist-tag to GITHUB_OUTPUT ([bb80198](https://github.com/PrintWeave/PrintWeave/commit/bb801988c0135ab1a330daa841df6efac7d5ee4e)) (@mmathijs)
+
 # [0.2.0-beta.2](https://github.com/PrintWeave/PrintWeave/compare/v0.2.0-beta.1...v0.2.0-beta.2) (2025-02-06)
 
 ### Bug Fixes
