@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-beta.2](https://github.com/PrintWeave/PrintWeave/compare/v0.2.0-beta.1...v0.2.0-beta.2) (2025-02-06)
+
+### Bug Fixes
+
+* **api-types:** Fix Formatting ([78d0c1e](https://github.com/PrintWeave/PrintWeave/commit/78d0c1e673408b2fd67dbdc17e5105ee1424b69d)) (@mmathijs)
+* **publish:** Fix Dist Tag now on publish ([c6ae12a](https://github.com/PrintWeave/PrintWeave/commit/c6ae12a395bf31675a0acc31c8c52426a631d8e0)) (@mmathijs)
+* **publish:** Update For Dist Tag ([b7f8610](https://github.com/PrintWeave/PrintWeave/commit/b7f8610d518ea8285c3041f38c9bac44d54fec5d)) (@mmathijs)
+
 # [0.2.0-beta.1](https://github.com/PrintWeave/PrintWeave/compare/v0.2.0-beta.0...v0.2.0-beta.1) (2025-02-05)
 
 ### Bug Fixes
