@@ -64,10 +64,12 @@ export interface Filament {
     weight: number;
     diameter: number;
 }
+
 export interface FilamentTemperature {
     minTemp: number;
     maxTemp: number;
 }
+
 export interface PrinterNozzle {
     id: number;
     nozzleTemp: number;
@@ -77,6 +79,7 @@ export interface PrinterNozzle {
     diameter: number;
     type: "Brass" | "Stainless Steel";
 }
+
 export interface MultiMaterial {
     type: "single" | "multi";
     humidity?: number;
@@ -84,10 +87,12 @@ export interface MultiMaterial {
     id: number;
     trays: MultiMaterialTray[];
 }
+
 export interface MultiMaterialTray {
     id: number;
     material: Filament;
 }
+
 export interface PrintProgress {
     percentage: number;
     timeLeft: number;
