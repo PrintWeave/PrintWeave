@@ -361,6 +361,8 @@ export function printerRoutes(printerId: number): Router {
 
         const response = await typedPrinter.uploadFile(req.file, printFileReport);
 
+        await fs.unlink(req.file.path);
+
         res.json({message: 'File uploaded', printFileReport, response});
 
     });
