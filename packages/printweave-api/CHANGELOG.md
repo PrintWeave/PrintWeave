@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0-beta.5](https://github.com/PrintWeave/PrintWeave/compare/v0.2.0-beta.4...v0.2.0-beta.5) (2025-02-19)
+
+**Note:** Version bump only for package @printweave/api
+
 # [0.2.0-beta.4](https://github.com/PrintWeave/PrintWeave/compare/v0.2.0-beta.3...v0.2.0-beta.4) (2025-02-06)
 
 **Note:** Version bump only for package @printweave/api
