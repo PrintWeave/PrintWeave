@@ -7,6 +7,7 @@
     "build": "npx tsc",
     "start": "node dist/app.js",
     "dev": "nodemon --exec tsx src/app.ts",
+    "watch": "tsc -w",
     "configure": "node dist/configure.js",
     "migrate": "node dist/migrations.js migrate",
     "migrate:undo": "node dist/migrations.js rollback"

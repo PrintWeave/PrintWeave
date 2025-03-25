@@ -1,6 +1,5 @@
 import {BambuWebsocketsConnection} from "./connections/bambu.connection.websockets.js";
 import {WebSocketServer, RawData, WebSocket} from "ws";
-import {ConnectionManager} from "../connections/manager.connection.js";
 import {authMiddleware} from "../routes/auth.route.js";
 import User from "../models/user.model.js";
 import UserPrinter from "../models/userprinter.model.js";
@@ -71,14 +70,14 @@ export class WebsocketsManager {
             }
 
             if (subscriptionType === 'bambu') {
-                this.addBambuConnection(new BambuWebsocketsConnection(printerId, ws));
+                /*this.addBambuConnection(new BambuWebsocketsConnection(printerId, ws));
 
                 const connectionManager = ConnectionManager.getConnectionManager();
                 connectionManager.getConnection(printerId).then((bambuPrinterConnection) => {
                     console.log(bambuPrinterConnection.mqtt.status);
                 });
 
-                ws.send(JSON.stringify({message: 'subscribed', printerId, subscriptionType}));
+                ws.send(JSON.stringify({message: 'subscribed', printerId, subscriptionType}));*/
             } else {
                 ws.send(JSON.stringify({message: 'Invalid subscription type'}));
                 return;
@@ -89,13 +88,13 @@ export class WebsocketsManager {
         }
     }
 
-    addBambuConnection(connection: BambuWebsocketsConnection) {
+/*    addBambuConnection(connection: BambuWebsocketsConnection) {
         if (!this.bambuConnections[connection.printerId]) {
             this.bambuConnections[connection.printerId] = [];
         }
         this.bambuConnections[connection.printerId].push(connection);
-    }
-
+    }*/
+/*
     sendBambuMessage(printerId: number, topic: string, message: any) {
         if (!this.bambuConnections[printerId]) {
             return;
@@ -106,7 +105,7 @@ export class WebsocketsManager {
                 console.error('Error sending message:', e);
             });
         });
-    }
+    }*/
 }
 
 export class BambuWebsocketsConnectionList {

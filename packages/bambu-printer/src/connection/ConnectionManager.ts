@@ -1,7 +1,8 @@
-import {MqttBambuConnection} from "./bambu/mqtt.bambu.connection.js";
-import {Printer} from "../models/printer.model.js";
-import {BambuPrinter} from "../models/printers/bambu.printer.model.js";
-import {FtpsBambuConnection} from "./bambu/ftps.connection.js";
+import {MqttBambuConnection} from "./mqtt.bambu.connection.js";
+import {IPrinter} from "@printweave/api-types";
+import {BambuPrinter} from "../bambu.printer.model.js";
+import {FtpsBambuConnection} from "./ftps.connection.js";
+import Printer from "@printweave/api/dist/models/printer.model.js";
 
 interface ConnectionsList {
     [printerId: number]: PrinterConnectionsBambu;
@@ -24,7 +25,6 @@ export class ConnectionManager {
         }
         return ConnectionManager.instance;
     }
-
 
 
     async generateConnectionsPrinter(printer: Printer) {

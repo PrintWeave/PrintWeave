@@ -3,7 +3,7 @@ import {IModel} from "./Model";
 
 export interface IPrinter extends IModel {
     name: string;
-    type: 'bambu' | 'other';
+    type: string;
     active: boolean;
     userPrinter?: IUserPrinter
 }

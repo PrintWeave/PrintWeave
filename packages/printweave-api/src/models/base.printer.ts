@@ -1,16 +1,14 @@
 import {Column, DataType, ForeignKey, Model} from "sequelize-typescript";
-import Printer from "../printer.model.js";
+import Printer from "./printer.model.js";
 import {PrinterStatus, PrintFileReport} from "@printweave/api-types";
 
 export abstract class BasePrinter extends Model {
-
     @Column({
         type: DataType.STRING,
         allowNull: false
     })
     @ForeignKey(() => Printer)
     declare printerId: number;
-
 
     abstract getVersion(): Promise<string>;
 
@@ -22,5 +20,14 @@ export abstract class BasePrinter extends Model {
 
     abstract getStatus(): Promise<PrinterStatus>;
 
-    abstract uploadFile(file: Express.Multer.File, report: PrintFileReport): Promise<PrintFileReport>;
+    abstract uploadFile(file: PrintWeaveFile, report: PrintFileReport): Promise<PrintFileReport>;
 }
+
+export class PrinterTimeOutError extends Error {
+    constructor(error: Error) {
+        super(error.message);
+        this.name = 'PrinterTimeOutError';
+    }
+}
+
+export type PrintWeaveFile = Express.Multer.File

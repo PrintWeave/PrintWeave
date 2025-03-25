@@ -1,8 +1,7 @@
 import {Request, Response, Router} from "express";
 import {User} from "../models/user.model.js";
 import {Printer} from "../models/printer.model.js";
-import {BasePrinter} from "../models/printers/base.printer.js";
-import {BambuPrinter} from "../models/printers/bambu.printer.model.js";
+import {BasePrinter} from "../models/base.printer.js";
 import {Optional} from "sequelize";
 import {UserPrinter} from "../models/userprinter.model.js";
 import {printerRoutes} from "./printer.route.js";
@@ -51,7 +50,8 @@ export function printersRoutes(): Router {
             return
         }
 
-        let fullPrinter: BasePrinter = null;
+        // TODO: Migrate to the plugin system
+        /*let fullPrinter: BasePrinter = null;
 
         switch (type) {
             case 'bambu':
@@ -94,9 +94,10 @@ export function printersRoutes(): Router {
                 userId: user.id,
                 printerId: printer.id
             }
-        });
+        });*/
 
-        res.json({message: 'Printer created', printer: printer} as CreatePrinterResponse);
+        // res.json({message: 'Printer created', printer: printer} as CreatePrinterResponse);
+        res.json({message: 'Printer created', printer: null} as CreatePrinterResponse);
     });
 
     router.delete('/:printerId', async (req: Request, res: Response) => {

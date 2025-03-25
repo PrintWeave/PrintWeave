@@ -3,7 +3,7 @@ import {OwnBambuClient} from "./mqtt/OwnBambuClient.js";
 import {PausePrintCommand} from "./mqtt/PausePrintCommand.js";
 import {ResumePrintCommand} from "./mqtt/ResumePrintCommand.js";
 import {GetVersionCommand} from "bambu-node";
-import {WebsocketsManager} from "../../websockets/manager.websockets.js";
+import {EventEmitter} from "events";
 
 export class MqttBambuConnection {
 
@@ -24,7 +24,7 @@ export class MqttBambuConnection {
             console.log(`Printer with id: ${printerId} status changed from ${oldStatus} to ${newStatus}`);
             this.status = newStatus;
         })
-
+        
         this.client.on("rawMessage", (topic, message) => {
 
             const data = JSON.parse(message.toString());
@@ -32,7 +32,7 @@ export class MqttBambuConnection {
             const firstKey = Object.keys(data)[0];
             const topicName = `${firstKey}.${data[firstKey].command}`;
 
-            WebsocketsManager.getWebsocketsManager().sendBambuMessage(this.printerId, topicName, data);
+            // WebsocketsManager.getWebsocketsManager().sendBambuMessage(this.printerId, topicName, data);
         });
     }
 
