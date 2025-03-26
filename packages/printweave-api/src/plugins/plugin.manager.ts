@@ -1,8 +1,7 @@
-import {Express} from "express";
-import {Plugin} from "./plugin.interface.js";
 import {EventEmitter} from "events";
+import {IPluginManager, Plugin, Express} from "@printweave/models";
 
-export class PluginManager extends EventEmitter {
+export class PluginManager extends EventEmitter implements IPluginManager {
     private plugins: Plugin[] = [];
 
     registerPlugin(plugin: Plugin) {

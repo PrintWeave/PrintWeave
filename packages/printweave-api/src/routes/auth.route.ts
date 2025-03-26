@@ -4,10 +4,9 @@ import {Strategy as JwtStrategy, ExtractJwt, VerifiedCallback} from 'passport-jw
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
-import {User} from '../models/user.model.js';
 import {envInt} from "../environment.js";
-import {Printer} from "../models/printer.model.js";
 import {SimpleUnauthorizedError, UnauthorizedError} from "@printweave/api-types";
+import {User} from "@printweave/models";
 
 interface JwtPayload {
     id: string;

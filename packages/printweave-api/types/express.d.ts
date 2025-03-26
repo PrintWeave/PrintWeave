@@ -1,4 +1,4 @@
-import {User as OwnUser} from "../src/models/user.model.ts";
+import {User as OwnUser} from "@printweave/models";
 
 declare global {
     namespace Express {

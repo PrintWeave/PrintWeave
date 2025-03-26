@@ -9,7 +9,7 @@ import {apiRoutes} from "./routes/api.route.js";
 import {WebSocketServer, WebSocket} from 'ws';
 import {umzug} from "./migrations.js";
 import {WebsocketsManager} from "./websockets/manager.websockets.js";
-import User from "./models/user.model.js";
+import {User} from "@printweave/models";
 import {createServer} from "node:http";
 import multer from 'multer';
 import * as fs from "node:fs";

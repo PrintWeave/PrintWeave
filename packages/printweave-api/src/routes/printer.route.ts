@@ -1,8 +1,5 @@
 import {Router, Response as EResponse} from "express";
-import {UserPrinter} from "../models/userprinter.model.js";
-import {Printer} from "../models/printer.model.js";
-// import {bambuPrinterRoutes} from "./printer/bambu.printer.route.js";
-import User from "../models/user.model.js";
+import {UserPrinter, User, Printer} from "@printweave/models";
 import {
     GetPrinterError,
     GetPrinterResponse, Invalid3mfFileError,
@@ -14,12 +11,11 @@ import {
     SimpleUnauthorizedError,
     UploadFileError,
 } from "@printweave/api-types";
-import {PrinterTimeOutError} from "../models/base.printer.js";
+import {BasePrinter, PrinterTimeOutError} from "@printweave/models";
 import {storage} from "../app.js";
 import {BlobReader, BlobWriter, TextWriter, ZipReader} from "@zip.js/zip.js";
 import {promises as fs} from "fs";
 import {XMLParser} from "fast-xml-parser";
-import {BasePrinter} from "../models/base.printer.js";
 
 
 const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Record<string, any>>): Promise<PrintFileReport> => {

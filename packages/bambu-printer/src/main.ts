@@ -1,13 +1,15 @@
-import {Plugin} from "@printweave/api/dist/plugins/plugin.interface.js";
-import {PluginManager} from "@printweave/api/dist/plugins/plugin.manager.js";
-import * as e from "express";
+import {BasePrinter, IPluginManager, Plugin, Express} from "@printweave/models";
 
 export class PrinterPlugin implements Plugin {
-    initializeEvents(manager: PluginManager): void {
+    initializeEvents(manager: IPluginManager): void {
 
     }
 
-    registerRoutes(app: e.Express): void {
-
+    createPrinter(options: any): BasePrinter {
+        return undefined;
     }
+
+    registerRoutes(app: Express): void {
+    }
+
 }

@@ -14,7 +14,7 @@ import {Light, PrinterStatus, Filament, MultiMaterial, PrintFileReport} from "@p
 import path from "path";
 import {Readable} from "node:stream";
 import {ConnectionManager, PrinterConnectionsBambu} from "./connection/ConnectionManager.js";
-import {BasePrinter, PrinterTimeOutError, PrintWeaveFile} from "@printweave/api/dist/models/base.printer.js";
+import {BasePrinter, PrinterTimeOutError, PrintWeaveFile} from "@printweave/models";
 
 @Table({
     tableName: 'bambu_printers',

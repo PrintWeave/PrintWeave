@@ -1,9 +1,5 @@
 import {Request, Response, Router} from "express";
-import {User} from "../models/user.model.js";
-import {Printer} from "../models/printer.model.js";
-import {BasePrinter} from "../models/base.printer.js";
 import {Optional} from "sequelize";
-import {UserPrinter} from "../models/userprinter.model.js";
 import {printerRoutes} from "./printer.route.js";
 import {
     GetPrintersResponse,
@@ -12,6 +8,7 @@ import {
     CreatePrinterError,
     CreateBambuPrinterError, RemovePrinterError, RemovePrinterResponse, GetPrintersError, SimpleUnauthorizedError,
 } from "@printweave/api-types";
+import {Printer, User, UserPrinter} from "@printweave/models";
 
 export function printersRoutes(): Router {
     const router = Router();

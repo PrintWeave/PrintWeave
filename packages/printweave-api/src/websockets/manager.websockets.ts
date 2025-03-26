@@ -1,8 +1,7 @@
 import {BambuWebsocketsConnection} from "./connections/bambu.connection.websockets.js";
 import {WebSocketServer, RawData, WebSocket} from "ws";
 import {authMiddleware} from "../routes/auth.route.js";
-import User from "../models/user.model.js";
-import UserPrinter from "../models/userprinter.model.js";
+import {User, UserPrinter} from "@printweave/models";
 
 const snakeToCamel = (str: string) => str.replace(/([-_]\w)/g, g => g[1].toUpperCase());
 

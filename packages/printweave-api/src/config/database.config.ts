@@ -2,9 +2,7 @@ import { Sequelize } from "sequelize-typescript";
 import * as fs from "fs/promises";
 
 import path from "path";
-import User from "../models/user.model.js";
-import Printer from "../models/printer.model.js";
-import UserPrinter from "../models/userprinter.model.js";
+import { User, Printer, UserPrinter } from "@printweave/models";
 
 const db = new Sequelize({
     dialect: "sqlite",

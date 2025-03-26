@@ -1,6 +1,6 @@
 import {Column, DataType, ForeignKey, Model} from "sequelize-typescript";
-import Printer from "./printer.model.js";
 import {PrinterStatus, PrintFileReport} from "@printweave/api-types";
+import Printer from "./printer.model.js";
 
 export abstract class BasePrinter extends Model {
     @Column({

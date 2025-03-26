@@ -2,7 +2,7 @@ import {MqttBambuConnection} from "./mqtt.bambu.connection.js";
 import {IPrinter} from "@printweave/api-types";
 import {BambuPrinter} from "../bambu.printer.model.js";
 import {FtpsBambuConnection} from "./ftps.connection.js";
-import Printer from "@printweave/api/dist/models/printer.model.js";
+import {Printer} from "@printweave/models";
 
 interface ConnectionsList {
     [printerId: number]: PrinterConnectionsBambu;
