@@ -5,3 +5,5 @@ export * from './userprinter.model.js';
 export * from './plugin.interface.js';
 
 export {Express} from "express";
+
+export {Request} from "express";

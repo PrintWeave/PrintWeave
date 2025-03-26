@@ -1,24 +1,23 @@
-/*
 import {Router} from "express";
-import UserPrinter from "../../models/userprinter.model.js";
-import Printer from "../../models/printer.model.js";
-import {BambuPrinter} from "../../../../bambu-printer/src/bambu.printer.model.js";
-import {CustomMessageCommand} from "../../../../bambu-printer/src/connection/mqtt/CustomMessageCommand.js";
+import {Printer, PrinterTimeOutError, User, UserPrinter} from "@printweave/models";
+import {BambuPrinter} from "../bambu.printer.model.js";
 import {
     SimpleUnauthorizedError, BambuMQTTMessageError,
     BambuMQTTMessageResponse
 } from "@printweave/api-types";
-import {PrinterTimeOutError} from "../../models/base.printer.js";
+import {PrinterConnectionsBambu} from "connection/ConnectionManager.js";
+import {CustomMessageCommand} from "connection/mqtt/CustomMessageCommand.js";
 
+import {Request} from "@printweave/models";
 
 export function bambuPrinterRoutes(printerId: number, printer: Printer): Router {
     const router = Router();
 
-    /!**
+    /**
      * Send a MQTT message to the printer
      * POST /api/printers/:printerId/bambu/mqtt
      * Response: {@link BambuMQTTMessageResponse} | {@link BambuMQTTMessageError}
-     *!/
+     */
     router.post('/mqtt', async (req, res) => {
         const user = req.user;
         if (!user) {
@@ -76,4 +75,3 @@ export function bambuPrinterRoutes(printerId: number, printer: Printer): Router 
 
     return router;
 }
-*/
