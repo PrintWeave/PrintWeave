@@ -6,6 +6,7 @@ import {Command} from 'commander';
 import concurrently from 'concurrently';
 import {createRequire} from 'module';
 import url from 'url';
+import {checkUpdates} from "./update.mjs"
 
 const require = createRequire(import.meta.url);
 const program = new Command();
@@ -28,6 +29,8 @@ program
     .description('Start the frontend and API server')
     .option('-m, --method <method>', 'Method to start the server, default is node, available methods: node, forever', 'node')
     .action(async (options) => {
+        checkUpdates("@printweave/cli")
+
         const method = options.method || 'node';
         if (methodIsInstalled(method)) {
             const apiPath = getPathPackage('@printweave/api');
