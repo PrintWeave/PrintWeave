@@ -1,5 +1,5 @@
 import {Router, Response as EResponse} from "express";
-import {UserPrinter, User, Printer} from "@printweave/models";
+import {UserPrinter, User, Printer, BasePrinter, PrinterTimeOutError, getPrinterAndUser} from "@printweave/models";
 import {
     GetPrinterError,
     GetPrinterResponse, Invalid3mfFileError,
@@ -11,7 +11,6 @@ import {
     SimpleUnauthorizedError,
     UploadFileError,
 } from "@printweave/api-types";
-import {BasePrinter, PrinterTimeOutError} from "@printweave/models";
 import {storage} from "../app.js";
 import {BlobReader, BlobWriter, TextWriter, ZipReader} from "@zip.js/zip.js";
 import {promises as fs} from "fs";
@@ -106,7 +105,7 @@ export function printerRoutes(printerId: number): Router {
      * Response: {@link GetPrinterResponse} | {@link GetPrinterError}
      */
     router.get('/', async (req, res) => {
-        const user = req.user;
+        const user = req.user as User;
         if (!user) {
             res.status(401).json(new SimpleUnauthorizedError(401));
             return;
@@ -119,20 +118,12 @@ export function printerRoutes(printerId: number): Router {
     });
 
     router.get('/version', async (req, res) => {
-        const user = req.user;
-        if (!user) {
-            res.status(401).json(new SimpleUnauthorizedError(401));
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate', 'view']);
+
+        if (error) {
+            res.status(error.code).json(error.err);
             return;
         }
-
-        // get the user's printers by printerId
-        const userPrinter = await UserPrinter.findOne({
-            where: {
-                userId: user.id,
-                printerId: printerId,
-                permission: ['admin', 'operate', 'view']
-            }
-        });
 
         if (!userPrinter) {
             res.status(403).json(new SimpleUnauthorizedError(403));
@@ -155,20 +146,12 @@ export function printerRoutes(printerId: number): Router {
      * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
      */
     router.post('/stop', async (req, res) => {
-        const user = req.user;
-        if (!user) {
-            res.status(401).json(new SimpleUnauthorizedError(401));
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate', 'view']);
+
+        if (error) {
+            res.status(error.code).json(error.err);
             return;
         }
-
-        // get the user's printers by printerId
-        const userPrinter = await UserPrinter.findOne({
-            where: {
-                userId: user.id,
-                printerId: printerId,
-                permission: ['admin', 'operate', 'view']
-            }
-        });
 
         if (!userPrinter) {
             res.status(403).json(new SimpleUnauthorizedError(403));
@@ -192,20 +175,12 @@ export function printerRoutes(printerId: number): Router {
      * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
      */
     router.post('/pause', async (req, res) => {
-        const user = req.user;
-        if (!user) {
-            res.status(401).json(new SimpleUnauthorizedError(401));
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate', 'view']);
+
+        if (error) {
+            res.status(error.code).json(error.err);
             return;
         }
-
-        // get the user's printers by printerId
-        const userPrinter = await UserPrinter.findOne({
-            where: {
-                userId: user.id,
-                printerId: printerId,
-                permission: ['admin', 'operate', 'view']
-            }
-        });
 
         if (!userPrinter) {
             res.status(403).json(new SimpleUnauthorizedError(403));
@@ -229,20 +204,12 @@ export function printerRoutes(printerId: number): Router {
      * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
      */
     router.post('/resume', async (req, res) => {
-        const user: User | undefined = req.user
-        if (!user) {
-            res.status(401).json(new SimpleUnauthorizedError(401));
-            return
-        }
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate', 'view']);
 
-        // get the user's printers by printerId
-        const userPrinter = await UserPrinter.findOne({
-            where: {
-                userId: user.id,
-                printerId: printerId,
-                permission: ['admin', 'operate', 'view']
-            }
-        });
+        if (error) {
+            res.status(error.code).json(error.err);
+            return;
+        }
 
         if (!userPrinter) {
             res.status(403).json(new SimpleUnauthorizedError(403));
@@ -266,20 +233,12 @@ export function printerRoutes(printerId: number): Router {
      * Response: {@link PrinterStatusResponse} | {@link PrinterStatusError}
      */
     router.get('/status', async (req, res) => {
-        const user = req.user;
-        if (!user) {
-            res.status(401).json(new SimpleUnauthorizedError(401));
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate', 'view']);
+
+        if (error) {
+            res.status(error.code).json(error.err);
             return;
         }
-
-        // get the user's printers by printerId
-        const userPrinter = await UserPrinter.findOne({
-            where: {
-                userId: user.id,
-                printerId: printerId,
-                permission: ['admin', 'operate', 'view']
-            }
-        });
 
         if (!userPrinter) {
             res.status(403).json(new SimpleUnauthorizedError(403));
@@ -304,23 +263,10 @@ export function printerRoutes(printerId: number): Router {
     });
 
     router.post('/file', storage.single('file'), async (req, res) => {
-        const user = req.user;
-        if (!user) {
-            res.status(401).json(new SimpleUnauthorizedError(401));
-            return;
-        }
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate']);
 
-        // get the user's printers by printerId
-        const userPrinter = await UserPrinter.findOne({
-            where: {
-                userId: user.id,
-                printerId: printerId,
-                permission: ['admin', 'operate']
-            }
-        });
-
-        if (!userPrinter) {
-            res.status(403).json(new SimpleUnauthorizedError(403));
+        if (error) {
+            res.status(error.code).json(error.err);
             return;
         }
 

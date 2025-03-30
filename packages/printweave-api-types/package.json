@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w",
+    "watch": "tsc -w --preserveWatchOutput ",
     "test": "echo \"Error: no test specified\" && exit 0"
   },
   "repository": {

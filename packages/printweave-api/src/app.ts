@@ -1,4 +1,3 @@
-import express from "express";
 import passport from "passport";
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import {authRoutes} from "./routes/auth.route.js";
@@ -14,13 +13,15 @@ import {createServer} from "node:http";
 import multer from 'multer';
 import * as fs from "node:fs";
 import path from "path";
+import {PluginManager} from "./plugins/plugin.manager.js";
+import {PrintWeaveExpress, express} from "@printweave/models";
 
 const JWT_SECRET = process.env.SECRET_KEY || 'your_secure_secret_key';
 
 dotenv.config({path: './.env'});
 
 const port = envInt("PORT", 3000);
-const app = express();
+const app = express() as PrintWeaveExpress.Express;
 
 export const storage = multer({dest: envString("UPLOAD_DIR", "./tmp")});
 
@@ -32,6 +33,20 @@ authRoutes(app);
 
 // Manage printer routes
 app.use('/api', apiRoutes());
+
+const pluginManager = new PluginManager();
+
+// Filter out empty strings from the plugin list
+const plugins = envString("PLUGINS", "")
+    .split(',')
+    .filter(plugin => plugin.trim().length > 0);
+
+// Load the plugins from npm
+await pluginManager.loadPlugins(plugins);
+
+// Initialize the plugins with your Express app
+pluginManager.initializePlugins(app as PrintWeaveExpress);
+
 
 (async () => {
     const storageDir = envString("UPLOAD_DIR", "./tmp");

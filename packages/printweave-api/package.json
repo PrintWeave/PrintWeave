@@ -7,7 +7,7 @@
     "build": "npx tsc",
     "start": "node dist/app.js",
     "dev": "nodemon --exec tsx src/app.ts",
-    "watch": "tsc -w",
+    "watch": "tsc -w --preserveWatchOutput ",
     "configure": "node dist/configure.js",
     "migrate": "node dist/migrations.js migrate",
     "migrate:undo": "node dist/migrations.js rollback"
@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@printweave/api-types": "^0.2.0-beta.3",
+    "@printweave/models": "^0.1.0",
     "bambu-node": "^3.22.21",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",

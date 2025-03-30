@@ -1,14 +1,19 @@
 import {Router} from "express";
-import {Printer, PrinterTimeOutError, User, UserPrinter} from "@printweave/models";
+import {
+    Printer,
+    PrinterTimeOutError,
+    User,
+    UserPrinter,
+    Express as PrintWeaveExpress,
+    getPrinterAndUser
+} from "@printweave/models";
 import {BambuPrinter} from "../bambu.printer.model.js";
 import {
     SimpleUnauthorizedError, BambuMQTTMessageError,
-    BambuMQTTMessageResponse
+    BambuMQTTMessageResponse, UnauthorizedError
 } from "@printweave/api-types";
 import {PrinterConnectionsBambu} from "connection/ConnectionManager.js";
 import {CustomMessageCommand} from "connection/mqtt/CustomMessageCommand.js";
-
-import {Request} from "@printweave/models";
 
 export function bambuPrinterRoutes(printerId: number, printer: Printer): Router {
     const router = Router();
@@ -19,23 +24,10 @@ export function bambuPrinterRoutes(printerId: number, printer: Printer): Router 
      * Response: {@link BambuMQTTMessageResponse} | {@link BambuMQTTMessageError}
      */
     router.post('/mqtt', async (req, res) => {
-        const user = req.user;
-        if (!user) {
-            res.status(401).json(new SimpleUnauthorizedError(401));
-            return;
-        }
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user);
 
-        // get the user's printers by printerId
-        const userPrinter = await UserPrinter.findOne({
-            where: {
-                userId: user.id,
-                printerId: printerId,
-                permission: ['admin', 'operate']
-            }
-        });
-
-        if (!userPrinter) {
-            res.status(403).json(new SimpleUnauthorizedError(403));
+        if (error) {
+            res.status(error.code).json(error.err);
             return;
         }
 

@@ -1,6 +1,7 @@
 import {Column, DataType, ForeignKey, Model} from "sequelize-typescript";
 import {PrinterStatus, PrintFileReport} from "@printweave/api-types";
 import Printer from "./printer.model.js";
+import {Multer} from "multer";
 
 export abstract class BasePrinter extends Model {
     @Column({
@@ -30,4 +31,4 @@ export class PrinterTimeOutError extends Error {
     }
 }
 
-export type PrintWeaveFile = Express.Multer.File
+export type PrintWeaveFile = Express.Multer.File;

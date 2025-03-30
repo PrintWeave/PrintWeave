@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w",
+    "watch": "tsc -w --preserveWatchOutput ",
     "clean": "rimraf dist"
   },
   "dependencies": {
