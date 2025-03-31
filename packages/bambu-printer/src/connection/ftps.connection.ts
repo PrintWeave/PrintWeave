@@ -33,7 +33,7 @@ export class FtpsBambuConnection {
             })
         }
         catch(err) {
-            PrinterPlugin.logger.info(err)
+            PrinterPlugin.logger.error(err)
         }
 
         return this;

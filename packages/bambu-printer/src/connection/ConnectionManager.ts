@@ -48,7 +48,7 @@ export class ConnectionManager {
 
         this.connections[printer.id] = {
             mqtt: mqttBambuConnection,
-            ftps: new FtpsBambuConnection(bambuPrinter.ip, bambuPrinter.code)
+            ftps: new FtpsBambuConnection(bambuPrinter.dataValues.ip, bambuPrinter.dataValues.code)
         }
     }
 
