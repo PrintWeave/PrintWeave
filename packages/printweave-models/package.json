@@ -1,6 +1,6 @@
 {
   "name": "@printweave/models",
-  "version": "0.3.0-beta.0",
+  "version": "0.3.0-beta.2",
   "description": "Data models for PrintWeave",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

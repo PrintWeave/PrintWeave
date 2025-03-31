@@ -1,6 +1,6 @@
 {
   "name": "@printweave/bambu-printer",
-  "version": "0.3.0-beta.1",
+  "version": "0.3.0-beta.2",
   "main": "dist/main.js",
   "type": "module",
   "scripts": {
@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@printweave/api-types": "^0.3.0-beta.0",
-    "@printweave/models": "^0.3.0-beta.0",
+    "@printweave/models": "^0.3.0-beta.2",
     "bambu-node": "^3.22.21"
   }
 }
