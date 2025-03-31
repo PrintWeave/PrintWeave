@@ -11,11 +11,14 @@ import {
     SimpleUnauthorizedError,
     UploadFileError,
 } from "@printweave/api-types";
-import {storage} from "../app.js";
+import {storage} from "../main.js";
 import {BlobReader, BlobWriter, TextWriter, ZipReader} from "@zip.js/zip.js";
 import {promises as fs} from "fs";
 import {XMLParser} from "fast-xml-parser";
-
+import {IPrintWeaveApp} from "@printweave/models/dist/models/printweave.app.js";
+import PrinterPlugin from "bambu-printer/dist/main.js";
+import {PluginManager} from "../plugins/plugin.manager.js";
+import {logger} from "../main.js";
 
 const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Record<string, any>>): Promise<PrintFileReport> => {
     let result = {} as PrintFileReport;
@@ -54,19 +57,19 @@ const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Rec
     result.plates = await Promise.all(metadataPlates.map(async (plate: any) => {
         const thumbnailPath = plate.metadata.find((metadata: any) => metadata["@_key"] === 'thumbnail_file')['@_value'];
 
-        console.log(thumbnailPath);
+        logger.info(thumbnailPath);
 
         const thumbnailEntry = entries.find(entry => entry.filename === thumbnailPath);
         let thumbnail: Blob = null;
 
-        console.log(thumbnailEntry);
+        logger.info(thumbnailEntry);
 
         if (thumbnailEntry) {
             const thumbnailStream = new TransformStream();
             const thumbnailPromise = new Response(thumbnailStream.readable).bytes()
             await thumbnailEntry.getData(thumbnailStream.writable);
 
-            console.log(thumbnailPromise);
+            logger.info(thumbnailPromise);
 
             thumbnail = new Blob([new Uint8Array(await thumbnailPromise)]);
         }
@@ -98,6 +101,8 @@ const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Rec
 
 export function printerRoutes(printerId: number): Router {
     const router = Router();
+
+    const app: IPrintWeaveApp = PluginManager.getPluginManager().app;
 
     /**
      * Get printer by printerId
@@ -132,7 +137,7 @@ export function printerRoutes(printerId: number): Router {
 
         const printer = await Printer.findByPk(printerId);
         try {
-            const result = await printer.getPrinter().then(printer => printer?.getVersion());
+            const result = await app.getPrinter(printer).then(printer => printer?.getVersion());
 
             res.json({user, printer, result});
         } catch (error) {
@@ -161,7 +166,7 @@ export function printerRoutes(printerId: number): Router {
         const printer = await Printer.findByPk(printerId);
 
         try {
-            const result = await printer.getPrinter().then(printer => printer?.stopPrint());
+            const result = await app.getPrinter(printer).then(printer => printer?.stopPrint());
 
             res.json({user, printer, result});
         } catch (error) {
@@ -190,7 +195,7 @@ export function printerRoutes(printerId: number): Router {
         const printer = await Printer.findByPk(printerId);
 
         try {
-            const result = await printer.getPrinter().then(printer => printer?.pausePrint());
+            const result = await app.getPrinter(printer).then(printer => printer?.pausePrint());
 
             res.json({user, printer, result});
         } catch (error) {
@@ -219,7 +224,7 @@ export function printerRoutes(printerId: number): Router {
         const printer = await Printer.findByPk(printerId);
 
         try {
-            const result = await printer.getPrinter().then(printer => printer?.resumePrint());
+            const result = await app.getPrinter(printer).then(printer => printer?.resumePrint());
 
             res.json({user, printer, result} as PrinterActionResponse);
         } catch (error) {
@@ -248,7 +253,10 @@ export function printerRoutes(printerId: number): Router {
         const printer = await Printer.findByPk(printerId);
 
         try {
-            const status = await printer.getPrinter().then(printer => printer?.getStatus());
+            const status = await app.getPrinter(printer).then(printer => printer?.getStatus());
+
+            logger.info(status);
+            logger.info(await app.getPrinter(printer))
 
             res.json({user, printer, status} as PrinterStatusResponse);
         } catch (error) {
@@ -299,7 +307,7 @@ export function printerRoutes(printerId: number): Router {
             return;
         }
 
-        const typedPrinter: BasePrinter = await printer.getPrinter();
+        const typedPrinter: BasePrinter = await app.getPrinter(printer);
 
         const response = await typedPrinter.uploadFile(req.file, printFileReport);
 

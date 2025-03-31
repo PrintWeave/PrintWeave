@@ -14,9 +14,13 @@ import {
 } from "@printweave/api-types";
 import {PrinterConnectionsBambu} from "connection/ConnectionManager.js";
 import {CustomMessageCommand} from "connection/mqtt/CustomMessageCommand.js";
+import PrinterPlugin from "main.js";
+import {IPrintWeaveApp} from "@printweave/models/dist/models/printweave.app.js";
 
 export function bambuPrinterRoutes(printerId: number, printer: Printer): Router {
     const router = Router();
+
+    const app: IPrintWeaveApp = PrinterPlugin.getApp();
 
     /**
      * Send a MQTT message to the printer
@@ -31,7 +35,9 @@ export function bambuPrinterRoutes(printerId: number, printer: Printer): Router 
             return;
         }
 
-        const bambuPrinter = await printer.getPrinter();
+        const bambuPrinter = await app.getPrinter(printer) as BambuPrinter;
+
+        PrinterPlugin.logger.info(`Bambu printer: ${bambuPrinter}`);
 
         if (!bambuPrinter || !(bambuPrinter instanceof BambuPrinter)) {
             res.status(404).json({message: 'Printer not a Bambu printer', code: 404} as BambuMQTTMessageError);

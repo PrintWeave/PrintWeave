@@ -1,22 +1,57 @@
 // In packages/printweave-api/src/plugins/plugin.manager.ts
 import {EventEmitter} from "events";
-import {IPluginManager, Plugin, Express} from "@printweave/models";
+import {Express as PrintWeaveExpress, IPluginManager, Plugin} from "@printweave/models";
 import path from "path";
-import fs from "fs";
+import fs from 'fs/promises';
+import {exec} from "node:child_process";
+import {pathToFileURL} from "node:url";
+import chokidar from 'chokidar';
+import {App} from "../app.js";
+import winston from "winston";
+import {createPluginLogger, LogType} from "../logger.js";
+import {logger} from "../main.js";
 
 export class PluginManager extends EventEmitter implements IPluginManager {
     private plugins: Plugin[] = [];
 
-    registerPlugin(plugin: Plugin) {
-        this.plugins.push(plugin);
-        console.log(`Plugin ${plugin.name || 'unnamed'} registered`);
+    private pluginsDir: string;
+    private pluginPackages: string[] = [];
+    private isDevMode: boolean = false;
+    public app: App = new App(this);
+
+    private static instance: PluginManager;
+    static getPluginManager(): PluginManager {
+        if (!PluginManager.instance) {
+            PluginManager.instance = new PluginManager();
+        }
+        return PluginManager.instance;
     }
 
-    initializePlugins(app: Express) {
-        console.log(`Initializing ${this.plugins.length} plugins`);
+    constructor() {
+        super();
+        this.pluginsDir = path.join(process.cwd(), 'plugins');
+        this.isDevMode = process.env.NODE_ENV === 'development';
+    }
+
+    getPlugins(): Plugin[] {
+        return this.plugins;
+    }
+
+    registerPlugin(plugin: Plugin) {
+        this.plugins.push(plugin);
+        logger.info(`Plugin ${plugin.name || 'unnamed'} registered`);
+    }
+
+    initializePlugins(app: PrintWeaveExpress): void {
+        logger.info(`Initializing ${this.plugins.length} plugins`);
+
+        this.plugins.forEach(plugin => {
+            logger.info(plugin)
+            logger.info(typeof plugin);
+        });
 
         // Initialize routes
-        this.plugins.forEach(plugin => plugin.registerRoutes(app));
+        this.plugins.forEach(plugin => plugin.registerRoutes(app as PrintWeaveExpress));
 
         // Initialize events
         this.plugins.forEach(plugin => plugin.initializeEvents(this));
@@ -25,40 +60,197 @@ export class PluginManager extends EventEmitter implements IPluginManager {
     }
 
     async loadPlugins(pluginNames: string[]) {
-        console.log(`Loading plugins: ${pluginNames.join(', ') || 'none'}`);
+        this.pluginPackages = pluginNames;
 
-        for (const pluginName of pluginNames) {
-            if (!pluginName.trim()) continue;
+        logger.info(`Loading plugins: ${pluginNames.join(', ') || 'none'}`);
 
+        const installedPlugins = await this.getInstalledPlugins();
+
+        // Uninstall plugins no longer in PLUGINS env
+        for (const installedPlugin of installedPlugins) {
+            if (!this.pluginPackages.map((p) => p.trim()).includes(installedPlugin)) {
+                try {
+                    await this.uninstallPackage(installedPlugin);
+                } catch (error) {
+                    console.error(`Error uninstalling ${installedPlugin}:`, error);
+                }
+            }
+        }
+
+        this.plugins = []; // Reset the plugins array
+        for (const packageName of this.pluginPackages) {
+            const trimmedPackageName = packageName.trim();
             try {
-                // Try to load the plugin as an npm package
-                const pluginPackage = await import(pluginName);
+                await this.installPackage(trimmedPackageName);
 
-                // Check if the package exports a Plugin constructor or instance
-                if (pluginPackage.default) {
-                    // It could be a constructor function or class
-                    if (typeof pluginPackage.default === 'function') {
-                        const PluginClass = pluginPackage.default;
-                        this.registerPlugin(new PluginClass());
-                    }
-                    // It could be a plugin instance
-                    else if (this.isValidPlugin(pluginPackage.default)) {
-                        this.registerPlugin(pluginPackage.default);
-                    } else {
-                        console.error(`Plugin ${pluginName} does not export a valid Plugin instance or constructor`);
-                    }
-                } else {
-                    console.error(`Plugin ${pluginName} does not have a default export`);
+                const plugin = await this.loadPlugin(packageName);
+                this.plugins.push(plugin);
+
+                if (this.isDevMode) {
+                    this.watchPlugin(packageName); // Start watching for changes
                 }
             } catch (error) {
-                console.error(`Failed to load plugin ${pluginName}:`, error);
+                console.error(`Error loading plugin ${trimmedPackageName}:`, error);
             }
         }
     }
-
-    private isValidPlugin(plugin: any): plugin is Plugin {
-        return plugin &&
-            typeof plugin.registerRoutes === 'function' &&
-            typeof plugin.initializeEvents === 'function';
+    private async installPackage(packageName: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const installCommand = `npm install ${packageName} --prefix ${this.pluginsDir}`;
+            exec(installCommand, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Error installing ${packageName}: ${error}`);
+                    reject(error);
+                    return;
+                }
+                logger.info(`Installed ${packageName}`);
+                resolve();
+            });
+        });
     }
+
+    private async uninstallPackage(packageName: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            const uninstallCommand = `npm uninstall ${packageName} --prefix ${this.pluginsDir}`;
+            exec(uninstallCommand, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Error uninstalling ${packageName}: ${error}`);
+                    reject(error);
+                    return;
+                }
+                logger.info(`Uninstalled ${packageName}`);
+                resolve();
+            });
+        });
+    }
+
+    private async getPackageEntryPoint(packageName: string): Promise<string> {
+        let packagePath: string;
+
+        if (packageName.startsWith('file://') || packageName.startsWith('.')) {
+            packagePath = path.join(process.cwd(), packageName);
+        }
+        else {
+            packagePath = path.join(this.pluginsDir, 'node_modules', packageName);
+        }
+
+        const packageJsonPath = path.join(packagePath, 'package.json');
+
+        logger.info(`Reading package.json from ${packageJsonPath}`);
+
+        try {
+            const packageJsonContent = await fs.readFile(packageJsonPath, 'utf-8');
+            const packageJson = JSON.parse(packageJsonContent as string);
+
+            if (!packageJson.main && !packageJson.module) {
+                throw new Error(`Package ${packageName} does not have a "main" or "module" entry`);
+            }
+
+            // Prefer "module" if available (for ES modules)
+            const entryPoint: string = packageJson.module || packageJson.main;
+
+            return path.join(packagePath, entryPoint);
+        } catch (error) {
+            console.error(`Error reading package.json for ${packageName}:`, error);
+            throw error;
+        }
+    }
+
+    private async getInstalledPlugins(): Promise<string[]> {
+        try {
+            const pluginPackageJsonPath = path.join(this.pluginsDir, 'package.json');
+            const pluginPackageJsonContent = await fs.readFile(
+                pluginPackageJsonPath,
+                'utf-8'
+            );
+            const pluginPackageJson = JSON.parse(pluginPackageJsonContent);
+            const installedPlugins = Object.keys(pluginPackageJson.dependencies || {});
+
+            // Normalize plugin names in package.json (remove "file:" prefix from local paths)
+            return installedPlugins.map(pluginName => {
+                if (pluginName.startsWith('file:')) {
+                    return path.basename(pluginName);
+                }
+                return pluginName;
+            });
+        } catch (error) {
+            console.warn(
+                'Could not read plugins/package.json, assuming no plugins installed.'
+            );
+            return [];
+        }
+    }
+
+    private async isPluginsDirEmpty(): Promise<boolean> {
+        try {
+            await fs.access(path.join(this.pluginsDir, 'node_modules'));
+            return false; // Directory exists
+        } catch (error: any) {
+            if (error.code === 'ENOENT') {
+                return true; // Directory does not exist
+            }
+            throw error; // Other error
+        }
+    }
+
+    private async loadPlugin(packageName: string): Promise<Plugin> {
+        try {
+            const entryPoint = await this.getPackageEntryPoint(packageName);
+            const fileUrl = pathToFileURL(entryPoint).toString();
+            logger.info(`Loading plugin from ${fileUrl}`);
+            const plugin: Plugin = new ((await import(fileUrl)).default)(createPluginLogger(packageName, LogType.PLUGIN));
+            logger.info(`Plugin loaded: ${packageName} from ${fileUrl}`);
+            return plugin;
+        } catch (error) {
+            console.error(`Error loading plugin ${packageName}:`, error);
+            throw error; // Re-throw to be caught in loadPlugins
+        }
+    }
+
+    private async watchPlugin(packageName: string): Promise<void> {
+        if (!this.isDevMode) return;
+
+        // throw new Error('Watching plugins is not implemented yet');
+
+        // Determine the actual path based on whether it's local or remote
+        let packagePath = path.join(this.pluginsDir, 'node_modules', packageName);
+        // Handle the cases where the package name starts with a directory
+        if (packageName.startsWith('file://') || packageName.startsWith('.')) {
+            // It is a local plugin and resolve the package path
+            packagePath = path.join(process.cwd(), packageName);
+
+        } else {
+            packagePath = path.join(this.pluginsDir, 'node_modules', packageName);
+
+        }
+
+        logger.info(`Watching for changes in plugin: ${packageName} at ${packagePath}`);
+
+        chokidar.watch(packagePath, {
+            ignored: /(^|[/\\])\../, // Ignore dotfiles
+            persistent: true
+        }).on('change', async (filePath) => {
+            logger.info(`File changed: ${filePath}`);
+            try {
+                // Reload the plugin
+                const plugin = await this.loadPlugin(packageName);
+                // Replace the old plugin with the new one
+                const index = this.plugins.findIndex(p => p.name === plugin.name);
+                if (index !== -1) {
+                    this.plugins[index] = plugin;
+
+                    // reload entire app
+                    throw new Error('Reload entire app');
+
+                    logger.info(`Plugin ${packageName} reloaded successfully`);
+                } else {
+                    logger.warn(`Plugin ${packageName} not found in the list`);
+                }
+            } catch (error) {
+                logger.error(`Error reloading plugin ${packageName}:`, error);
+            }
+        });
+    }
+
+    logger: winston.Logger;
 }

@@ -1,15 +1,17 @@
-import { Sequelize } from "sequelize-typescript";
 import * as fs from "fs/promises";
 
 import path from "path";
-import { User, Printer, UserPrinter } from "@printweave/models";
+import { User, Printer, UserPrinter, ModelCtor} from "@printweave/models";
+import {Sequelize} from "sequelize-typescript";
 
-const db = new Sequelize({
-    dialect: "sqlite",
-    storage: path.resolve(process.cwd(), "printweave.sqlite"),
-    logging: false,
-    // TODO: Register Plugin Models
-    models: [User, Printer, UserPrinter]
-});
+export default function createDb(models: ModelCtor[]): Sequelize {
+    const db = new Sequelize({
+        dialect: "sqlite",
+        storage: path.resolve(process.cwd(), "printweave.sqlite"),
+        logging: false,
+        // TODO: Register Plugin Models
+        models: [User, Printer, UserPrinter, ...models],
+    });
 
-export default db;
+    return db;
+}

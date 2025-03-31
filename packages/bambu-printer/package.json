@@ -1,11 +1,11 @@
 {
   "name": "bambu-printer",
   "version": "0.2.0-beta.3",
-  "main": "dist/app.js",
+  "main": "dist/main.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w  | gsed -u 's/\\x1Bc//g'",
+    "watch": "tsc -w --preserveWatchOutput ",
     "test": "echo \"Error: no test specified\" && exit 0"
   },
   "repository": {

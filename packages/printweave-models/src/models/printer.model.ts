@@ -25,13 +25,6 @@ export class Printer extends Model implements IPrinter {
         defaultValue: true
     })
     declare active: boolean;
-
-    async getPrinter(): Promise<BasePrinter | null> {
-        switch (this.type) {
-            default:
-                return null;
-        }
-    }
 }
 
 export default Printer;

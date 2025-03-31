@@ -42,7 +42,7 @@ export class ConnectionManager {
     }
 
     async generateConnectionsBambu(bambuPrinter: BambuPrinter, printer: Printer) {
-        let mqttBambuConnection = new MqttBambuConnection(bambuPrinter.ip, bambuPrinter.code, bambuPrinter.serial, printer.id);
+        let mqttBambuConnection = new MqttBambuConnection(bambuPrinter.dataValues.ip, bambuPrinter.dataValues.code, bambuPrinter.dataValues.serial, printer.dataValues.id);
 
         await mqttBambuConnection.connect();
 
