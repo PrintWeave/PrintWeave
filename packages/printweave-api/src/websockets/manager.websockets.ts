@@ -1,6 +1,4 @@
-import {BambuWebsocketsConnection} from "./connections/bambu.connection.websockets.js";
 import {WebSocketServer, RawData, WebSocket} from "ws";
-import {authMiddleware} from "../routes/auth.route.js";
 import {User, UserPrinter, toCamalCase} from "@printweave/models";
 import {PluginManager} from "../plugins/plugin.manager.js";
 import {logger} from "../main.js";
