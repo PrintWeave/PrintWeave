@@ -15,7 +15,7 @@ import {storage} from "../main.js";
 import {BlobReader, BlobWriter, TextWriter, ZipReader} from "@zip.js/zip.js";
 import {promises as fs} from "fs";
 import {XMLParser} from "fast-xml-parser";
-import {IPrintWeaveApp} from "@printweave/models/dist/models/printweave.app.js";
+import {IPrintWeaveApp} from "@printweave/models";
 import {PluginManager} from "../plugins/plugin.manager.js";
 import {logger} from "../main.js";
 

@@ -14,7 +14,7 @@
     "dev": "concurrently -n server,api-types,printer-bambu,models -c magenta,cyan,green,yellow \"npm run server:dev\" \"npm run api-types:watch\" \"npm run printer-bambu:dev\" \"npm run models:watch\"",
     "watch": "concurrently -n server,api-types,printer-bambu,models -c magenta,cyan,green,yellow \"npm run server:watch\" \"npm run api-types:watch\" \"npm run printer-bambu:dev\" \"npm run models:watch\"",
     "start": "concurrently -n server -c magenta \"npm run server:start\"",
-    "build": "npm run api-types:build && npm run server:build && npm run printer-bambu:build",
+    "build": "npm run api-types:build && npm run models:build && npm run printer-bambu:build && npm run server:build",
     "configure": "cd packages/printweave-api && npm run configure",
     "test": "echo \"Error: no test specified\"",
     "new-version": "lerna version",

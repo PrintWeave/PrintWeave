@@ -1,4 +1,4 @@
-import {IPrintWeaveApp} from "@printweave/models/dist/models/printweave.app.js";
+import {IPrintWeaveApp} from "@printweave/models";
 import {BasePrinter, IPluginManager, Printer} from "@printweave/models";
 import {ModelStatic} from "sequelize";
 
