@@ -1,5 +1,5 @@
 {
-  "name": "bambu-printer",
+  "name": "@printweave/bambu-printer",
   "version": "0.3.0-beta.0",
   "main": "dist/main.js",
   "type": "module",
