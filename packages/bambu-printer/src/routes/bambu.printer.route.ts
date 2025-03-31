@@ -1,4 +1,3 @@
-import {Router} from "express";
 import {
     Printer,
     PrinterTimeOutError,
@@ -12,10 +11,10 @@ import {
     SimpleUnauthorizedError, BambuMQTTMessageError,
     BambuMQTTMessageResponse, UnauthorizedError
 } from "@printweave/api-types";
-import {PrinterConnectionsBambu} from "connection/ConnectionManager.js";
-import {CustomMessageCommand} from "connection/mqtt/CustomMessageCommand.js";
-import PrinterPlugin from "main.js";
-import {IPrintWeaveApp} from "@printweave/models/dist/models/printweave.app.js";
+import {PrinterConnectionsBambu} from "../connection/ConnectionManager.js";
+import {CustomMessageCommand} from "../connection/mqtt/CustomMessageCommand.js";
+import PrinterPlugin from "../main.js";
+import {IPrintWeaveApp, Router} from "@printweave/models";
 
 export function bambuPrinterRoutes(printerId: number, printer: Printer): Router {
     const router = Router();
@@ -35,7 +34,7 @@ export function bambuPrinterRoutes(printerId: number, printer: Printer): Router 
             return;
         }
 
-        const bambuPrinter = await app.getPrinter(printer) as BambuPrinter;
+        const bambuPrinter = await app.getFullPrinter(printer) as BambuPrinter;
 
         PrinterPlugin.logger.info(`Bambu printer: ${bambuPrinter}`);
 

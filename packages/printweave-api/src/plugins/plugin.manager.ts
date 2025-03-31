@@ -45,10 +45,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
     initializePlugins(app: PrintWeaveExpress): void {
         logger.info(`Initializing ${this.plugins.length} plugins`);
 
-        this.plugins.forEach(plugin => {
-            logger.info(plugin)
-            logger.info(typeof plugin);
-        });
+        logger.info(`App: ${app}`);
 
         // Initialize routes
         this.plugins.forEach(plugin => plugin.registerRoutes(app as PrintWeaveExpress));
@@ -198,7 +195,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
             const entryPoint = await this.getPackageEntryPoint(packageName);
             const fileUrl = pathToFileURL(entryPoint).toString();
             logger.info(`Loading plugin from ${fileUrl}`);
-            const plugin: Plugin = new ((await import(fileUrl)).default)(createPluginLogger(packageName, LogType.PLUGIN));
+            const plugin: Plugin = new ((await import(fileUrl)).default)(createPluginLogger(packageName, LogType.PLUGIN), this);
             logger.info(`Plugin loaded: ${packageName} from ${fileUrl}`);
             return plugin;
         } catch (error) {

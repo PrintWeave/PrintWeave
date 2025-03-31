@@ -7,7 +7,7 @@ export * from './userprinter.model.js';
 export * from './plugin.interface.js';
 export * from './printweave.app.js';
 
-export {Express} from "express";
+export {Express, Router} from "express";
 import * as PrintWeaveExpress from "express";
 import express from 'express';
 export {PrintWeaveExpress, express};

@@ -137,7 +137,7 @@ export function printerRoutes(printerId: number): Router {
 
         const printer = await Printer.findByPk(printerId);
         try {
-            const result = await app.getPrinter(printer).then(printer => printer?.getVersion());
+            const result = await app.getFullPrinter(printer).then(printer => printer?.getVersion());
 
             res.json({user, printer, result});
         } catch (error) {
@@ -166,7 +166,7 @@ export function printerRoutes(printerId: number): Router {
         const printer = await Printer.findByPk(printerId);
 
         try {
-            const result = await app.getPrinter(printer).then(printer => printer?.stopPrint());
+            const result = await app.getFullPrinter(printer).then(printer => printer?.stopPrint());
 
             res.json({user, printer, result});
         } catch (error) {
@@ -195,7 +195,7 @@ export function printerRoutes(printerId: number): Router {
         const printer = await Printer.findByPk(printerId);
 
         try {
-            const result = await app.getPrinter(printer).then(printer => printer?.pausePrint());
+            const result = await app.getFullPrinter(printer).then(printer => printer?.pausePrint());
 
             res.json({user, printer, result});
         } catch (error) {
@@ -224,7 +224,7 @@ export function printerRoutes(printerId: number): Router {
         const printer = await Printer.findByPk(printerId);
 
         try {
-            const result = await app.getPrinter(printer).then(printer => printer?.resumePrint());
+            const result = await app.getFullPrinter(printer).then(printer => printer?.resumePrint());
 
             res.json({user, printer, result} as PrinterActionResponse);
         } catch (error) {
@@ -253,10 +253,7 @@ export function printerRoutes(printerId: number): Router {
         const printer = await Printer.findByPk(printerId);
 
         try {
-            const status = await app.getPrinter(printer).then(printer => printer?.getStatus());
-
-            logger.info(status);
-            logger.info(await app.getPrinter(printer))
+            const status = await app.getFullPrinter(printer).then(printer => printer?.getStatus());
 
             res.json({user, printer, status} as PrinterStatusResponse);
         } catch (error) {
@@ -307,7 +304,7 @@ export function printerRoutes(printerId: number): Router {
             return;
         }
 
-        const typedPrinter: BasePrinter = await app.getPrinter(printer);
+        const typedPrinter: BasePrinter = await app.getFullPrinter(printer);
 
         const response = await typedPrinter.uploadFile(req.file, printFileReport);
 
@@ -315,16 +312,6 @@ export function printerRoutes(printerId: number): Router {
 
         res.json({message: 'File uploaded', printFileReport, response});
 
-    });
-
-    router.use('/bambu', async (req, res, next) => {
-        const printer = await Printer.findByPk(printerId);
-        if (printer?.type !== 'bambu') {
-            res.status(404).json({message: 'Not Found'});
-            return;
-        }
-
-        // bambuPrinterRoutes(printerId, printer)(req, res, next);
     });
 
     return router;

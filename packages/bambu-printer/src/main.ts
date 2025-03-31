@@ -2,14 +2,13 @@ import {BasePrinter, IPluginManager, Plugin, Express} from "@printweave/models";
 import {BambuPrinter} from "./bambu.printer.model.js";
 import {ModelStatic, ModelCtor} from "@printweave/models";
 import {IPrintWeaveApp, Logger} from "@printweave/models";
+import {bambuPrinterRoutes} from "./routes/bambu.printer.route.js";
 
 export default class PrinterPlugin extends Plugin {
     name = "BambuPrinter";
     printerType = "bambu";
 
     printerClass: ModelStatic<BasePrinter> = BambuPrinter;
-
-    static pluginManager: IPluginManager;
 
     static getApp(): IPrintWeaveApp {
         return this.pluginManager.app;
@@ -36,8 +35,16 @@ export default class PrinterPlugin extends Plugin {
         PrinterPlugin.logger.info('Registering Bambu printer routes');
 
         // Example route registration
-        app.get('/printers/bambu', (req, res) => {
-            res.json({ status: 'Bambu printer plugin active' });
+        app.use('/api/printer/:printerId/bambu', async (req, res, next) =>{
+            const printerId = parseInt(req.params.printerId);
+
+            if (isNaN(printerId)) {
+                res.status(400).json({ code: 400, message: 'Invalid printer ID' });
+                next();
+            }
+
+            const printer = await PrinterPlugin.getApp().getPrinter(printerId)
+            bambuPrinterRoutes(printerId,printer)(req, res, next);
         });
     }
 

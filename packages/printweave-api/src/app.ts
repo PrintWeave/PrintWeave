@@ -9,7 +9,7 @@ export class App implements IPrintWeaveApp {
         this.pluginManager = pluginManager;
     }
 
-    async getPrinter(printer: Printer): Promise<BasePrinter> {
+    async getFullPrinter(printer: Printer): Promise<BasePrinter> {
         for (const plugin of this.pluginManager.getPlugins()) {
             if (plugin.printerType === printer.type) {
                 const printerClass: ModelStatic<BasePrinter> = plugin.printerClass;
@@ -18,5 +18,9 @@ export class App implements IPrintWeaveApp {
         }
 
         return null;
+    }
+
+    async getPrinter(printerId: number): Promise<Printer> {
+        return await Printer.findByPk(printerId);
     }
 }

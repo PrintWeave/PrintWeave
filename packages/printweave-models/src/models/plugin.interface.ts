@@ -28,8 +28,10 @@ export abstract class Plugin {
     abstract createPrinter(options: any): BasePrinter;
 
     static logger: Logger;
+    static pluginManager: IPluginManager;
 
-    constructor(logger: Logger) {
+    constructor(logger: Logger, pluginManager: IPluginManager) {
         Plugin.logger = logger;
+        Plugin.pluginManager = pluginManager;
     }
 }
