@@ -3,6 +3,7 @@ import {IPrinter} from "@printweave/api-types";
 import {BambuPrinter} from "../bambu.printer.model.js";
 import {FtpsBambuConnection} from "./ftps.connection.js";
 import {Printer} from "@printweave/models";
+import PrinterPlugin from "main.js";
 
 interface ConnectionsList {
     [printerId: number]: PrinterConnectionsBambu;
@@ -16,16 +17,11 @@ export interface PrinterConnectionsBambu {
 export class ConnectionManager {
 
     connections: ConnectionsList = {};
+    printerPlugin: PrinterPlugin;
 
-    private static instance: ConnectionManager;
-
-    static getConnectionManager() {
-        if (!ConnectionManager.instance) {
-            ConnectionManager.instance = new ConnectionManager();
-        }
-        return ConnectionManager.instance;
+    constructor(printerPlugin: PrinterPlugin) {
+        this.printerPlugin = printerPlugin;
     }
-
 
     async generateConnectionsPrinter(printer: Printer) {
         if (printer.type === 'bambu') {

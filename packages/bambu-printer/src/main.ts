@@ -3,15 +3,46 @@ import {BambuPrinter} from "./bambu.printer.model.js";
 import {ModelStatic, ModelCtor} from "@printweave/models";
 import {IPrintWeaveApp, Logger} from "@printweave/models";
 import {bambuPrinterRoutes} from "./routes/bambu.printer.route.js";
+import {BambuWebsocketSubscriptionManager} from "./websockets.manager.js";
+import {ConnectionManager} from "./connection/ConnectionManager.js";
 
 export default class PrinterPlugin extends Plugin {
+
+    private bambuWebsocketSubscriptionManager = new BambuWebsocketSubscriptionManager();
+    private connectionManager: ConnectionManager = new ConnectionManager(this);
+
+    private static instance: PrinterPlugin;
+
     name = "BambuPrinter";
+
     printerType = "bambu";
 
     printerClass: ModelStatic<BasePrinter> = BambuPrinter;
+    models: ModelCtor[] = [BambuPrinter];
+    websocketManagers = [this.bambuWebsocketSubscriptionManager];
+
+    constructor(logger: Logger, pluginManager: IPluginManager) {
+        super(logger, pluginManager);
+        PrinterPlugin.instance = this;
+    }
 
     static getApp(): IPrintWeaveApp {
         return this.pluginManager.app;
+    }
+
+    static getInstance(): PrinterPlugin {
+        if (!PrinterPlugin.instance) {
+            throw new Error('PrinterPlugin not initialized');
+        }
+        return PrinterPlugin.instance;
+    }
+
+    getBambuWebsocketSubscriptionManager(): BambuWebsocketSubscriptionManager {
+        return this.bambuWebsocketSubscriptionManager;
+    }
+
+    getConnectionManager(): ConnectionManager {
+        return this.connectionManager;
     }
 
     initializeEvents(manager: IPluginManager): void {
@@ -46,9 +77,5 @@ export default class PrinterPlugin extends Plugin {
             const printer = await PrinterPlugin.getApp().getPrinter(printerId)
             bambuPrinterRoutes(printerId,printer)(req, res, next);
         });
-    }
-
-    getModels(): ModelCtor[] {
-        return [BambuPrinter];
     }
 }

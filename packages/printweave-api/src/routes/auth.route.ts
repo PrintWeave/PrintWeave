@@ -4,17 +4,25 @@ import {Strategy as JwtStrategy, ExtractJwt, VerifiedCallback} from 'passport-jw
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
-import {envInt} from "../environment.js";
+import {envInt, envString} from "../environment.js";
 import {SimpleUnauthorizedError, UnauthorizedError} from "@printweave/api-types";
 import {User} from "@printweave/models";
+import dotenv from "dotenv";
+import {logger} from "../main.js";
 
 interface JwtPayload {
     id: string;
     username: string;
 }
 
+dotenv.config({path: './.env'});
+
 // Configuration
-const JWT_SECRET = process.env.SECRET_KEY || 'your_secure_secret_key';
+const JWT_SECRET = envString("JWT_SECRET", "");
+
+if (!JWT_SECRET || JWT_SECRET === "") {
+    throw new Error("JWT_SECRET is not defined, please set it in your .env file");
+}
 
 // JWT Strategy Configuration
 const jwtOptions = {
@@ -91,7 +99,7 @@ const authRoutes = (app: Application) => {
                 message: 'Registration failed',
                 error: error instanceof Error ? error.message : 'Unknown error'
             });
-            console.error(error)
+            logger.error(error)
         }
     });
 
@@ -138,7 +146,7 @@ const authRoutes = (app: Application) => {
                 message: 'Login failed',
                 error: error instanceof Error ? error.message : 'Unknown error'
             });
-            console.error(error)
+            logger.error(error)
         }
     });
 };

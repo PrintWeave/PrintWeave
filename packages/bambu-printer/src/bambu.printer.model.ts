@@ -15,6 +15,7 @@ import path from "path";
 import {Readable} from "node:stream";
 import {ConnectionManager, PrinterConnectionsBambu} from "./connection/ConnectionManager.js";
 import {BasePrinter, PrinterTimeOutError, PrintWeaveFile} from "@printweave/models";
+import PrinterPlugin from "./main.js";
 
 @Table({
     tableName: 'bambu_printers',
@@ -98,7 +99,7 @@ export class BambuPrinter extends BasePrinter {
 
     public async getConnection(): Promise<PrinterConnectionsBambu> {
         try {
-            const connection = await ConnectionManager.getConnectionManager().getConnection(this.dataValues.printerId);
+            const connection = await PrinterPlugin.getInstance().getConnectionManager().getConnection(this.dataValues.printerId);
             if (!connection) {
                 throw new Error('Printer connection not found');
             }

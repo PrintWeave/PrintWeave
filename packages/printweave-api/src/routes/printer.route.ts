@@ -17,7 +17,6 @@ import {promises as fs} from "fs";
 import {XMLParser} from "fast-xml-parser";
 import {IPrintWeaveApp} from "@printweave/models";
 import {PluginManager} from "../plugins/plugin.manager.js";
-import {logger} from "../main.js";
 
 const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Record<string, any>>): Promise<PrintFileReport> => {
     let result = {} as PrintFileReport;

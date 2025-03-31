@@ -33,6 +33,7 @@ export const logger = createPluginLogger("API", LogType.API);
 export const storage = multer({dest: envString("UPLOAD_DIR", "./tmp")});
 
 const pluginManager = PluginManager.getPluginManager();
+const websocketsManager = new WebsocketsManager(pluginManager);
 
 // Filter out empty strings from the plugin list
 const plugins = envString("PLUGINS", "")
@@ -67,7 +68,7 @@ export async function load() {
     main.use('/api', apiRoutes());
 
     // Get models from the already-loaded plugins
-    const models = pluginManager.getPlugins().map(plugin => plugin.getModels()).flat();
+    const models = pluginManager.getPlugins().map(plugin => plugin.models).flat();
     db = createDb(models);
 
     // Initialize the plugins with your Express main
@@ -92,7 +93,7 @@ export async function load() {
             if (minutes > 60) {
                 fs.unlink(path.join(storageDir, file), (err) => {
                     if (err) {
-                        console.error(err);
+                        logger.error(err);
                         return;
                     }
                     logger.info(`File ${file} was deleted`);
@@ -146,7 +147,7 @@ export async function load() {
 
     wss.on('connection', (ws: WebSocket, req, user: User) => {
         ws.on('message', async (message) => {
-            await WebsocketsManager.getWebsocketsManager().handleMessage(ws, message, user);
+            await websocketsManager.handleMessage(ws, message, user);
         });
 
         ws.send('Connected to Printweave API');

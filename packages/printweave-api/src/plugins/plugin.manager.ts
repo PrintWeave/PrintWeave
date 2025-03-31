@@ -68,7 +68,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
                 try {
                     await this.uninstallPackage(installedPlugin);
                 } catch (error) {
-                    console.error(`Error uninstalling ${installedPlugin}:`, error);
+                    logger.error(`Error uninstalling ${installedPlugin}:`, error);
                 }
             }
         }
@@ -86,7 +86,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
                     this.watchPlugin(packageName); // Start watching for changes
                 }
             } catch (error) {
-                console.error(`Error loading plugin ${trimmedPackageName}:`, error);
+                logger.error(`Error loading plugin ${trimmedPackageName}:`, error);
             }
         }
     }
@@ -95,7 +95,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
         return new Promise((resolve, reject) => {
             execFile('npm', ['install', packageName, '--prefix', this.pluginsDir], {shell: true}, (error, stdout, stderr) => {
                 if (error) {
-                    console.error(`Error installing ${packageName}: ${error}`);
+                    logger.error(`Error installing ${packageName}: ${error}`);
                     reject(error);
                     return;
                 }
@@ -109,7 +109,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
         return new Promise((resolve, reject) => {
             execFile('npm', ['uninstall', packageName, '--prefix', this.pluginsDir], {shell: true}, (error, stdout, stderr) => {
                 if (error) {
-                    console.error(`Error uninstalling ${packageName}: ${error}`);
+                    logger.error(`Error uninstalling ${packageName}: ${error}`);
                     reject(error);
                     return;
                 }
@@ -145,7 +145,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
 
             return path.join(packagePath, entryPoint);
         } catch (error) {
-            console.error(`Error reading package.json for ${packageName}:`, error);
+            logger.error(`Error reading package.json for ${packageName}:`, error);
             throw error;
         }
     }
@@ -196,7 +196,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
             logger.info(`Plugin loaded: ${packageName} from ${fileUrl}`);
             return plugin;
         } catch (error) {
-            console.error(`Error loading plugin ${packageName}:`, error);
+            logger.error(`Error loading plugin ${packageName}:`, error);
             throw error; // Re-throw to be caught in loadPlugins
         }
     }
