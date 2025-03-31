@@ -45,8 +45,6 @@ export class PluginManager extends EventEmitter implements IPluginManager {
     initializePlugins(app: PrintWeaveExpress): void {
         logger.info(`Initializing ${this.plugins.length} plugins`);
 
-        logger.info(`App: ${app}`);
-
         // Initialize routes
         this.plugins.forEach(plugin => plugin.registerRoutes(app as PrintWeaveExpress));
 

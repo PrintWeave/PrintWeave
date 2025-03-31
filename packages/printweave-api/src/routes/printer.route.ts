@@ -57,24 +57,16 @@ const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Rec
     result.plates = await Promise.all(metadataPlates.map(async (plate: any) => {
         const thumbnailPath = plate.metadata.find((metadata: any) => metadata["@_key"] === 'thumbnail_file')['@_value'];
 
-        logger.info(thumbnailPath);
-
         const thumbnailEntry = entries.find(entry => entry.filename === thumbnailPath);
         let thumbnail: Blob = null;
-
-        logger.info(thumbnailEntry);
 
         if (thumbnailEntry) {
             const thumbnailStream = new TransformStream();
             const thumbnailPromise = new Response(thumbnailStream.readable).bytes()
             await thumbnailEntry.getData(thumbnailStream.writable);
 
-            logger.info(thumbnailPromise);
-
             thumbnail = new Blob([new Uint8Array(await thumbnailPromise)]);
         }
-
-
 
         return {
             hasGcode: plate.metadata.some((metadata: any) => metadata["@_key"] === 'gcode_file' && metadata['@_value'] !== ''),
