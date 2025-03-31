@@ -19,13 +19,13 @@ import {createPluginLogger, LogType} from "./logger.js";
 
 type AnyExpress = express.Express | PrintWeaveExpress;
 
-const JWT_SECRET = process.env.SECRET_KEY;
+dotenv.config({path: './.env'});
 
-if (!JWT_SECRET) {
+const JWT_SECRET = envString("JWT_SECRET", "");
+
+if (!JWT_SECRET || JWT_SECRET === "") {
     throw new Error("JWT_SECRET is not defined, please set it in your .env file");
 }
-
-dotenv.config({path: './.env'});
 
 const port = envInt("PORT", 3000);
 export const logger = createPluginLogger("API", LogType.API);

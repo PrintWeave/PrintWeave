@@ -20,6 +20,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
     public app: App = new App(this);
 
     private static instance: PluginManager;
+
     static getPluginManager(): PluginManager {
         if (!PluginManager.instance) {
             PluginManager.instance = new PluginManager();
@@ -89,9 +90,10 @@ export class PluginManager extends EventEmitter implements IPluginManager {
             }
         }
     }
+
     private async installPackage(packageName: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            execFile('npm', ['install', packageName, '--prefix', this.pluginsDir], (error, stdout, stderr) => {
+            execFile('npm', ['install', packageName, '--prefix', this.pluginsDir], {shell: true}, (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Error installing ${packageName}: ${error}`);
                     reject(error);
@@ -105,7 +107,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
 
     private async uninstallPackage(packageName: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            execFile('npm', ['uninstall', packageName, '--prefix', this.pluginsDir], (error, stdout, stderr) => {
+            execFile('npm', ['uninstall', packageName, '--prefix', this.pluginsDir], {shell: true}, (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Error uninstalling ${packageName}: ${error}`);
                     reject(error);
@@ -122,8 +124,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
 
         if (packageName.startsWith('file://') || packageName.startsWith('.')) {
             packagePath = path.join(process.cwd(), packageName);
-        }
-        else {
+        } else {
             packagePath = path.join(this.pluginsDir, 'node_modules', packageName);
         }
 
