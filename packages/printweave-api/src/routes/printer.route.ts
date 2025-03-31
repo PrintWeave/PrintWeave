@@ -17,6 +17,7 @@ import {promises as fs} from "fs";
 import {XMLParser} from "fast-xml-parser";
 import {IPrintWeaveApp} from "@printweave/models";
 import {PluginManager} from "../plugins/plugin.manager.js";
+import rateLimit from 'express-rate-limit';
 
 const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Record<string, any>>): Promise<PrintFileReport> => {
     let result = {} as PrintFileReport;
@@ -91,6 +92,10 @@ const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Rec
 
 export function printerRoutes(printerId: number): Router {
     const router = Router();
+    const fileUploadLimiter = rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // limit each IP to 100 requests per windowMs
+    });
 
     const app: IPrintWeaveApp = PluginManager.getPluginManager().app;
 
@@ -257,7 +262,7 @@ export function printerRoutes(printerId: number): Router {
         }
     });
 
-    router.post('/file', storage.single('file'), async (req, res) => {
+    router.post('/file', storage.single('file'), fileUploadLimiter, async (req, res) => {
         const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate']);
 
         if (error) {
