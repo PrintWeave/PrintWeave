@@ -24,19 +24,9 @@ const JWT_SECRET = process.env.SECRET_KEY || 'your_secure_secret_key';
 dotenv.config({path: './.env'});
 
 const port = envInt("PORT", 3000);
-const main: AnyExpress = express()
 export const logger = createPluginLogger("API", LogType.API);
 
 export const storage = multer({dest: envString("UPLOAD_DIR", "./tmp")});
-
-main.use(express.json());
-main.use(passport.initialize());
-
-// Initialize auth routes
-authRoutes(main);
-
-// Manage printer routes
-main.use('/api', apiRoutes());
 
 const pluginManager = PluginManager.getPluginManager();
 
@@ -45,18 +35,42 @@ const plugins = envString("PLUGINS", "")
     .split(',')
     .filter(plugin => plugin.trim().length > 0);
 
-// Load the plugins from npm
-await pluginManager.loadPlugins(plugins);
+// Load plugins outside the reloadable function
+let main: AnyExpress;
+let db;
+let server;
+let wss;
+let expressServer;
 
-const models = pluginManager.getPlugins().map(plugin => plugin.getModels()).flat();
-const db = createDb(models);
+/**
+ * Load and initialize the server components
+ * This function can be called to reload the server without reloading plugins
+ */
+export async function load() {
+    main = express()
+    main.use(express.json());
+    main.use(passport.initialize());
 
-// Initialize the plugins with your Express main
-pluginManager.initializePlugins(main as unknown as PrintWeaveExpress);
+    // Clean up previous server instances if they exist
+    if (server) {
+        await new Promise(resolve => server.close(resolve));
+    }
 
-const migrations = new Migrations(db);
+    // Initialize auth routes
+    authRoutes(main);
 
-(async () => {
+    // Manage printer routes
+    main.use('/api', apiRoutes());
+
+    // Get models from the already-loaded plugins
+    const models = pluginManager.getPlugins().map(plugin => plugin.getModels()).flat();
+    db = createDb(models);
+
+    // Initialize the plugins with your Express main
+    pluginManager.initializePlugins(main as unknown as PrintWeaveExpress);
+
+    const migrations = new Migrations(db);
+
     const storageDir = envString("UPLOAD_DIR", "./tmp");
     fs.promises.readdir(storageDir).then(files => {
         if (files.length === 0) {
@@ -83,7 +97,7 @@ const migrations = new Migrations(db);
         });
 
         logger.info('Old files removed');
-    })
+    });
 
     await db.authenticate();
 
@@ -101,10 +115,10 @@ const migrations = new Migrations(db);
     }
 
     // Start server
-    main.listen(port, () => logger.info('Server running on port ' + port));
+    expressServer = main.listen(port, () => logger.info('Server running on port ' + port));
 
-    const server = createServer(main);
-    const wss = new WebSocketServer({
+    server = createServer(main);
+    wss = new WebSocketServer({
         noServer: true
     });
 
@@ -124,8 +138,6 @@ const migrations = new Migrations(db);
 
     server.listen(envInt("WEBSOCKET_PORT", 3001));
 
-    // Helper to extract token from request
-
     logger.info('Websockets server running on port ' + envInt("WEBSOCKET_PORT", 3001));
 
     wss.on('connection', (ws: WebSocket, req, user: User) => {
@@ -136,19 +148,77 @@ const migrations = new Migrations(db);
         ws.send('Connected to Printweave API');
     });
 
+    return { server, wss, db, expressServer };
+}
 
-    function extractTokenFromRequest(request) {
-        const authHeader = request.headers.authorization;
-        return authHeader ? authHeader.split(' ')[1] : null;
+/**
+ * Unload and clean up server components
+ * This function properly shuts down all server instances and connections
+ */
+export async function unload() {
+    logger.info('Unloading server components...');
+
+    // Close express server
+    if (expressServer) {
+        await new Promise(resolve => expressServer.close(resolve));
+        logger.info('Express server stopped');
     }
 
-    const authenticate = async (token: string): Promise<User | null> => {
-        try {
-            const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
-            return await User.findByPk(decoded.id);
-        } catch {
-            return null;
-        }
-    };
+    // Close websocket server
+    if (server) {
+        await new Promise(resolve => server.close(resolve));
+        logger.info('Websocket server stopped');
+    }
 
+    // Close all websocket connections
+    if (wss) {
+        wss.clients.forEach(client => {
+            client.terminate();
+        });
+        wss.close();
+        logger.info('All websocket connections closed');
+    }
+
+    // Close database connection if needed
+    if (db && db.close) {
+        await db.close();
+        logger.info('Database connection closed');
+    }
+
+    logger.info('Server successfully unloaded');
+}
+
+/**
+ * Reload the server by unloading then loading again
+ * This function restarts all server components without reloading plugins
+ */
+export async function reload() {
+    logger.info('Reloading server...');
+    await unload();
+    const result = await load();
+    logger.info('Server successfully reloaded');
+    return result;
+}
+
+function extractTokenFromRequest(request) {
+    const authHeader = request.headers.authorization;
+    return authHeader ? authHeader.split(' ')[1] : null;
+}
+
+const authenticate = async (token: string): Promise<User | null> => {
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+        return await User.findByPk(decoded.id);
+    } catch {
+        return null;
+    }
+};
+
+// Load plugins once at startup
+(async () => {
+    // Load the plugins from npm
+    await pluginManager.loadPlugins(plugins);
+
+    // Initial server load
+    await load();
 })();

@@ -33,7 +33,7 @@ export default class PrinterPlugin extends Plugin {
     }
 
     registerRoutes(app: Express): void {
-        PrinterPlugin.logger.info('Registering Bambu printer routes.');
+        PrinterPlugin.logger.info('Registering Bambu printer routes');
 
         // Example route registration
         app.get('/printers/bambu', (req, res) => {

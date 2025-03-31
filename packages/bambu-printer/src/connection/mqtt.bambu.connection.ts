@@ -23,8 +23,6 @@ export class MqttBambuConnection {
             serialNumber: serial
         })
 
-        PrinterPlugin.logger.info(`Connecting to printer with id: ${printerId} at ${ip} with serial: ${serial}`);
-
         this.client.on("printer:statusUpdate", (oldStatus, newStatus) => {
             PrinterPlugin.logger.info(`Printer with id: ${printerId} status changed from ${oldStatus} to ${newStatus}`);
             this.status = newStatus;

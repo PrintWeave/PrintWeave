@@ -9,7 +9,7 @@ import chokidar from 'chokidar';
 import {App} from "../app.js";
 import winston from "winston";
 import {createPluginLogger, LogType} from "../logger.js";
-import {logger} from "../main.js";
+import {logger, reload} from "../main.js";
 
 export class PluginManager extends EventEmitter implements IPluginManager {
     private plugins: Plugin[] = [];
@@ -210,8 +210,6 @@ export class PluginManager extends EventEmitter implements IPluginManager {
     private async watchPlugin(packageName: string): Promise<void> {
         if (!this.isDevMode) return;
 
-        // throw new Error('Watching plugins is not implemented yet');
-
         // Determine the actual path based on whether it's local or remote
         let packagePath = path.join(this.pluginsDir, 'node_modules', packageName);
         // Handle the cases where the package name starts with a directory
@@ -226,29 +224,42 @@ export class PluginManager extends EventEmitter implements IPluginManager {
 
         logger.info(`Watching for changes in plugin: ${packageName} at ${packagePath}`);
 
+        // Add debounce mechanism to prevent multiple rapid reloads
+        let reloadTimeout: NodeJS.Timeout | null = null;
+        const debounceTime = 1000; // 1 second debounce time
+
         chokidar.watch(packagePath, {
             ignored: /(^|[/\\])\../, // Ignore dotfiles
             persistent: true
         }).on('change', async (filePath) => {
             logger.info(`File changed: ${filePath}`);
-            try {
-                // Reload the plugin
-                const plugin = await this.loadPlugin(packageName);
-                // Replace the old plugin with the new one
-                const index = this.plugins.findIndex(p => p.name === plugin.name);
-                if (index !== -1) {
-                    this.plugins[index] = plugin;
 
-                    // reload entire app
-                    throw new Error('Reload entire app');
-
-                    logger.info(`Plugin ${packageName} reloaded successfully`);
-                } else {
-                    logger.warn(`Plugin ${packageName} not found in the list`);
-                }
-            } catch (error) {
-                logger.error(`Error reloading plugin ${packageName}:`, error);
+            // Clear previous timeout if it exists
+            if (reloadTimeout) {
+                clearTimeout(reloadTimeout);
             }
+
+            // Set a new timeout
+            reloadTimeout = setTimeout(async () => {
+                try {
+                    // Reload the plugin
+                    const plugin = await this.loadPlugin(packageName);
+                    // Replace the old plugin with the new one
+                    const index = this.plugins.findIndex(p => p.name === plugin.name);
+                    if (index !== -1) {
+                        this.plugins[index] = plugin;
+
+                        // reload entire app
+                        await reload();
+
+                        logger.info(`Plugin ${packageName} reloaded successfully`);
+                    } else {
+                        logger.warn(`Plugin ${packageName} not found in the list`);
+                    }
+                } catch (error) {
+                    logger.error(`Error reloading plugin ${packageName}:`, error);
+                }
+            }, debounceTime);
         });
     }
 
