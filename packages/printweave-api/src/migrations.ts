@@ -3,7 +3,6 @@ import {Umzug, SequelizeStorage} from 'umzug';
 import db from './config/database.config.js';
 import path from 'path';
 
-
 export class Migrations {
 
     private db: Sequelize;
@@ -26,7 +25,7 @@ export class Migrations {
     async migrate() {
         try {
             await this.umzug.up();
-            logger.info('Migrations ran successfully');
+            console.log('Migrations ran successfully');
         } catch (err) {
             console.error('Error running migrations', err);
         } finally {
@@ -37,7 +36,7 @@ export class Migrations {
     async rollback() {
         try {
             await this.umzug.down();
-            logger.info('Migrations rolled back successfully');
+            console.log('Migrations rolled back successfully');
         } catch (err) {
             console.error('Error rolling back migrations', err);
         } finally {
