@@ -3,7 +3,7 @@ import {EventEmitter} from "events";
 import {Express as PrintWeaveExpress, IPluginManager, Plugin} from "@printweave/models";
 import path from "path";
 import fs from 'fs/promises';
-import {exec} from "node:child_process";
+import {execFile} from "node:child_process";
 import {pathToFileURL} from "node:url";
 import chokidar from 'chokidar';
 import {App} from "../app.js";
@@ -91,8 +91,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
     }
     private async installPackage(packageName: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            const installCommand = `npm install ${packageName} --prefix ${this.pluginsDir}`;
-            exec(installCommand, (error, stdout, stderr) => {
+            execFile('npm', ['install', packageName, '--prefix', this.pluginsDir], (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Error installing ${packageName}: ${error}`);
                     reject(error);
@@ -106,8 +105,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
 
     private async uninstallPackage(packageName: string): Promise<void> {
         return new Promise((resolve, reject) => {
-            const uninstallCommand = `npm uninstall ${packageName} --prefix ${this.pluginsDir}`;
-            exec(uninstallCommand, (error, stdout, stderr) => {
+            execFile('npm', ['uninstall', packageName, '--prefix', this.pluginsDir], (error, stdout, stderr) => {
                 if (error) {
                     console.error(`Error uninstalling ${packageName}: ${error}`);
                     reject(error);
