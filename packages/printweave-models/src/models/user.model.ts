@@ -46,7 +46,7 @@ export class User extends Model implements IUser {
     declare active: boolean;
 
     @BelongsToMany(() => Printer, () => UserPrinter)
-    printers: Printer[];
+    declare printers: Printer[];
 
     @BeforeCreate
     @BeforeUpdate

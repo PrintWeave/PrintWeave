@@ -1,6 +1,7 @@
 import {Client} from 'basic-ftp';
 import path from "path";
 import {Readable} from "node:stream";
+import PrinterPlugin from "../main.js";
 
 export class FtpsBambuConnection {
 
@@ -32,7 +33,7 @@ export class FtpsBambuConnection {
             })
         }
         catch(err) {
-            console.log(err)
+            PrinterPlugin.logger.error(err)
         }
 
         return this;

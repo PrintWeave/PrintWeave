@@ -1,7 +1,7 @@
 export function envString(name: string, defaultValue?: string): string {
     const value = process.env[name];
     if (!value) {
-        if (defaultValue) {
+        if (defaultValue !== undefined && defaultValue !== null) {
             return defaultValue;
         }
         throw new Error(`Environment variable ${name} is not set`);

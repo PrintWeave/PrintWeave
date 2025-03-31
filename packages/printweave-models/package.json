@@ -1,0 +1,28 @@
+{
+  "name": "@printweave/models",
+  "version": "0.1.0",
+  "description": "Data models for PrintWeave",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w --preserveWatchOutput ",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "sequelize": "^6.32.0",
+    "sequelize-typescript": "^2.1.5",
+    "@printweave/api-types": "*",
+    "express": "^4.21.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/jsonwebtoken": "^9.0.1",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.0.4"
+  }
+}

@@ -1,9 +1,6 @@
 import {Table, Column, Model, DataType, HasOne, ForeignKey} from 'sequelize-typescript';
-import {BasePrinter} from './printers/base.printer.js';
-import BambuPrinter from './printers/bambu.printer.model.js';
 import {IPrinter} from "@printweave/api-types";
-import UserPrinter from "./userprinter.model.js";
-import {NonAttribute} from "sequelize";
+import {BasePrinter} from "./base.printer.js";
 
 @Table({
     tableName: 'printers',
@@ -18,25 +15,16 @@ export class Printer extends Model implements IPrinter {
     declare name: string;
 
     @Column({
-        type: DataType.ENUM('bambu', 'other'),
+        type: DataType.STRING,
         allowNull: false
     })
-    declare type: 'bambu' | 'other';
+    declare type: string;
 
     @Column({
         type: DataType.BOOLEAN,
         defaultValue: true
     })
     declare active: boolean;
-
-    async getPrinter(): Promise<BasePrinter> {
-        switch (this.type) {
-            case 'bambu':
-                return BambuPrinter.findOne({where: {printerId: this.id}});
-            default:
-                return null;
-        }
-    }
 }
 
 export default Printer;

@@ -1,23 +1,20 @@
-import {Table, Column, DataType} from 'sequelize-typescript';
-import {BasePrinter} from './base.printer.js';
-import {ConnectionManager, PrinterConnectionsBambu} from '../../connections/manager.connection.js';
+// packages/printweave-api/src/models/printers/bambu.printer.model.ts
+import {Table, Column, DataType, ForeignKey} from 'sequelize-typescript';
 import {
     AMS,
     AMSTray,
     GetVersionCommand,
-    GetVersionResponse,
-    PrintMessage,
-    PrintMessageCommand,
     PushAllCommand,
     PushAllResponse
 } from 'bambu-node';
-import {OwnPrintMessageCommand} from '../../connections/bambu/mqtt/OwnBambuClient.js';
-import {PausePrintCommand} from '../../connections/bambu/mqtt/PausePrintCommand.js';
-import {ResumePrintCommand} from '../../connections/bambu/mqtt/ResumePrintCommand.js';
-import {StopPrintCommand} from '../../connections/bambu/mqtt/StopPrintCommand.js';
+import {PausePrintCommand} from './connection/mqtt/PausePrintCommand.js';
+import {ResumePrintCommand} from './connection/mqtt/ResumePrintCommand.js';
+import {StopPrintCommand} from './connection/mqtt/StopPrintCommand.js';
 import {Light, PrinterStatus, Filament, MultiMaterial, PrintFileReport} from "@printweave/api-types";
 import path from "path";
 import {Readable} from "node:stream";
+import {ConnectionManager, PrinterConnectionsBambu} from "./connection/ConnectionManager.js";
+import {BasePrinter, PrinterTimeOutError, PrintWeaveFile} from "@printweave/models";
 
 @Table({
     tableName: 'bambu_printers',
@@ -28,28 +25,27 @@ export class BambuPrinter extends BasePrinter {
         type: DataType.STRING,
         allowNull: false
     })
-    declare type: string;
+    type!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false
     })
-    declare ip: string;
+    ip!: string;
 
     @Column({
         type: DataType.STRING,
         allowNull: false
     })
-    declare code: string;
+    code!: string;
 
 
     @Column({
         type: DataType.STRING,
         allowNull: false
     })
-    declare serial: string;
+    serial!: string;
 
-    // Implement abstract methods
     async getVersion(): Promise<string> {
         const connection = await this.getConnection();
         const response = await connection.mqtt.client.executeCommand(new GetVersionCommand);
@@ -123,9 +119,14 @@ export class BambuPrinter extends BasePrinter {
             fanSpeeds: [],
             gcode_file: "",
             nozzles: [],
-            progress: undefined,
-            status: undefined,
             wifiSignal: '-0dBm',
+            status: "IDLE",
+            progress: {
+                percentage: 0,
+                timeLeft: 0,
+                layer: 0,
+                totalLayers: 0
+            },
             lights: []
         }
 
@@ -149,14 +150,14 @@ export class BambuPrinter extends BasePrinter {
             timeLeft: response.mc_remaining_time,
             layer: response.layer_num,
             totalLayers: response.total_layer_num
-        }
+        };
 
         status.lights = response.lights_report.map(
             light => ({
                 name: light.node,
                 status: light.mode === 'on' ? 'on' : 'off'
             } as Light)
-        )
+        );
 
         const getFilamentType = (response: AMSTray): Filament => {
             if (!response.tray_type) {
@@ -179,9 +180,9 @@ export class BambuPrinter extends BasePrinter {
                 weight: parseFloat(response.tray_weight),
                 diameter: response.tray_diameter
             } as Filament;
-        }
+        };
 
-        let currentFilament: Filament = null
+        let currentFilament: Filament | null = null;
         const trayTar = parseInt(response.ams.tray_tar);
 
         if (trayTar === 254) {
@@ -190,13 +191,11 @@ export class BambuPrinter extends BasePrinter {
             currentFilament = null;
         } else {
             const amsIndex = Math.floor(trayTar / 4);
-            console.log("amsIndex", amsIndex);
             const trayIndex = trayTar % 4;
             let am = response.ams.ams[amsIndex];
             currentFilament = getFilamentType(am.tray[trayIndex]);
         }
 
-        // TODO: Implement nozzles and current filament
         status.nozzles = [
             {
                 id: 0,
@@ -225,26 +224,22 @@ export class BambuPrinter extends BasePrinter {
                 diameter: 0,
                 type: 'Brass'
             }
-        ]
+        ];
 
         return status;
-    };
+    }
 
-    override async uploadFile(file: Express.Multer.File, report: PrintFileReport): Promise<PrintFileReport> {
+    override async uploadFile(file: PrintWeaveFile, report: PrintFileReport): Promise<PrintFileReport> {
         const connection = await this.getConnection();
         const response = await connection.ftps.connect();
 
-        console.log(file.path)
         await response.uploadFile(file.path, path.join('/printweave', 'gcode', file.originalname));
 
         for (const plate of report.plates) {
-            console.log(plate)
             if (plate.thumbnailRaw) {
                 const thumbnailName = file.originalname.split('.').slice(0, -1).join('.') + '.plate_' + plate.id + '.png';
-
                 const readStream = await this.convertToReadable(plate.thumbnailRaw.stream());
                 await response.uploadFileFromReadable(readStream, path.join('/printweave', 'thumbnails', thumbnailName));
-
                 plate.thumbnail = thumbnailName;
             }
         }
@@ -266,23 +261,14 @@ export class BambuPrinter extends BasePrinter {
                 try {
                     const { done, value } = await reader.read();
                     if (done) {
-                        this.push(null); // End the Node.js stream
+                        this.push(null);
                     } else {
-                        this.push(Buffer.from(value)); // Convert Uint8Array to Buffer and push
+                        this.push(Buffer.from(value));
                     }
                 } catch (error) {
-                    this.destroy(error); // Handle errors gracefully
+                    this.destroy(error);
                 }
             }
         });
     }
 }
-
-export class PrinterTimeOutError extends Error {
-    constructor(error: Error) {
-        super(error.message);
-        this.name = 'PrinterTimeOutError';
-    }
-}
-
-export default BambuPrinter;

@@ -13,29 +13,37 @@
     /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
     // "lib": [],                                        /* Specify a set of bundled library declaration files that describe the target runtime environment. */
     // "jsx": "preserve",                                /* Specify what JSX code is generated. */
-    "experimentalDecorators": true, /* Enable experimental support for legacy experimental decorators. */
-    "emitDecoratorMetadata": true, /* Emit design-type metadata for decorated declarations in source files. */
+    "experimentalDecorators": true,
+    /* Enable experimental support for legacy experimental decorators. */
+    "emitDecoratorMetadata": true,
+    /* Emit design-type metadata for decorated declarations in source files. */
     // "jsxFactory": "",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h'. */
     // "jsxFragmentFactory": "",                         /* Specify the JSX Fragment reference used for fragments when targeting React JSX emit e.g. 'React.Fragment' or 'Fragment'. */
     // "jsxImportSource": "",                            /* Specify module specifier used to import the JSX factory functions when using 'jsx: react-jsx*'. */
     // "reactNamespace": "",                             /* Specify the object invoked for 'createElement'. This only applies when targeting 'react' JSX emit. */
     // "noLib": true,                                    /* Disable including any library files, including the default lib.d.ts. */
     // "useDefineForClassFields": true,                  /* Emit ECMAScript-standard-compliant class fields. */
-     "moduleDetection": "force",                        /* Control what method is used to detect module-format JS files. */
+    "moduleDetection": "force",
+    /* Control what method is used to detect module-format JS files. */
     /* Modules */
     "module": "NodeNext",
     /* Specify what module code is generated. */
     // "rootDir": "./",                                  /* Specify the root folder within your source files. */
-    "moduleResolution": "nodenext", /* Specify how TypeScript looks up a file from a given module specifier. */
-    // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
-    // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
+    "moduleResolution": "nodenext",
+    /* Specify how TypeScript looks up a file from a given module specifier. */
+     "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
+     "paths": {
+       "*": [
+         "./src/*",
+       ]
+     },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     "typeRoots": [
       /* Specify multiple folders that act like './node_modules/@types'. */
       "./node_modules/@types",
       "./types"
     ],
-    /* Specify type package names to be included without being referenced in a source file. */
+    // "types": [],                                      /* Specify type package names to be included without being referenced in a source file. */
     // "allowUmdGlobalAccess": true,                     /* Allow accessing UMD globals from modules. */
     // "moduleSuffixes": [],                             /* List of file name suffixes to search when resolving a module. */
     // "allowImportingTsExtensions": true,               /* Allow imports to include TypeScript file extensions. Requires '--moduleResolution bundler' and either '--noEmit' or '--emitDeclarationOnly' to be set. */
@@ -59,7 +67,7 @@
     // "inlineSourceMap": true,                          /* Include sourcemap files inside the emitted JavaScript. */
     // "noEmit": true,                                   /* Disable emitting files from a compilation. */
     // "outFile": "./",                                  /* Specify a file that bundles all outputs into one JavaScript file. If 'declaration' is true, also designates a file that bundles all .d.ts output. */
-    "outDir": "dist",
+    "outDir": "./dist",
     /* Specify an output folder for all emitted files. */
     // "removeComments": true,                           /* Disable emitting comments. */
     // "importHelpers": true,                            /* Allow importing helper functions from tslib once per project, instead of including them per-file. */
@@ -108,7 +116,7 @@
     // "allowUnreachableCode": true,                     /* Disable error reporting for unreachable code. */
     /* Completeness */
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "declaration": true,
     "lib": [
       "dom"
@@ -117,10 +125,11 @@
   },
   "include": [
     "src/**/*.ts",
-    "types/**/*.d.ts"
-, "src/migrations.ts"  ],
+    "types/**/*.d.ts",
+    "src/migrations.ts"
+  ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
   ]
 }

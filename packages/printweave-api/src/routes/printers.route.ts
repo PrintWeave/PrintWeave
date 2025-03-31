@@ -1,10 +1,5 @@
 import {Request, Response, Router} from "express";
-import {User} from "../models/user.model.js";
-import {Printer} from "../models/printer.model.js";
-import {BasePrinter} from "../models/printers/base.printer.js";
-import {BambuPrinter} from "../models/printers/bambu.printer.model.js";
 import {Optional} from "sequelize";
-import {UserPrinter} from "../models/userprinter.model.js";
 import {printerRoutes} from "./printer.route.js";
 import {
     GetPrintersResponse,
@@ -13,12 +8,13 @@ import {
     CreatePrinterError,
     CreateBambuPrinterError, RemovePrinterError, RemovePrinterResponse, GetPrintersError, SimpleUnauthorizedError,
 } from "@printweave/api-types";
+import {getPrinterAndUser, Printer, User, UserPrinter} from "@printweave/models";
 
 export function printersRoutes(): Router {
     const router = Router();
 
     router.get('/', async (req: Request, res: Response) => {
-        const user: User | undefined = req.user
+        const user: User = req.user as User;
         if (!user) {
             res.status(401).json(new SimpleUnauthorizedError(401) as GetPrintersError);
             return
@@ -33,7 +29,7 @@ export function printersRoutes(): Router {
     });
 
     router.post('/', async (req: Request, res: Response) => {
-        const user: User | undefined = req.user
+        const user: User = req.user as User;
         if (!user) {
             res.status(401).json(new SimpleUnauthorizedError(401));
             return
@@ -51,7 +47,8 @@ export function printersRoutes(): Router {
             return
         }
 
-        let fullPrinter: BasePrinter = null;
+        // TODO: Migrate to the plugin system
+        /*let fullPrinter: BasePrinter = null;
 
         switch (type) {
             case 'bambu':
@@ -94,37 +91,27 @@ export function printersRoutes(): Router {
                 userId: user.id,
                 printerId: printer.id
             }
-        });
+        });*/
 
-        res.json({message: 'Printer created', printer: printer} as CreatePrinterResponse);
+        // res.json({message: 'Printer created', printer: printer} as CreatePrinterResponse);
+        res.json({message: 'Printer created', printer: null} as CreatePrinterResponse);
     });
 
     router.delete('/:printerId', async (req: Request, res: Response) => {
-        const user: User | undefined = req.user
-        if (!user) {
-            res.status(401).json(new SimpleUnauthorizedError(401));
+        let {printerIdStr} = req.params;
+
+        const printerId = parseInt(printerIdStr);
+
+        if (isNaN(printerId)) {
+            res.status(400).json();
             return
         }
 
-        const {printerId} = req.params;
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate']);
 
-        if (isNaN(parseInt(printerId))) {
-            res.status(404).json({code: 404, message: 'Invalid printer ID'} as RemovePrinterError);
-            return
-        }
-
-        const userPrinter = await UserPrinter.findOne({
-            where: {
-                userId: user.id,
-                printerId: parseInt(printerId),
-                permission: 'admin'
-            }
-        });
-
-
-        if (!userPrinter) {
-            res.status(404).json({message: 'Printer not found', code: 404} as RemovePrinterError);
-            return
+        if (error) {
+            res.status(error.code).json(error.err);
+            return;
         }
 
         if (userPrinter.permission !== 'admin') {

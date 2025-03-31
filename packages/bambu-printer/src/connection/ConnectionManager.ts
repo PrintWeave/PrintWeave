@@ -1,7 +1,8 @@
-import {MqttBambuConnection} from "./bambu/mqtt.bambu.connection.js";
-import {Printer} from "../models/printer.model.js";
-import {BambuPrinter} from "../models/printers/bambu.printer.model.js";
-import {FtpsBambuConnection} from "./bambu/ftps.connection.js";
+import {MqttBambuConnection} from "./mqtt.bambu.connection.js";
+import {IPrinter} from "@printweave/api-types";
+import {BambuPrinter} from "../bambu.printer.model.js";
+import {FtpsBambuConnection} from "./ftps.connection.js";
+import {Printer} from "@printweave/models";
 
 interface ConnectionsList {
     [printerId: number]: PrinterConnectionsBambu;
@@ -26,7 +27,6 @@ export class ConnectionManager {
     }
 
 
-
     async generateConnectionsPrinter(printer: Printer) {
         if (printer.type === 'bambu') {
             const bambuPrinter = await BambuPrinter.findOne({where: {printerId: printer.id}});
@@ -42,13 +42,13 @@ export class ConnectionManager {
     }
 
     async generateConnectionsBambu(bambuPrinter: BambuPrinter, printer: Printer) {
-        let mqttBambuConnection = new MqttBambuConnection(bambuPrinter.ip, bambuPrinter.code, bambuPrinter.serial, printer.id);
+        let mqttBambuConnection = new MqttBambuConnection(bambuPrinter.dataValues.ip, bambuPrinter.dataValues.code, bambuPrinter.dataValues.serial, printer.dataValues.id);
 
         await mqttBambuConnection.connect();
 
         this.connections[printer.id] = {
             mqtt: mqttBambuConnection,
-            ftps: new FtpsBambuConnection(bambuPrinter.ip, bambuPrinter.code)
+            ftps: new FtpsBambuConnection(bambuPrinter.dataValues.ip, bambuPrinter.dataValues.code)
         }
     }
 

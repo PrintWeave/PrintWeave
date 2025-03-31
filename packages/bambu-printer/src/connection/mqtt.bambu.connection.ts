@@ -3,13 +3,16 @@ import {OwnBambuClient} from "./mqtt/OwnBambuClient.js";
 import {PausePrintCommand} from "./mqtt/PausePrintCommand.js";
 import {ResumePrintCommand} from "./mqtt/ResumePrintCommand.js";
 import {GetVersionCommand} from "bambu-node";
-import {WebsocketsManager} from "../../websockets/manager.websockets.js";
+import {EventEmitter} from "events";
+import PrinterPlugin from "../main.js";
 
 export class MqttBambuConnection {
 
     client: OwnBambuClient;
     status: string = 'OFFLINE';
     printerId: number;
+
+    printer: PrinterPlugin;
 
     constructor(ip: string, code: string, serial: string, printerId: number) {
         this.printerId = printerId;
@@ -21,7 +24,7 @@ export class MqttBambuConnection {
         })
 
         this.client.on("printer:statusUpdate", (oldStatus, newStatus) => {
-            console.log(`Printer with id: ${printerId} status changed from ${oldStatus} to ${newStatus}`);
+            PrinterPlugin.logger.info(`Printer with id: ${printerId} status changed from ${oldStatus} to ${newStatus}`);
             this.status = newStatus;
         })
 
@@ -32,7 +35,7 @@ export class MqttBambuConnection {
             const firstKey = Object.keys(data)[0];
             const topicName = `${firstKey}.${data[firstKey].command}`;
 
-            WebsocketsManager.getWebsocketsManager().sendBambuMessage(this.printerId, topicName, data);
+            // WebsocketsManager.getWebsocketsManager().sendBambuMessage(this.printerId, topicName, data);
         });
     }
 
