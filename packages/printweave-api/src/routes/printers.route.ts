@@ -101,8 +101,6 @@ export function printersRoutes(): Router {
 
         const printerId = parseInt(printerIdStr);
 
-        logger.info(`Deleting printer with id: ${printerId}`);
-
         if (isNaN(printerId)) {
             res.status(400).json();
             return
