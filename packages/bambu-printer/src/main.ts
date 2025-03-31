@@ -5,6 +5,7 @@ import {IPrintWeaveApp, Logger} from "@printweave/models";
 import {bambuPrinterRoutes} from "./routes/bambu.printer.route.js";
 import {BambuWebsocketSubscriptionManager} from "./websockets.manager.js";
 import {ConnectionManager} from "./connection/ConnectionManager.js";
+import {CreatePrinterError} from "@printweave/api-types";
 
 export default class PrinterPlugin extends Plugin {
 
@@ -49,17 +50,23 @@ export default class PrinterPlugin extends Plugin {
         PrinterPlugin.logger.info('Initializing Bambu printer events');
     }
 
-    private handlePrintStart(printData: any): void {
-        PrinterPlugin.logger.info('Print started', printData);
+    buildPrinter(options: any): BasePrinter {
+        const {ip, code, serial}: { ip: string, code: string, serial: string } = options;
+
+        if (!ip || !code || !serial) {
+            throw new Error('IP, code, serial are required');
+        }
+
+        return  BambuPrinter.build({
+            type: this.printerType,
+            ip: ip,
+            code: code,
+            serial: serial
+        })
     }
 
-    private handlePrintStop(printId: string): void {
-        PrinterPlugin.logger.info('Print stopped', printId);
-    }
-
-    createPrinter(options: any): BasePrinter {
-        PrinterPlugin.logger.info('Creating Bambu printer with options', options);
-        return undefined;
+    savePrinter(printer: BasePrinter): Promise<BasePrinter> {
+        return printer.save();
     }
 
     registerRoutes(app: Express): void {

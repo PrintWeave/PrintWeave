@@ -9,7 +9,6 @@ export default function createDb(models: ModelCtor[]): Sequelize {
         dialect: "sqlite",
         storage: path.resolve(process.cwd(), "printweave.sqlite"),
         logging: false,
-        // TODO: Register Plugin Models
         models: [User, Printer, UserPrinter, ...models],
     });
 

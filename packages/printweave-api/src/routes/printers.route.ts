@@ -8,7 +8,8 @@ import {
     CreatePrinterError,
     CreateBambuPrinterError, RemovePrinterError, RemovePrinterResponse, GetPrintersError, SimpleUnauthorizedError,
 } from "@printweave/api-types";
-import {getPrinterAndUser, Printer, User, UserPrinter} from "@printweave/models";
+import {BasePrinter, getPrinterAndUser, Printer, User, UserPrinter} from "@printweave/models";
+import {logger, pluginManager} from "../main.js";
 
 export function printersRoutes(): Router {
     const router = Router();
@@ -48,32 +49,31 @@ export function printersRoutes(): Router {
         }
 
         // TODO: Migrate to the plugin system
-        /*let fullPrinter: BasePrinter = null;
+        const plugin = pluginManager.getPlugin(type);
 
-        switch (type) {
-            case 'bambu':
-                const {ip, code, serial}: { ip: string, code: string, serial: string } = req.body.bambu;
-                if (!ip || !code || !serial) {
-                    res.status(400).json({code: 400, message: 'IP, code, serial are required'} as CreatePrinterError);
-                    return
-                }
-                fullPrinter = BambuPrinter.build({
-                    type: type,
-                    ip: ip,
-                    code: code,
-                    serial: serial
-                })
-                break;
-            default:
-                res.status(400).json({code: 400, message: 'Invalid printer type'} as CreatePrinterError);
-                return
+        if (!plugin) {
+            res.status(400).json({code: 400, message: 'Invalid printer type'} as CreatePrinterError);
+            return
         }
 
-        const printer = await Printer.create({
+        let fullPrinter: BasePrinter = null;
+
+        try {
+            fullPrinter = plugin.buildPrinter(req.body[type]);
+        } catch (error) {
+            res.status(400).json({code: 400, message: error.message} as CreatePrinterError);
+            return
+        }
+
+        if (!fullPrinter) {
+            res.status(400).json({code: 400, message: 'Invalid printer type'} as CreatePrinterError);
+            return
+        }
+
+        let printer = await Printer.create({
             name: name,
             type: type
         });
-
 
         fullPrinter.dataValues.printerId = printer.id;
         await fullPrinter.save();
@@ -91,23 +91,24 @@ export function printersRoutes(): Router {
                 userId: user.id,
                 printerId: printer.id
             }
-        });*/
+        });
 
-        // res.json({message: 'Printer created', printer: printer} as CreatePrinterResponse);
-        res.json({message: 'Printer created', printer: null} as CreatePrinterResponse);
+        res.json({message: 'Printer created', printer: printer} as CreatePrinterResponse);
     });
 
     router.delete('/:printerId', async (req: Request, res: Response) => {
-        let {printerIdStr} = req.params;
+        let printerIdStr = req.params['printerId'];
 
         const printerId = parseInt(printerIdStr);
+
+        logger.info(`Deleting printer with id: ${printerId}`);
 
         if (isNaN(printerId)) {
             res.status(400).json();
             return
         }
 
-        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate']);
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin']);
 
         if (error) {
             res.status(error.code).json(error.err);

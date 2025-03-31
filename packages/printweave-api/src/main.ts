@@ -16,6 +16,7 @@ import path from "path";
 import {PluginManager} from "./plugins/plugin.manager.js";
 import express from "express";
 import {createPluginLogger, LogType} from "./logger.js";
+import exp from "node:constants";
 
 type AnyExpress = express.Express | PrintWeaveExpress;
 
@@ -32,7 +33,7 @@ export const logger = createPluginLogger("API", LogType.API);
 
 export const storage = multer({dest: envString("UPLOAD_DIR", "./tmp")});
 
-const pluginManager = PluginManager.getPluginManager();
+export const pluginManager = PluginManager.getPluginManager();
 const websocketsManager = new WebsocketsManager(pluginManager);
 
 // Filter out empty strings from the plugin list

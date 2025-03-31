@@ -38,6 +38,10 @@ export class PluginManager extends EventEmitter implements IPluginManager {
         return this.plugins;
     }
 
+    getPlugin(type: string): Plugin | undefined {
+        return this.plugins.find(plugin => plugin.printerType === type);
+    }
+
     registerPlugin(plugin: Plugin) {
         this.plugins.push(plugin);
         logger.info(`Plugin ${plugin.name || 'unnamed'} registered`);

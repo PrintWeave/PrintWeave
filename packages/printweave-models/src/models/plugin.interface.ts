@@ -29,8 +29,8 @@ export abstract class Plugin {
     abstract models: ModelCtor[];
     abstract websocketManagers: BaseWebsocketManager[];
 
-    abstract createPrinter(options: any): BasePrinter;
-    // abstract savePrinter(printer: BasePrinter): Promise<BasePrinter>;
+    abstract buildPrinter(options: any): BasePrinter;
+    abstract savePrinter(printer: BasePrinter): Promise<BasePrinter>;
 
     static logger: Logger;
     static pluginManager: IPluginManager;
