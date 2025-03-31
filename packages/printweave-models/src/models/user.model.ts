@@ -60,14 +60,6 @@ export class User extends Model implements IUser {
     async validatePassword(password: string): Promise<boolean> {
         return bcrypt.compare(password, this.dataValues.password);
     }
-
-    generateToken(): string {
-        return jwt.sign(
-            {id: this.id, username: this.username, role: this.role},
-            process.env.JWT_SECRET || 'your-secret-key',
-            {expiresIn: '24h'}
-        );
-    }
 }
 
 export default User;
