@@ -53,6 +53,7 @@
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.2",
     "sequelize": "^6.37.5",
+    "multer": "^1.4.5-lts.2",
     "sequelize-typescript": "^2.1.6",
     "sqlite3": "^5.1.7",
     "umzug": "^3.8.2",
