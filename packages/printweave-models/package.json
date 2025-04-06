@@ -13,14 +13,14 @@
   "dependencies": {
     "@printweave/api-types": "*",
     "bcryptjs": "^2.4.3",
-    "express": "^4.21.2",
+    "express": "^5.1.0",
     "jsonwebtoken": "^9.0.0",
     "sequelize": "^6.32.0",
     "sequelize-typescript": "^2.1.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
-    "@types/express": "^4.17.17",
+    "@types/express": "^5.0.1",
     "@types/jsonwebtoken": "^9.0.1",
     "rimraf": "^5.0.1",
     "typescript": "^5.0.4"
