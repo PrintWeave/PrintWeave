@@ -35,7 +35,7 @@ async function promptForUpdate(packageName) {
     const response = await prompts({
         type: 'confirm',
         name: 'shouldUpdate',
-        message: `An older version of ${packageName} is installed. Update to the latest version? Use flag --force to skip this prompt.`,
+        message: `An older version of ${packageName} is installed. Update to the latest version?\n(Note: Use flag --force to skip this prompt.)`,
         initial: true,
     });
     return response.shouldUpdate;
