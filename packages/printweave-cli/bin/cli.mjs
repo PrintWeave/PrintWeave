@@ -6,6 +6,7 @@ import {Command} from 'commander';
 import concurrently from 'concurrently';
 import {createRequire} from 'module';
 import url from 'url';
+import {checkUpdates} from "./update.mjs"
 
 const require = createRequire(import.meta.url);
 const program = new Command();
@@ -13,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import {getPathPackage} from './paths.js';
 import inquirer from 'inquirer';
-import User from "@printweave/api/dist/models/user.model.js";
+import {User} from "@printweave/models";
 import dotenv from 'dotenv';
 import * as fs from "node:fs";
 import * as os from "node:os";
@@ -27,7 +28,14 @@ program
     .command('start')
     .description('Start the frontend and API server')
     .option('-m, --method <method>', 'Method to start the server, default is node, available methods: node, forever', 'node')
+    .option('-f, --force', 'Force update without prompt')
     .action(async (options) => {
+        if (options.force) {
+            console.log('Force update option is enabled, skipping prompt');
+        } else {
+            await checkUpdates("@printweave/cli")
+        }
+
         const method = options.method || 'node';
         if (methodIsInstalled(method)) {
             const apiPath = getPathPackage('@printweave/api');
