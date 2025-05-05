@@ -24,6 +24,11 @@ on:
           - 'alpha'
           - 'beta'
           - 'rc'
+      conventionalGraduate:
+        type: boolean
+        description: 'Use --conventional-graduate flag'
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -75,15 +80,20 @@ jobs:
         if: ${{ github.event.inputs.preid == '' }}
         run: |
           # Update version in lerna.json
-          lerna version ${{ github.event.inputs.version }} --create-release github --yes
+          lerna version ${{ github.event.inputs.version }} \
+            ${{ github.event.inputs.conventionalGraduate && '--conventional-graduate' || '' }} \
+            --create-release github --yes
       - name: Update version, with --preid
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.event.inputs.preid != '' }}
         run: |
           # Update version in lerna.json
-          lerna version ${{ github.event.inputs.version }} --preid ${{ github.event.inputs.preid }} --create-release github --yes
-        
+          lerna version ${{ github.event.inputs.version }} \
+            --preid ${{ github.event.inputs.preid }} \
+            ${{ github.event.inputs.conventionalGraduate && '--conventional-graduate' || '' }} \
+            --create-release github --yes
+
       - name: Publish packages
         run: |
           # Publish packages to npm
