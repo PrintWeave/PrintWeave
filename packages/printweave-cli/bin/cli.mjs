@@ -28,10 +28,17 @@ program
     .command('start')
     .description('Start the frontend and API server')
     .option('-m, --method <method>', 'Method to start the server, default is node, available methods: node, forever', 'node')
-    .option('-f, --force', 'Force update without prompt')
+    .option('--skip-update-check', 'Force update without prompt')
     .action(async (options) => {
-        if (options.force) {
-            console.log('Force update option is enabled, skipping prompt');
+        if (options.skipUpdateCheck) {
+            console.log('\x1b[33m%s\x1b[0m', `
+╭──────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                  │
+│   ⚠️  \x1b[1m\x1b[33mWARNING:\x1b[0m\x1b[33m This flag will skip the update check. Please ensure the program   │
+│   is up-to-date to avoid potential issues.                                       │
+│                                                                                  │
+╰──────────────────────────────────────────────────────────────────────────────────╯
+`);
         } else {
             await checkUpdates("@printweave/cli")
         }
