@@ -2,7 +2,7 @@
   "name": "@printweave/api",
   "main": "dist/main.js",
   "type": "module",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/main.js",
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@printweave/api-types": "^0.3.0",
-    "@printweave/models": "^0.3.0",
+    "@printweave/models": "^0.3.1",
     "bambu-node": "^3.22.21",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
