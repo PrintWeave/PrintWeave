@@ -16,6 +16,10 @@ import path from "path";
 import {PluginManager} from "./plugins/plugin.manager.js";
 import express from "express";
 import {createPluginLogger, LogType} from "./logger.js";
+
+import {
+    CreatePrinterManagementMigration
+} from "./migrations/20250129163025-create-printer-management-table.js";
 import exp from "node:constants";
 
 type AnyExpress = express.Express | PrintWeaveExpress;
@@ -37,9 +41,13 @@ export const pluginManager = PluginManager.getPluginManager();
 const websocketsManager = new WebsocketsManager(pluginManager);
 
 // Filter out empty strings from the plugin list
-const plugins = envString("PLUGINS", "")
+export const plugins = envString("PLUGINS", "")
     .split(',')
     .filter(plugin => plugin.trim().length > 0);
+
+const builtInMigrations = [
+    new CreatePrinterManagementMigration()
+];
 
 // Load plugins outside the reloadable function
 let main: AnyExpress;
@@ -47,6 +55,31 @@ let db;
 let server;
 let wss;
 let expressServer;
+
+export async function loadDbAndMigrations() {
+    await pluginManager.loadPlugins(plugins);
+
+    const models = pluginManager.getPlugins().map(plugin => plugin.models).flat();
+
+    let db = createDb(models);
+
+    // Initialize the plugins with your Express main
+    pluginManager.initializePlugins(main as unknown as PrintWeaveExpress);
+
+    const migrations = new Migrations(db, pluginManager, builtInMigrations);
+    return {migrations, db};
+}
+
+export async function getMigrationsForMigrate() {
+    await pluginManager.loadPlugins(plugins);
+
+    const models = pluginManager.getPlugins().map(plugin => plugin.models).flat();
+
+    let db = createDb(models);
+
+    const migrations = new Migrations(db, pluginManager, builtInMigrations);
+    return {migrations, db, pluginManager};
+}
 
 /**
  * Load and initialize the server components
@@ -69,13 +102,10 @@ export async function load() {
     main.use('/api', apiRoutes());
 
     // Get models from the already-loaded plugins
-    const models = pluginManager.getPlugins().map(plugin => plugin.models).flat();
-    db = createDb(models);
+    const loadedDbAndMigrations = await loadDbAndMigrations();
+    const {migrations} = loadedDbAndMigrations;
 
-    // Initialize the plugins with your Express main
-    pluginManager.initializePlugins(main as unknown as PrintWeaveExpress);
-
-    const migrations = new Migrations(db);
+    db = loadedDbAndMigrations.db;
 
     const storageDir = envString("UPLOAD_DIR", "./tmp");
     fs.promises.readdir(storageDir).then(files => {
@@ -219,12 +249,3 @@ const authenticate = async (token: string): Promise<User | null> => {
         return null;
     }
 };
-
-// Load plugins once at startup
-(async () => {
-    // Load the plugins from npm
-    await pluginManager.loadPlugins(plugins);
-
-    // Initial server load
-    await load();
-})();

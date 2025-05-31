@@ -1,13 +1,17 @@
-import {BasePrinter, IPluginManager, Plugin, Express} from "@printweave/models";
+import {BasePrinter, IPluginManager, Plugin, Express, RunnableMigration} from "@printweave/models";
 import {BambuPrinter} from "./bambu.printer.model.js";
 import {ModelStatic, ModelCtor} from "@printweave/models";
 import {IPrintWeaveApp, Logger} from "@printweave/models";
 import {bambuPrinterRoutes} from "./routes/bambu.printer.route.js";
 import {BambuWebsocketSubscriptionManager} from "./websockets.manager.js";
 import {ConnectionManager} from "./connection/ConnectionManager.js";
+import BambuPrinterMigration from "./migrations/bambuprinter.migrations.js";
 import {CreatePrinterError} from "@printweave/api-types";
 
 export default class PrinterPlugin extends Plugin {
+    migrations: RunnableMigration<any>[] = [
+        new BambuPrinterMigration()
+    ];
 
     private bambuWebsocketSubscriptionManager = new BambuWebsocketSubscriptionManager();
     private connectionManager: ConnectionManager = new ConnectionManager(this);
