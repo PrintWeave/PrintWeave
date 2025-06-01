@@ -47,13 +47,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: |
           npm ci
-          npm install -g @lerna-lite/cli @lerna-lite/version @lerna-lite/publish
+          npm install -g @lerna-lite/cli @lerna-lite/version @lerna-lite/publish conventional-changelog-conventionalcommits
       - name: Build packages
         run: npm run build
 
@@ -61,8 +61,6 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Check if prerelease
-        run: |
       - name: Set distribution tag
         id: set-distribution-tag
         run: |
@@ -82,7 +80,7 @@ jobs:
           # Update version in lerna.json
           lerna version ${{ github.event.inputs.version }} \
             ${{ github.event.inputs.conventionalGraduate && '--conventional-graduate' || '' }} \
-            --create-release github --yes --conventional-commits
+            --create-release github --yes
       - name: Update version, with --preid
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -92,7 +90,7 @@ jobs:
           lerna version ${{ github.event.inputs.version }} \
             --preid ${{ github.event.inputs.preid }} \
             ${{ github.event.inputs.conventionalGraduate && '--conventional-graduate' || '' }} \
-            --create-release github --yes --conventional-commits
+            --create-release github --yes
 
       - name: Publish packages
         run: |
