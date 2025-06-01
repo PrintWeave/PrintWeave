@@ -1,12 +1,12 @@
 {
   "name": "@printweave/api",
-  "main": "dist/main.js",
+  "main": "dist/start.js",
   "type": "module",
   "version": "0.4.0",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/main.js",
-    "dev": "nodemon --exec tsx src/main.ts",
+    "start": "node dist/start.js",
+    "dev": "nodemon --exec tsx src/start.ts",
     "watch": "tsc -w ",
     "configure": "node dist/configure.js",
     "migrate": "node dist/migrations.js migrate",

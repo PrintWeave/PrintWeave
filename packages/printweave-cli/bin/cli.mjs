@@ -48,7 +48,7 @@ program
             const apiPath = getPathPackage('@printweave/api');
             const apiDir = path.resolve(path.dirname(apiPath), '..');
             const webPath = getPathPackage('@printweave/web');
-            const webDir = path.resolve(path.dirname(webPath), '..');
+            const webDir = path.resolve(path.dirname(webPath));
 
             const {result} = concurrently([
                 {
@@ -83,8 +83,13 @@ program
         const apiDir = path.resolve(path.dirname(apiPath), '..');
 
         if (methodIsInstalled(method)) {
-            shell.cd(apiDir);
-            shell.exec(launchByMethod(method, apiPath));
+            concurrently([
+                {
+                    command: "cd " + apiDir + " && " + launchByMethod(method, apiPath),
+                    name: 'api',
+                    prefixColor: 'magenta'
+                }
+            ])
         } else {
             console.log(`Method ${method} is not installed`);
         }
@@ -99,9 +104,17 @@ program
         const webPath = getPathPackage('@printweave/web');
         const webDir = path.resolve(path.dirname(webPath), '..');
 
+        console.log(`Starting web frontend with method: ${method}`);
+        console.log(`Web path: ${webDir}`);
+
         if (methodIsInstalled(method)) {
-            shell.cd(webDir);
-            shell.exec(launchByMethod(method, webDir));
+            concurrently([
+                {
+                    command: "cd " + webDir + " && " + launchByMethod(method, webPath),
+                    name: 'web',
+                    prefixColor: 'blue'
+                }
+            ]);
         } else {
             console.log(`Method ${method} is not installed`);
         }
