@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.0-beta.1](https://github.com/PrintWeave/PrintWeave/compare/v0.5.0-beta.0...v0.5.0-beta.1) (2025-06-01)
+
+### ✨ Features
+
+* **cli:** Add @printweave/web as a dependency ([fe7f73e](https://github.com/PrintWeave/PrintWeave/commit/fe7f73e069b811997e90fc350577d75d2b9e43d0))
+* **cli:** Start Web via cli ([5c8634f](https://github.com/PrintWeave/PrintWeave/commit/5c8634fc7522f3ca89b32a9850e86d9c10bfb41e))
+* **web:** Vue Router and CLI working ([4968eef](https://github.com/PrintWeave/PrintWeave/commit/4968eef3714e50d00657ee4ce7ba6ef4d9720bcf))
+* **web:** Vue Router and CLI working, Basic UI ([4977006](https://github.com/PrintWeave/PrintWeave/commit/4977006d33d53baacf7b96702b271ab0ee86b260))
+
 # [0.4.0](https://github.com/PrintWeave/PrintWeave/compare/v0.3.1...v0.4.0) (2025-06-01)
 
 **Note:** Version bump only for package @printweave/cli
