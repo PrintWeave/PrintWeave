@@ -1,11 +1,10 @@
-import {Request, Response, NextFunction, Application} from 'express';
+import {Request, Response, Application} from 'express';
 import passport from 'passport';
 import {Strategy as JwtStrategy, ExtractJwt, VerifiedCallback} from 'passport-jwt';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import {envInt, envString} from "../environment.js";
-import {SimpleUnauthorizedError, UnauthorizedError} from "@printweave/api-types";
+import {SimpleUnauthorizedError} from "@printweave/api-types";
 import {User} from "@printweave/models";
 import dotenv from "dotenv";
 import {logger} from "../main.js";
@@ -30,7 +29,6 @@ const jwtOptions = {
     secretOrKey: JWT_SECRET
 };
 
-
 passport.use(new JwtStrategy(jwtOptions, async (payload: JwtPayload, done: VerifiedCallback) => {
     try {
         const user: User = await User.findByPk(payload.id);
@@ -46,7 +44,7 @@ passport.use(new JwtStrategy(jwtOptions, async (payload: JwtPayload, done: Verif
 // Authentication Middleware
 const authMiddleware = function (req, res, next) {
     passport.authenticate('jwt', {session: false},
-        (err, user, info) => {
+        (err, user) => {
             if (err) {
                 return next(err);
             }
@@ -58,6 +56,7 @@ const authMiddleware = function (req, res, next) {
             next();
         })(req, res, next);
 };
+
 // Rate Limiter
 const loginLimiter = rateLimit({
     windowMs: envInt("SERVER_LOGIN_WINDOW", 15 * 60 * 1000),
@@ -106,14 +105,14 @@ const authRoutes = (app: Application) => {
     // Login Route
     app.post('/login', loginLimiter, async (req: Request, res: Response): Promise<void> => {
         try {
-            const {username, password}: { username: string, password: string } = req.body;
+            const {username, password, rememberMe = false}: { username: string, password: string, rememberMe?: boolean } = req.body;
 
             if (!username || !password) {
                 res.status(400).json({message: 'Username and password are required'});
                 return
             }
 
-            const user = await User.findOne({where: {username}});
+            const user = await User.findOne({where: {username: username}}) || await User.findOne({where: {email: username}});
 
             if (!user) {
                 res.status(401).json({message: 'Authentication failed'});
@@ -133,7 +132,7 @@ const authRoutes = (app: Application) => {
             };
 
             const token = jwt.sign(payload, JWT_SECRET, {
-                expiresIn: '7d'
+                expiresIn: rememberMe ? '30d' : '1h' // 30 days if rememberMe is true, otherwise 1 hour
             });
 
             res.json({

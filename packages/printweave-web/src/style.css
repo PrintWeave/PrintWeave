@@ -1,3 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+    --color-primary: #010669;
+    --color-secondary: #50e3c2;
+    --color-accent: #f5a623;
+    --color-text: #333333;
+    --color-border: #e0e0e0;
+    --color-error: #d0021b;
+    --color-success: #7ed321;
+    --color-warning: #f8e71c;
+    --color-info: #4a90e2;
+    --font-family-sans: 'Helvetica Neue', Arial, sans-serif;
+    --color-primary-foreground: #ffffff;
+}

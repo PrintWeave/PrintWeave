@@ -40,8 +40,10 @@
   "dependencies": {
     "@printweave/api-types": "^0.4.0",
     "@printweave/models": "^0.4.0",
+    "@types/cors": "^2.8.18",
     "bambu-node": "^3.22.21",
     "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.0",

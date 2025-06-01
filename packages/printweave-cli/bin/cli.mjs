@@ -176,7 +176,9 @@ program
             setEnvValue('SECRET_KEY', secretKey, envPath);
         }
 
-        const migrations = await import("file://" + apiDir + '/dist/migrations.js');
+        const api = await import("file://" + apiDir + '/dist/main.js');
+        const {migrations} = await api.getMigrationsForMigrate();
+
         console.log('Checking for pending migrations');
         if ((await migrations.umzug.pending()).length > 0) {
             console.log('There are pending migrations, do you want to run them?');

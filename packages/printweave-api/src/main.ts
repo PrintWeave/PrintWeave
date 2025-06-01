@@ -87,6 +87,22 @@ export async function getMigrationsForMigrate() {
  */
 export async function load() {
     main = express()
+
+    // Add CORS middleware
+    main.use((req, res, next) => {
+        // Allow requests from the web application
+        res.header('Access-Control-Allow-Origin', '*'); // Replace with specific origin in production
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+
+        // Handle preflight requests
+        if (req.method === 'OPTIONS') {
+            res.sendStatus(200);
+        } else {
+            next();
+        }
+    });
+
     main.use(express.json());
     main.use(passport.initialize());
 
