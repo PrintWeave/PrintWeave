@@ -19,7 +19,7 @@
     "packages/*"
   ],
   "changelogPreset": {
-    "name": "conventionalcommits",
+    "name": "conventional-changelog-conventionalcommits",
     "issueUrlFormat": "{{host}}/{{owner}}/{{repository}}/issues/{{id}}",
     "types": [
       {
