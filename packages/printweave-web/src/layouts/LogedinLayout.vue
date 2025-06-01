@@ -11,7 +11,7 @@ const isDropdownOpen = ref(false);
 const router = useRouter();
 
 // User information - you may want to get this from your auth system
-const user: IUser | null = loggedInUser
+const user: IUser | null = loggedInUser.value
 
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value;
@@ -55,8 +55,8 @@ const closeDropdown = (e: MouseEvent) => {
             :aria-expanded="isDropdownOpen"
             aria-haspopup="true"
           >
-            <img v-if="user?.avatar" :src="user?.avatar" alt="User avatar" class="h-full w-full object-cover" />
-            <span v-else class="text-gray-600">{{ user?.username.charAt(0) }}</span>
+<!--            <img v-if="user?.avatar" :src="user?.avatar" alt="User avatar" class="h-full w-full object-cover" />-->
+            <span class="text-gray-600">{{ user?.username.charAt(0) }}</span>
           </button>
 
           <!-- Dropdown menu -->
@@ -70,11 +70,11 @@ const closeDropdown = (e: MouseEvent) => {
               <!-- You can add user email or other info here -->
             </div>
             <div class="py-1">
-              <span to="/profile" class="block px-4 py-2 text-sm text-gray-400 " disabled>
+              <span to="/profile" class="block px-4 py-2 text-sm text-gray-400 ">
 <!--                hover:bg-gray-100-->
                 Profile
               </span>
-              <span to="/settings" class="block px-4 py-2 text-sm text-gray-400" disabled>
+              <span to="/settings" class="block px-4 py-2 text-sm text-gray-400">
                 Settings
               </span>
             </div>

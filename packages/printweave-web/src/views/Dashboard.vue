@@ -12,7 +12,7 @@ onMounted(async () => {
   await getPrinters().then(
       (response) => {
         printers.value = response?.data?.printers? response.data.printers : [];
-        loggedInUser = response?.data?.user || null;
+        loggedInUser.value = response?.data?.user || null;
       }
   ).catch((error) => {
     console.error("Error fetching printers:", error);

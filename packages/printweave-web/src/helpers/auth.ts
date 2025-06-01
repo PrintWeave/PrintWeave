@@ -1,5 +1,6 @@
 import {getUser} from "@/helpers/api.ts";
 import type {IUser} from "@printweave/api-types";
+import {ref} from "vue";
 
 export async function isLoggedIn(): Promise<boolean> {
     if (!localStorage.getItem('auth_token')) {
@@ -13,7 +14,7 @@ export async function isLoggedIn(): Promise<boolean> {
         return false;
     }
 
-    loggedInUser = user.data;
+    loggedInUser.value = user.data;
 
     return true;
 }
@@ -22,4 +23,4 @@ export function logout(): void {
     localStorage.removeItem('auth_token');
 }
 
-export let loggedInUser: IUser | null = null;
+export let loggedInUser = ref<IUser | null>(null);
