@@ -47,6 +47,8 @@ program
         if (methodIsInstalled(method)) {
             const apiPath = getPathPackage('@printweave/api');
             const apiDir = path.resolve(path.dirname(apiPath), '..');
+            const webPath = getPathPackage('@printweave/web');
+            const webDir = path.resolve(path.dirname(webPath), '..');
 
             const {result} = concurrently([
                 {
@@ -54,7 +56,11 @@ program
                     name: 'api',
                     prefixColor: 'magenta'
                 },
-                {command: 'echo "Frontend server is not implemented yet"', name: 'frontend', prefixColor: 'blue'}
+                {
+                    command: "cd " + webDir + " && " + launchByMethod(method, webPath),
+                    name: 'web',
+                    prefixColor: 'blue'
+                }
             ]);
 
             result.then(() => {
@@ -79,6 +85,23 @@ program
         if (methodIsInstalled(method)) {
             shell.cd(apiDir);
             shell.exec(launchByMethod(method, apiPath));
+        } else {
+            console.log(`Method ${method} is not installed`);
+        }
+    });
+
+program
+    .command('web')
+    .description('Start the web frontend')
+    .option('-m, --method <method>', 'Method to start the server, default is node, available methods: node, forever', 'node')
+    .action((options) => {
+        const method = options.method || 'node';
+        const webPath = getPathPackage('@printweave/web');
+        const webDir = path.resolve(path.dirname(webPath), '..');
+
+        if (methodIsInstalled(method)) {
+            shell.cd(webDir);
+            shell.exec(launchByMethod(method, webDir));
         } else {
             console.log(`Method ${method} is not installed`);
         }
