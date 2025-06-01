@@ -14,7 +14,7 @@
       "yes": true
     }
   },
-  "version": "0.4.0",
+  "version": "0.5.0-beta.0",
   "packages": [
     "packages/*"
   ],
@@ -55,7 +55,9 @@
         "hidden": true
       }
     ],
-    "issuePrefixes": ["#"],
+    "issuePrefixes": [
+      "#"
+    ],
     "commitUrlFormat": "{{host}}/{{owner}}/{{repository}}/commit/{{hash}}",
     "compareUrlFormat": "{{host}}/{{owner}}/{{repository}}/compare/{{previousTag}}...{{currentTag}}",
     "userUrlFormat": "{{host}}/{{user}}"

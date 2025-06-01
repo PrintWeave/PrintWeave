@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.0-beta.0](https://github.com/PrintWeave/PrintWeave/compare/v0.4.0...v0.5.0-beta.0) (2025-06-01)
+
+### ✨ Features
+
+* **web:** Start ui for printweave ([e8ec4ad](https://github.com/PrintWeave/PrintWeave/commit/e8ec4ad4bc38d1f948dfc4c89c08b4f49326561f))
+
+### 🐛 Bug Fixes
+
+* **lerna:** Fix the changelog ([14acccf](https://github.com/PrintWeave/PrintWeave/commit/14acccff2a2a4a1b78c50881db4e11717ae4288f))
+* **lerna:** Remove Conventional commits ([232276f](https://github.com/PrintWeave/PrintWeave/commit/232276f033459859fb9b03c1d8adde45ecf356c4))
+* **lerna:** Unable to load conventional-changelog preset "conventionalcommits" (conventional-changelog-conventionalcommits) ([85f7a0b](https://github.com/PrintWeave/PrintWeave/commit/85f7a0bf0087ba008cba6a97ead8fb270965a338))
+* **web:** Correct package name ([ee8d81b](https://github.com/PrintWeave/PrintWeave/commit/ee8d81b5e8e92b517896916d19ea25e94abbfd6e))
+* **web:** Fix package-lock.json ([6f40736](https://github.com/PrintWeave/PrintWeave/commit/6f40736526072c2504f941428a3274296198f6a0))
+* **web:** Remove private ([8619c4e](https://github.com/PrintWeave/PrintWeave/commit/8619c4e325065cbcd0d840d8fb481f5de029d572))
+* **workflow:** Bump Node version ([17d662e](https://github.com/PrintWeave/PrintWeave/commit/17d662eb9ed132d50df6ff94a9e722b72b07a2a2))
+* **workflow:** Fix conventional commits ([cf9da6d](https://github.com/PrintWeave/PrintWeave/commit/cf9da6d70ba92b1b9bb524ffb7b5a053c95a901f))
+
 # [0.4.0](https://github.com/PrintWeave/PrintWeave/compare/v0.3.1...v0.4.0) (2025-06-01)
 
 **Note:** Version bump only for package printweave
