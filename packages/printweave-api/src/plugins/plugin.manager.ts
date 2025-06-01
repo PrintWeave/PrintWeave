@@ -17,6 +17,7 @@ export class PluginManager extends EventEmitter implements IPluginManager {
     private pluginsDir: string;
     private pluginPackages: string[] = [];
     private isDevMode: boolean = false;
+    private pluginsLoaded: boolean = false;
     public app: App = new App(this);
 
     private static instance: PluginManager;
@@ -60,6 +61,11 @@ export class PluginManager extends EventEmitter implements IPluginManager {
     }
 
     async loadPlugins(pluginNames: string[]) {
+        if (this.pluginsLoaded) {
+            logger.warn('Plugins already loaded, skipping loadPlugins');
+            return;
+        }
+
         this.pluginPackages = pluginNames;
 
         logger.info(`Loading plugins: ${pluginNames.join(', ') || 'none'}`);
@@ -93,6 +99,8 @@ export class PluginManager extends EventEmitter implements IPluginManager {
                 logger.error(`Error loading plugin ${trimmedPackageName}:`, error);
             }
         }
+
+        this.pluginsLoaded = true;
     }
 
     private async installPackage(packageName: string): Promise<void> {

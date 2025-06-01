@@ -1,21 +1,24 @@
 import {Sequelize} from 'sequelize';
-import {Umzug, SequelizeStorage} from 'umzug';
+import {Umzug, SequelizeStorage, RunnableMigration} from 'umzug';
 import db from './config/database.config.js';
 import path from 'path';
+import {PluginManager} from "./plugins/plugin.manager.js";
 
 export class Migrations {
 
     private db: Sequelize;
     private umzug: Umzug;
+    private pluginManager: PluginManager;
 
-    constructor(db: Sequelize) {
+    constructor(db: Sequelize, pluginManager: PluginManager, plugins: RunnableMigration<Sequelize>[] = []) {
         this.db = db;
+        this.pluginManager = pluginManager;
 
         db.authenticate()
 
         this.umzug = new Umzug({
-            migrations: {glob: 'migrations/*.js'},
-            context: db.getQueryInterface(),
+            migrations: [ ...plugins,  ...this.pluginManager.getPlugins().flatMap(plugin => plugin.migrations) ],
+            context: db,
             storage: new SequelizeStorage({sequelize: db}),
             logger: console,
         });

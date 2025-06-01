@@ -93,7 +93,8 @@ program
         const apiDir = path.resolve(path.dirname(apiPath), '..');
 
         process.chdir(apiDir);
-        const migrations = await import("file://" + apiDir + '/dist/migrations.js');
+        const api = await import("file://" + apiDir + '/dist/main.js');
+        const {migrations} = await api.getMigrationsForMigrate();
 
         if (options.rollback) {
             migrations.rollback();
