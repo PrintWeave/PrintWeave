@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/PrintWeave/PrintWeave/compare/v0.3.1...v0.4.0) (2025-06-01)
+
+**Note:** Version bump only for package @printweave/bambu-printer
+
 ## [0.3.1](https://github.com/PrintWeave/PrintWeave/compare/v1.0.1...v0.3.1) (2025-05-21)
 
 **Note:** Version bump only for package @printweave/bambu-printer
