@@ -82,7 +82,7 @@ jobs:
           # Update version in lerna.json
           lerna version ${{ github.event.inputs.version }} \
             ${{ github.event.inputs.conventionalGraduate && '--conventional-graduate' || '' }} \
-            --create-release github --yes --conventional-commits --changelog-preset conventionalcommits
+            --create-release github --yes --conventional-commits
       - name: Update version, with --preid
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -92,7 +92,7 @@ jobs:
           lerna version ${{ github.event.inputs.version }} \
             --preid ${{ github.event.inputs.preid }} \
             ${{ github.event.inputs.conventionalGraduate && '--conventional-graduate' || '' }} \
-            --create-release github --yes --conventional-commits --changelog-preset conventionalcommits
+            --create-release github --yes --conventional-commits
 
       - name: Publish packages
         run: |
