@@ -19,6 +19,11 @@ onMounted(async () => {
   });
 });
 
+const toggleDropdown = (event: MouseEvent) => {
+  event.stopPropagation();
+  // Logic to toggle dropdown visibility
+};
+
 </script>
 
 <template>
