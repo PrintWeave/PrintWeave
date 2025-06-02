@@ -5,6 +5,7 @@ export * from './get-printer';
 
 export * from './printer-action';
 export * from './printer-status';
+export * from './get-printer-statuses';
 
 export * from './bambu-printer';
 

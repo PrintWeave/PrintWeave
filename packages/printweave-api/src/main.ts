@@ -61,6 +61,9 @@ export async function loadDbAndMigrations() {
 
     const models = pluginManager.getPlugins().map(plugin => plugin.models).flat();
 
+    logger.info("Loaded plugins: " + pluginManager.getPlugins().map(plugin => plugin.name).join(', '));
+    logger.info("Loaded models: " + models.map(model => model.name).join(', '));
+
     let db = createDb(models);
 
     // Initialize the plugins with your Express main

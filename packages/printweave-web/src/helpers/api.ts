@@ -1,4 +1,4 @@
-import type {GetPrintersResponse} from "@printweave/api-types";
+import type {GetPrintersResponse, GetPrinterStatusesResponse} from "@printweave/api-types";
 
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001/ws';
@@ -97,6 +97,10 @@ export async function getUser(): Promise<ApiResponse<User>> {
 // Printer functions
 export async function getPrinters(): Promise<ApiResponse<GetPrintersResponse>> {
     return apiRequest<GetPrintersResponse>('/api/printer', 'GET', undefined);
+}
+
+export async function getPrinterStatuses(): Promise<ApiResponse<GetPrinterStatusesResponse>> {
+    return apiRequest<GetPrinterStatusesResponse>('/api/printer/statuses', 'GET', undefined);
 }
 
 export async function getPrinter(id: string): Promise<ApiResponse<Printer>> {

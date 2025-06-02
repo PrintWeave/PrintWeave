@@ -20,6 +20,15 @@ export interface PrinterStatus {
     lights: Light[]
 }
 
+export enum StatusType {
+    OFFLINE = 'offline',
+    ONLINE = 'online',
+    PRINTING = 'printing',
+    PAUSED = 'paused',
+    ERROR = 'error',
+    UNAUTHORIZED = 'unauthorized'
+}
+
 export interface Light {
     name: string;
     status: "on" | "off";

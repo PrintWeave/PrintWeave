@@ -1,5 +1,5 @@
 import {Column, DataType, ForeignKey, Model} from "sequelize-typescript";
-import {PrinterStatus, PrintFileReport} from "@printweave/api-types";
+import {PrinterStatus, PrintFileReport, StatusType} from "@printweave/api-types";
 import Printer from "./printer.model.js";
 import {Multer} from "multer";
 
@@ -22,12 +22,25 @@ export abstract class BasePrinter extends Model {
     abstract getStatus(): Promise<PrinterStatus>;
 
     abstract uploadFile(file: PrintWeaveFile, report: PrintFileReport): Promise<PrintFileReport>;
+
+    getCacheTime(): number {
+        return 300000; // Default cache time of 5 minutes
+    }
+
+    statusType: StatusType = StatusType.OFFLINE
 }
 
 export class PrinterTimeOutError extends Error {
     constructor(error: Error) {
         super(error.message);
         this.name = 'PrinterTimeOutError';
+    }
+}
+
+export class PrinterUnAuthorizedError extends Error {
+    constructor(error: Error) {
+        super(error.message);
+        this.name = 'PrinterUnauthorizedError';
     }
 }
 

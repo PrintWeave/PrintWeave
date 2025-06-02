@@ -18,7 +18,7 @@ export default class PrinterPlugin extends Plugin {
 
     private static instance: PrinterPlugin;
 
-    name = "BambuPrinter";
+    name = "@printweave/bambu-printer";
 
     printerType = "bambu";
 

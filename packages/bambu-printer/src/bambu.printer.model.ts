@@ -10,11 +10,16 @@ import {
 import {PausePrintCommand} from './connection/mqtt/PausePrintCommand.js';
 import {ResumePrintCommand} from './connection/mqtt/ResumePrintCommand.js';
 import {StopPrintCommand} from './connection/mqtt/StopPrintCommand.js';
-import {Light, PrinterStatus, Filament, MultiMaterial, PrintFileReport} from "@printweave/api-types";
+import {Light, PrinterStatus, Filament, MultiMaterial, PrintFileReport, StatusType} from "@printweave/api-types";
 import path from "path";
 import {Readable} from "node:stream";
 import {ConnectionManager, PrinterConnectionsBambu} from "./connection/ConnectionManager.js";
-import {BasePrinter, PrinterTimeOutError, PrintWeaveFile} from "@printweave/models";
+import {
+    BasePrinter,
+    PrinterTimeOutError,
+    PrinterUnAuthorizedError,
+    PrintWeaveFile,
+} from "@printweave/models";
 import PrinterPlugin from "./main.js";
 
 @Table({
@@ -103,18 +108,34 @@ export class BambuPrinter extends BasePrinter {
             if (!connection) {
                 throw new Error('Printer connection not found');
             }
+
+            if (this.statusType === StatusType.OFFLINE || this.statusType === StatusType.UNAUTHORIZED) {
+                this.statusType = StatusType.ONLINE;
+            }
+
             return connection as PrinterConnectionsBambu;
         } catch (error) {
             if (error.code === 'ETIMEDOUT') {
+                this.statusType = StatusType.OFFLINE;
                 throw new PrinterTimeOutError(error);
+            } else if (error.code === 'ECONNREFUSED' || error.message.includes('Not authorized')) {
+                this.statusType = StatusType.UNAUTHORIZED;
+                PrinterPlugin.logger.error('Printer connection refused or not authorized:', error);
+                throw new PrinterUnAuthorizedError(error);
             } else {
+                this.statusType = StatusType.OFFLINE;
+                PrinterPlugin.logger.error('Error getting printer connection:', error);
                 throw error;
             }
         }
     }
 
-    async getStatus(): Promise<PrinterStatus> {
-        let status: PrinterStatus = {
+    async getStatus()
+        :
+        Promise<PrinterStatus> {
+        let status
+            :
+            PrinterStatus = {
             bedTargetTemp: 0,
             bedTemp: 0,
             fanSpeeds: [],
@@ -132,7 +153,13 @@ export class BambuPrinter extends BasePrinter {
         }
 
         const connection = await this.getConnection();
-        const response = await connection.mqtt.client.executeCommand(new PushAllCommand()) as PushAllResponse;
+
+        const response = await connection.mqtt.client.executeCommand(new PushAllCommand()).then(
+            (res) => res as PushAllResponse
+        ).catch((error) => {
+            PrinterPlugin.logger.error('Error getting printer status:', error);
+            throw new Error('Failed to get printer status');
+        });
 
         status.bedTargetTemp = response.bed_target_temper;
         status.bedTemp = response.bed_temper;
@@ -230,13 +257,20 @@ export class BambuPrinter extends BasePrinter {
         return status;
     }
 
-    override async uploadFile(file: PrintWeaveFile, report: PrintFileReport): Promise<PrintFileReport> {
+    override async uploadFile(file
+               :
+               PrintWeaveFile, report
+               :
+               PrintFileReport
+    ):
+        Promise<PrintFileReport> {
         const connection = await this.getConnection();
         const response = await connection.ftps.connect();
 
         await response.uploadFile(file.path, path.join('/printweave', 'gcode', file.originalname));
 
-        for (const plate of report.plates) {
+        for (const plate of report.plates
+            ) {
             if (plate.thumbnailRaw) {
                 const thumbnailName = file.originalname.split('.').slice(0, -1).join('.') + '.plate_' + plate.id + '.png';
                 const readStream = await this.convertToReadable(plate.thumbnailRaw.stream());
@@ -254,13 +288,17 @@ export class BambuPrinter extends BasePrinter {
         return report;
     }
 
-    async convertToReadable(webStream: ReadableStream<Uint8Array>): Promise<Readable> {
+    async convertToReadable(webStream
+                      :
+                      ReadableStream<Uint8Array>
+    ):
+        Promise<Readable> {
         const reader = webStream.getReader();
 
         return new Readable({
             async read() {
                 try {
-                    const { done, value } = await reader.read();
+                    const {done, value} = await reader.read();
                     if (done) {
                         this.push(null);
                     } else {

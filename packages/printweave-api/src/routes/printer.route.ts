@@ -248,9 +248,9 @@ export function printerRoutes(printerId: number): Router {
         const printer = await Printer.findByPk(printerId);
 
         try {
-            const status = await app.getFullPrinter(printer).then(printer => printer?.getStatus());
+            const status = await app.getPrinterStatusCached(printer.id);
 
-            res.json({user, printer, status} as PrinterStatusResponse);
+            res.json({user, printer, status: status.status} as PrinterStatusResponse);
         } catch (error) {
 
             if (error instanceof PrinterTimeOutError) {

@@ -7,12 +7,16 @@ import {
     CreatePrinterResponse,
     CreatePrinterError,
     CreateBambuPrinterError, RemovePrinterError, RemovePrinterResponse, GetPrintersError, SimpleUnauthorizedError,
+    GetPrinterStatusesResponse, GetPrinterStatusesError, PrinterStatusData,
 } from "@printweave/api-types";
-import {BasePrinter, getPrinterAndUser, Printer, User, UserPrinter} from "@printweave/models";
+import {BasePrinter, getPrinterAndUser, IPrintWeaveApp, Printer, User, UserPrinter} from "@printweave/models";
 import {logger, pluginManager} from "../main.js";
+import {PluginManager} from "../plugins/plugin.manager.js";
 
 export function printersRoutes(): Router {
     const router = Router();
+
+    const app: IPrintWeaveApp = PluginManager.getPluginManager().app;
 
     router.get('/', async (req: Request, res: Response) => {
         const user: User = req.user as User;
@@ -94,6 +98,43 @@ export function printersRoutes(): Router {
         });
 
         res.json({message: 'Printer created', printer: printer} as CreatePrinterResponse);
+    });
+
+    router.get('/statuses', async (req: Request, res: Response) => {
+        const user: User = req.user as User;
+        if (!user) {
+            res.status(401).json(new SimpleUnauthorizedError(401) as GetPrinterStatusesError);
+            return
+        }
+
+        const printers = await user.$get('printers');
+        if (!printers || printers.length === 0) {
+            res.status(200).json({message: 'No printers found', printerStatuses: []} as GetPrinterStatusesResponse);
+            return;
+        }
+
+
+        const printerStatuses: PrinterStatusData[] = await Promise.all(printers.map(async (printer: Printer) => {
+            try {
+                const status = await app.getPrinterStatusCached(printer.id);
+                return {
+                    printerId: printer.id,
+                    status: status.status,
+                    statusType: status.statusType,
+                    printer: printer
+                } as PrinterStatusData;
+            } catch (error) {
+                const fullPrinter = await app.getFullPrinter(printer);
+                return {
+                    printerId: printer.id,
+                    status: null,
+                    statusType: fullPrinter ? fullPrinter.statusType : null,
+                    printer: printer
+                }
+            }
+        }));
+
+        res.status(200).json({message: 'Printer statuses retrieved', printerStatuses} as GetPrinterStatusesResponse);
     });
 
     router.delete('/:printerId', async (req: Request, res: Response) => {
