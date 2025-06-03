@@ -11,13 +11,17 @@ import {
     SimpleUnauthorizedError,
     UploadFileError,
 } from "@printweave/api-types";
-import {storage} from "../main.js";
+import {logger, storage} from "../main.js";
 import {BlobReader, BlobWriter, TextWriter, ZipReader} from "@zip.js/zip.js";
 import {promises as fs} from "fs";
 import {XMLParser} from "fast-xml-parser";
 import {IPrintWeaveApp} from "@printweave/models";
 import {PluginManager} from "../plugins/plugin.manager.js";
 import rateLimit from 'express-rate-limit';
+import {VideoStream} from "@printweave/models/dist/models/video.model.js";
+import * as Buffer from "node:buffer";
+import {Error} from "sequelize";
+import {EventEmitter} from "events";
 
 const analyze3mfFile = async (file: Express.Multer.File, res: EResponse<any, Record<string, any>>): Promise<PrintFileReport> => {
     let result = {} as PrintFileReport;
@@ -309,5 +313,73 @@ export function printerRoutes(printerId: number): Router {
 
     });
 
+    router.get('/mjpeg', async (req, res) => {
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate', 'view']);
+
+        logger.info("JAAAAAAA")
+
+        if (error) {
+            res.status(error.code).json(error.err);
+            return;
+        }
+
+        if (!userPrinter) {
+            res.status(403).json(new SimpleUnauthorizedError(403));
+            return;
+        }
+
+        const printer = await Printer.findByPk(printerId);
+
+
+        if (!printer) {
+            res.status(404).json({message: 'Printer not found'});
+            return;
+        }
+
+        const fullPrinter = await app.getFullPrinter(printer);
+
+
+        if (!printer) {
+            res.status(404).json({message: 'Printer not found'});
+            return;
+        }
+
+        try {
+            const videoProcessor = await fullPrinter.getVideoProcessor();
+            res.setHeader('Content-Type', 'multipart/x-mixed-replace; boundary=--myboundary');
+
+            await videoProcessor.getVideoFrames(new MJPEGVideoStream(res));
+
+        } catch (error) {
+            res.status(500).json({message: 'Error getting MJPEG stream', error: error.message, code: 500});
+        }
+    });
+
     return router;
+}
+
+export class MJPEGVideoStream extends EventEmitter implements VideoStream {
+    private res: EResponse<any, Record<string, any>>;
+
+    constructor(res: EResponse<any, Record<string, any>>) {
+        super();
+        this.res = res;
+    }
+
+    addFrame(frame: Buffer): void {
+        console.log(`Adding frame of length: ${frame.length}`);
+
+        this.res.write(`--myboundary\r\n`);
+        this.res.write(`Content-Type: image/jpeg\r\n`);
+        this.res.write(`Content-Length: ${frame.length}\r\n\r\n`);
+        this.res.write(frame);
+        this.res.write(`\r\n`);
+
+        this.emit('frame', frame);
+    }
+
+    endStream(): void {
+        this.res.end(`--myboundary--\r\n`);
+        this.emit('end');
+    }
 }

@@ -38,7 +38,7 @@ export const logger = createPluginLogger("API", LogType.API);
 export const storage = multer({dest: envString("UPLOAD_DIR", "./tmp")});
 
 export const pluginManager = PluginManager.getPluginManager();
-const websocketsManager = new WebsocketsManager(pluginManager);
+export const websocketsManager = new WebsocketsManager(pluginManager);
 
 // Filter out empty strings from the plugin list
 export const plugins = envString("PLUGINS", "")
@@ -94,7 +94,8 @@ export async function load() {
     // Add CORS middleware
     main.use((req, res, next) => {
         // Allow requests from the web application
-        res.header('Access-Control-Allow-Origin', '*'); // Replace with specific origin in production
+        res.header('Access-Control-Allow-Origin', 'http://localhost:5173'); // Change this to your web app's URL
+        res.header('Access-Control-Allow-Credentials', 'true');
         res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
         res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
 
@@ -172,35 +173,53 @@ export async function load() {
     // Start server
     expressServer = main.listen(port, () => logger.info('Server running on port ' + port));
 
-    server = createServer(main);
     wss = new WebSocketServer({
-        noServer: true
+        port: envInt("WEBSOCKET_PORT", 3001),
     });
-
-    server.on('upgrade', async (request, socket, head) => {
-        const token = extractTokenFromRequest(request);
-        const user = await token ? await authenticate(token) : null;
-
-        if (!user) {
-            socket.destroy();
-            return;
-        }
-
-        wss.handleUpgrade(request, socket, head, (ws) => {
-            wss.emit('connection', ws, request, user);
-        });
-    });
-
-    server.listen(envInt("WEBSOCKET_PORT", 3001));
 
     logger.info('Websockets server running on port ' + envInt("WEBSOCKET_PORT", 3001));
 
-    wss.on('connection', (ws: WebSocket, req, user: User) => {
-        ws.on('message', async (message) => {
-            await websocketsManager.handleMessage(ws, message, user);
-        });
+    wss.on('connection', (ws: WebSocket, req) => {
+        logger.info('New WebSocket connection established');
+        ws.once('message', async (rawMessage: WebSocket.RawData) => {
+            const messageJson = rawMessage.toString();
+            const data = JSON.parse(messageJson);
 
-        ws.send('Connected to Printweave API');
+            if (data.type === 'authenticate') {
+                const token: string = data.token;
+                if (!token) {
+                    logger.warn('No token provided in WebSocket connection');
+                    ws.close();
+                    return;
+                }
+
+                const user = await authenticate(token);
+                if (!user) {
+                    logger.warn('Invalid token provided in WebSocket connection');
+                    ws.close();
+                    return;
+                }
+
+                ws.send(JSON.stringify({
+                    type: 'authenticated',
+                    user: {
+                        id: user.id,
+                        username: user.username,
+                        email: user.email
+                    }
+                }));
+
+                // Add the user to the websockets manager
+                websocketsManager.addConnection(ws, user);
+            } else {
+                ws.send(JSON.stringify({
+                    error: 'Authentication required',
+                    code: 401
+                }));
+                ws.close();
+            }
+
+        });
     });
 
     return { server, wss, db, expressServer };

@@ -6,6 +6,7 @@ import {ModelCtor} from "sequelize-typescript";
 import {Logger} from "winston";
 import {BaseWebsocketManager} from "./websockets.model.js";
 import {RunnableMigration} from "umzug";
+import {VideoProcessor} from "./video.model.js";
 // import {BaseWebsocketManager} from "./websockets.js";
 
 export * as Sequelize from "sequelize";

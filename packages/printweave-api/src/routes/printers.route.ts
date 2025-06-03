@@ -7,10 +7,10 @@ import {
     CreatePrinterResponse,
     CreatePrinterError,
     CreateBambuPrinterError, RemovePrinterError, RemovePrinterResponse, GetPrintersError, SimpleUnauthorizedError,
-    GetPrinterStatusesResponse, GetPrinterStatusesError, PrinterStatusData,
+    GetPrinterStatusesResponse, GetPrinterStatusesError, PrinterStatusData, PrinterStatus, StatusType,
 } from "@printweave/api-types";
 import {BasePrinter, getPrinterAndUser, IPrintWeaveApp, Printer, User, UserPrinter} from "@printweave/models";
-import {logger, pluginManager} from "../main.js";
+import {logger, pluginManager, websocketsManager} from "../main.js";
 import {PluginManager} from "../plugins/plugin.manager.js";
 
 export function printersRoutes(): Router {
@@ -114,25 +114,43 @@ export function printersRoutes(): Router {
         }
 
 
-        const printerStatuses: PrinterStatusData[] = await Promise.all(printers.map(async (printer: Printer) => {
+        const printerStatuses = await Promise.all(printers.map(async (printer: Printer) => {
+            const fullPrinter = await app.getFullPrinter(printer);
+            return {
+                printerId: printer.id,
+                status: await app.getPrinterStatusFromCache(printer.id),
+                statusType: fullPrinter ? fullPrinter.statusType : null,
+                printer: printer
+            }
+        }));
+
+        printerStatuses.forEach((status: {
+            printerId: any
+            status: PrinterStatus
+            statusType: StatusType
+            printer: Printer
+        }) => {
+            websocketsManager.sendMessagePrinter(status.printerId, 'printerStatus', {
+                printerId: status.printerId,
+                status: status.status,
+                statusType: status.statusType,
+                printer: status.printer
+            } as PrinterStatusData);
+        });
+
+        Promise.all(printers.map(async (printer: Printer) => {
             try {
                 const status = await app.getPrinterStatusCached(printer.id);
-                return {
-                    printerId: printer.id,
-                    status: status.status,
-                    statusType: status.statusType,
-                    printer: printer
-                } as PrinterStatusData;
             } catch (error) {
                 const fullPrinter = await app.getFullPrinter(printer);
-                return {
+                websocketsManager.sendMessage(user.id, 'printerStatus', {
                     printerId: printer.id,
                     status: null,
                     statusType: fullPrinter ? fullPrinter.statusType : null,
                     printer: printer
-                }
+                });
             }
-        }));
+        })).then();
 
         res.status(200).json({message: 'Printer statuses retrieved', printerStatuses} as GetPrinterStatusesResponse);
     });

@@ -1,5 +1,5 @@
 import {Table, Column, Model, DataType, HasOne, ForeignKey} from 'sequelize-typescript';
-import {IPrinter} from "@printweave/api-types";
+import {IPrinter, IUserPrinter} from "@printweave/api-types";
 import {BasePrinter} from "./base.printer.js";
 
 @Table({
@@ -7,6 +7,8 @@ import {BasePrinter} from "./base.printer.js";
     timestamps: true
 })
 export class Printer extends Model implements IPrinter {
+    declare id: number;
+
     @Column({
         type: DataType.STRING,
         unique: true,

@@ -1,7 +1,8 @@
 import type {GetPrintersResponse, GetPrinterStatusesResponse} from "@printweave/api-types";
+import axios from 'axios';
 
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001/ws';
+export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
 
 import type {User, Printer, UserPrinter} from '@printweave/models';
 
@@ -35,6 +36,29 @@ interface ApiResponse<T> {
     status: number;
 }
 
+// Connect to websocket server using WebSocket API
+export interface WebSocketConnection {
+    ws: WebSocket;
+    token: string;
+}
+
+export interface WebSocketMessage {
+    type: string;
+    data: any;
+}
+
+export interface WebSocketEvent {
+    type: string;
+    data: any;
+}
+
+export interface WebSocketError {
+    type: 'error';
+    message: string;
+}
+
+
+
 // API helper function for making requests
 async function apiRequest<T>(
     endpoint: string,
@@ -43,7 +67,7 @@ async function apiRequest<T>(
     token?: string
 ): Promise<ApiResponse<T>> {
     const url = `${API_URL}${endpoint}`;
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
         'Content-Type': 'application/json',
     };
 
@@ -54,23 +78,16 @@ async function apiRequest<T>(
     }
 
     try {
-        const response = await fetch(url, {
+        const response = await axios({
             method,
+            url,
             headers,
-            body: data ? JSON.stringify(data) : undefined,
+            withCredentials: true,
+            data: data,
         });
 
-        const responseData = await response.json();
-
-        if (response.status === 400 || response.status === 401 || response.status === 403) {
-            return {
-                error: responseData.message || 'Bad request',
-                status: response.status
-            };
-        }
-
         return {
-            data: responseData,
+            data: response.data,
             status: response.status
         };
     } catch (error) {
@@ -163,7 +180,33 @@ export async function updateUser(userId: string, userData: Partial<User>): Promi
 }
 
 // WebSocket connection helper
-export function createWebSocketConnection(token: string): WebSocket {
-    const ws = new WebSocket(`${WS_URL}?token=${token.replace('Bearer ', '')}`);
-    return ws;
+export async function createWebSocketConnection(token: string): Promise<WebSocket> {
+    // Create a new WebSocket connection to the server and send the token as a message
+    const ws = new WebSocket(`${WS_URL}`);
+
+    ws.onclose = () => {
+        console.log('WebSocket connection closed');
+    };
+    return new Promise((resolve, reject) => {
+        ws.onopen = () => {
+            console.log('WebSocket connection established');
+            ws.send(JSON.stringify({ type: 'authenticate', token }));
+        };
+        ws.onmessage = (event) => {
+            const message: WebSocketMessage = JSON.parse(event.data);
+            if (message.type === 'authenticated') {
+                console.log('WebSocket authenticated:', message.data);
+                resolve(ws);
+            } else if (message.type === 'error') {
+                console.error('WebSocket error:', message.data);
+                reject(new Error(message.data));
+            } else {
+                console.log('WebSocket message:', message);
+            }
+        };
+        ws.onerror = (error) => {
+            console.error('WebSocket connection error:', error);
+            reject(error);
+        };
+    });
 }

@@ -2,6 +2,7 @@ import {IUserPrinter} from "./UserPrinter";
 import {IModel} from "./Model";
 
 export interface IPrinter extends IModel {
+    id: number;
     name: string;
     type: string;
     active: boolean;
@@ -17,7 +18,8 @@ export interface PrinterStatus {
     status: "FINISH" | "FAILED" | "RUNNING" | "IDLE" | "PAUSE" | "PREPARE" | "SLICING";
     gcode_file: string;
     progress: PrintProgress;
-    lights: Light[]
+    lights: Light[];
+    image: string;
 }
 
 export enum StatusType {

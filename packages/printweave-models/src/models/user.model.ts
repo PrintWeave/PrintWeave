@@ -3,7 +3,7 @@ import {Printer} from './printer.model.js';
 import {UserPrinter} from './userprinter.model.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import {IUser} from "@printweave/api-types";
+import {IPrinter, IUser} from "@printweave/api-types";
 
 @Table({
     tableName: 'users',
@@ -46,7 +46,7 @@ export class User extends Model implements IUser {
     declare active: boolean;
 
     @BelongsToMany(() => Printer, () => UserPrinter)
-    declare printers: Printer[];
+    declare printers: IPrinter[];
 
     @BeforeCreate
     @BeforeUpdate

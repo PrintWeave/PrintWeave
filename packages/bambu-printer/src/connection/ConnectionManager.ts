@@ -4,12 +4,14 @@ import {BambuPrinter} from "../bambu.printer.model.js";
 import {FtpsBambuConnection} from "./ftps.connection.js";
 import {Printer} from "@printweave/models";
 import PrinterPlugin from "main.js";
+import {BambuVideoProcessor} from "./video.bambu.js";
 
 interface ConnectionsList {
     [printerId: number]: PrinterConnectionsBambu;
 }
 
 export interface PrinterConnectionsBambu {
+    video: BambuVideoProcessor,
     mqtt: MqttBambuConnection,
     ftps: FtpsBambuConnection
 }
@@ -44,6 +46,7 @@ export class ConnectionManager {
 
         this.connections[printer.id] = {
             mqtt: mqttBambuConnection,
+            video: new BambuVideoProcessor(bambuPrinter.dataValues.ip, bambuPrinter.dataValues.code),
             ftps: new FtpsBambuConnection(bambuPrinter.dataValues.ip, bambuPrinter.dataValues.code)
         }
     }

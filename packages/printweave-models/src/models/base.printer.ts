@@ -2,6 +2,7 @@ import {Column, DataType, ForeignKey, Model} from "sequelize-typescript";
 import {PrinterStatus, PrintFileReport, StatusType} from "@printweave/api-types";
 import Printer from "./printer.model.js";
 import {Multer} from "multer";
+import {VideoProcessor, VideoStream} from "./video.model.js";
 
 export abstract class BasePrinter extends Model {
     @Column({
@@ -22,6 +23,8 @@ export abstract class BasePrinter extends Model {
     abstract getStatus(): Promise<PrinterStatus>;
 
     abstract uploadFile(file: PrintWeaveFile, report: PrintFileReport): Promise<PrintFileReport>;
+
+    abstract getVideoProcessor(): Promise<VideoProcessor | null>;
 
     getCacheTime(): number {
         return 300000; // Default cache time of 5 minutes

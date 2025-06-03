@@ -21,6 +21,7 @@ import {
     PrintWeaveFile,
 } from "@printweave/models";
 import PrinterPlugin from "./main.js";
+import {VideoProcessor, VideoStream} from "@printweave/models/dist/models/video.model.js";
 
 @Table({
     tableName: 'bambu_printers',
@@ -149,7 +150,8 @@ export class BambuPrinter extends BasePrinter {
                 layer: 0,
                 totalLayers: 0
             },
-            lights: []
+            lights: [],
+            image: ''
         }
 
         const connection = await this.getConnection();
@@ -309,5 +311,14 @@ export class BambuPrinter extends BasePrinter {
                 }
             }
         });
+    }
+
+    override async getVideoProcessor(): Promise<VideoProcessor | null> {
+        const connection = await this.getConnection();
+        if (!connection.video) {
+            return null;
+        }
+
+        return connection.video;
     }
 }

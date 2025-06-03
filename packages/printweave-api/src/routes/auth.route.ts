@@ -3,6 +3,7 @@ import passport from 'passport';
 import {Strategy as JwtStrategy, ExtractJwt, VerifiedCallback} from 'passport-jwt';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import {envInt, envString} from "../environment.js";
 import {SimpleUnauthorizedError} from "@printweave/api-types";
 import {User} from "@printweave/models";
@@ -18,14 +19,41 @@ dotenv.config({path: './.env'});
 
 // Configuration
 const JWT_SECRET = envString("JWT_SECRET", "");
+const COOKIE_NAME = 'jwt_token';
+const COOKIE_CONFIG = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
+};
 
 if (!JWT_SECRET || JWT_SECRET === "") {
     throw new Error("JWT_SECRET is not defined, please set it in your .env file");
 }
 
+// Custom JWT extractor for both header and cookies
+const fromAuthHeaderOrCookie = (req) => {
+    // Check header first
+    const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+
+    console.log("Extracted token from header:", token);
+    if (token) {
+        return token;
+    }
+
+    console.log("No token found in header, checking cookies...");
+    // Then check cookies
+    if (req.cookies && req.cookies[COOKIE_NAME]) {
+        return req.cookies[COOKIE_NAME];
+    }
+
+    console.log("No token found in cookies.");
+
+    return null;
+};
+
 // JWT Strategy Configuration
 const jwtOptions = {
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    jwtFromRequest: fromAuthHeaderOrCookie,
     secretOrKey: JWT_SECRET
 };
 
@@ -53,6 +81,13 @@ const authMiddleware = function (req, res, next) {
             }
             // Forward user information to the next middleware
             req.user = user;
+
+            // add jwt token to cookie if not present
+            if (!req.cookies || !req.cookies[COOKIE_NAME]) {
+                const token = jwt.sign({id: user.id, username: user.username}, JWT_SECRET, {expiresIn: '1h'});
+                res.cookie(COOKIE_NAME, token, COOKIE_CONFIG);
+            }
+
             next();
         })(req, res, next);
 };
@@ -65,6 +100,9 @@ const loginLimiter = rateLimit({
 
 // Auth Routes
 const authRoutes = (app: Application) => {
+    // Apply cookie parser middleware
+    app.use(cookieParser());
+
     // Register Route
     app.post('/register', async (req: Request, res: Response): Promise<void> => {
         try {
@@ -131,9 +169,8 @@ const authRoutes = (app: Application) => {
                 username: user.username
             };
 
-            const token = jwt.sign(payload, JWT_SECRET, {
-                expiresIn: rememberMe ? '30d' : '1h' // 30 days if rememberMe is true, otherwise 1 hour
-            });
+            const expiresIn = rememberMe ? '30d' : '1h';
+            const token = jwt.sign(payload, JWT_SECRET, { expiresIn });
 
             res.json({
                 message: 'Authentication successful',
@@ -148,6 +185,13 @@ const authRoutes = (app: Application) => {
             logger.error(error)
         }
     });
+
+    // Add a logout route to clear the cookie
+    app.post('/logout', (req: Request, res: Response): void => {
+        res.clearCookie(COOKIE_NAME);
+        res.json({ message: 'Logged out successfully' });
+    });
 };
 
 export {authRoutes, authMiddleware};
+
