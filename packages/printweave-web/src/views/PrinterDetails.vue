@@ -111,7 +111,7 @@
               <Thermometer class="h-5 w-5 text-blue-600"/>
               Temperature
             </h3>
-            <div class="grid grid-cols-1 gap-6">
+            <div class="grid grid-cols-1 gap-3">
               <div v-for="hotend in temperatures.hotends || []" :key="hotend.current"
                    class="grid lg:grid-cols-2 grid-cols-1  lg:gap-6  gap-3 p-2 border-gray-200 border-2 rounded-lg">
                 <div>
@@ -345,29 +345,6 @@
             </div>
           </div>
 
-          <!-- Misc Controls -->
-          <div class="bg-white rounded-xl shadow-md border border-gray-200 p-5">
-            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Settings class="h-5 w-5 text-blue-600"/>
-              Other Controls
-            </h3>
-            <div class="grid grid-cols-1 gap-3">
-              <button
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
-                  @click="extrudeFilament"
-              >
-                <ArrowDownCircle class="h-4 w-4"/>
-                Extrude
-              </button>
-              <button
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
-                  @click="retractFilament"
-              >
-                <ArrowUpCircle class="h-4 w-4"/>
-                Retract
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </main>
