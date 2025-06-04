@@ -2,7 +2,7 @@
   "name": "@printweave/api",
   "main": "dist/start.js",
   "type": "module",
-  "version": "0.5.0-beta.2",
+  "version": "0.5.0-beta.3",
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/start.js",
@@ -38,8 +38,8 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@printweave/api-types": "^0.5.0-beta.2",
-    "@printweave/models": "^0.5.0-beta.2",
+    "@printweave/api-types": "^0.5.0-beta.3",
+    "@printweave/models": "^0.5.0-beta.3",
     "@types/cors": "^2.8.18",
     "bambu-node": "^3.22.21",
     "bcryptjs": "^3.0.2",
