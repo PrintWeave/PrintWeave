@@ -1,6 +1,6 @@
 {
   "name": "@printweave/api-types",
-  "version": "0.4.0",
+  "version": "0.5.0-beta.2",
   "description": "Types for responses of @printweave/api",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",

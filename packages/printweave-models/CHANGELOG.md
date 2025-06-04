@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.0-beta.2](https://github.com/PrintWeave/PrintWeave/compare/v0.5.0-beta.1...v0.5.0-beta.2) (2025-06-04)
+
+### ✨ Features
+
+* **web:** Basic Dashboard ([3b4c735](https://github.com/PrintWeave/PrintWeave/commit/3b4c735349d65b1d829a3be8261ec8bac1fe62d3))
+* **web:** Better Dashboard ([04cd1b5](https://github.com/PrintWeave/PrintWeave/commit/04cd1b5e2786ce3708d2810a5fa58714c0bd3898))
+
 # [0.4.0](https://github.com/PrintWeave/PrintWeave/compare/v0.3.1...v0.4.0) (2025-06-01)
 
 **Note:** Version bump only for package @printweave/models
