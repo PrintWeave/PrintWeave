@@ -1,6 +1,12 @@
 import {Request, Response, Application} from 'express';
 import passport from 'passport';
-import {Strategy as JwtStrategy, ExtractJwt, VerifiedCallback} from 'passport-jwt';
+import {
+    Strategy as JwtStrategy,
+    ExtractJwt,
+    VerifiedCallback,
+    JwtFromRequestFunction,
+    StrategyOptionsWithoutRequest
+} from 'passport-jwt';
 import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
@@ -31,33 +37,32 @@ if (!JWT_SECRET || JWT_SECRET === "") {
 }
 
 // Custom JWT extractor for both header and cookies
-const fromAuthHeaderOrCookie = (req) => {
+const fromAuthHeaderOrCookie: JwtFromRequestFunction = (req) => {
     // Check header first
     const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
 
-    console.log("Extracted token from header:", token);
     if (token) {
         return token;
     }
 
-    console.log("No token found in header, checking cookies...");
     // Then check cookies
     if (req.cookies && req.cookies[COOKIE_NAME]) {
         return req.cookies[COOKIE_NAME];
     }
 
-    console.log("No token found in cookies.");
-
     return null;
 };
 
-// JWT Strategy Configuration
-const jwtOptions = {
+var jwtOptions: StrategyOptionsWithoutRequest = {
     jwtFromRequest: fromAuthHeaderOrCookie,
-    secretOrKey: JWT_SECRET
-};
+    secretOrKey: JWT_SECRET,
+    algorithms: ['HS256'], // Specify the algorithm used to sign the JWT
+}
 
-passport.use(new JwtStrategy(jwtOptions, async (payload: JwtPayload, done: VerifiedCallback) => {
+// Clear out the existing strategy first to ensure we're not using any cached version
+passport.unuse && passport.unuse('jwt');
+
+passport.use('jwt2', new JwtStrategy(jwtOptions, async (payload: JwtPayload, done: VerifiedCallback) => {
     try {
         const user: User = await User.findByPk(payload.id);
         if (user) {
@@ -71,7 +76,7 @@ passport.use(new JwtStrategy(jwtOptions, async (payload: JwtPayload, done: Verif
 
 // Authentication Middleware
 const authMiddleware = function (req, res, next) {
-    passport.authenticate('jwt', {session: false},
+    passport.authenticate('jwt2', {session: false},
         (err, user) => {
             if (err) {
                 return next(err);
@@ -82,8 +87,15 @@ const authMiddleware = function (req, res, next) {
             // Forward user information to the next middleware
             req.user = user;
 
-            // add jwt token to cookie if not present
-            if (!req.cookies || !req.cookies[COOKIE_NAME]) {
+            try {
+                // add jwt token to cookie if not present and check if the current token in cookie is valid jwt token
+                if (!req.cookies || !req.cookies[COOKIE_NAME] || !jwt.verify(req.cookies[COOKIE_NAME], JWT_SECRET)) {
+                    const token = jwt.sign({id: user.id, username: user.username}, JWT_SECRET, {expiresIn: '1h'});
+                    res.cookie(COOKIE_NAME, token, COOKIE_CONFIG);
+                    console.log("🍪 Set new cookie with token");
+                }
+            } catch (error) {
+                console.log("🔄 Cookie token invalid, setting new token");
                 const token = jwt.sign({id: user.id, username: user.username}, JWT_SECRET, {expiresIn: '1h'});
                 res.cookie(COOKIE_NAME, token, COOKIE_CONFIG);
             }
@@ -143,7 +155,11 @@ const authRoutes = (app: Application) => {
     // Login Route
     app.post('/login', loginLimiter, async (req: Request, res: Response): Promise<void> => {
         try {
-            const {username, password, rememberMe = false}: { username: string, password: string, rememberMe?: boolean } = req.body;
+            const {username, password, rememberMe = false}: {
+                username: string,
+                password: string,
+                rememberMe?: boolean
+            } = req.body;
 
             if (!username || !password) {
                 res.status(400).json({message: 'Username and password are required'});
@@ -170,7 +186,7 @@ const authRoutes = (app: Application) => {
             };
 
             const expiresIn = rememberMe ? '30d' : '1h';
-            const token = jwt.sign(payload, JWT_SECRET, { expiresIn });
+            const token = jwt.sign(payload, JWT_SECRET, {expiresIn});
 
             res.json({
                 message: 'Authentication successful',
@@ -189,9 +205,10 @@ const authRoutes = (app: Application) => {
     // Add a logout route to clear the cookie
     app.post('/logout', (req: Request, res: Response): void => {
         res.clearCookie(COOKIE_NAME);
-        res.json({ message: 'Logged out successfully' });
+        res.json({message: 'Logged out successfully'});
     });
 };
 
 export {authRoutes, authMiddleware};
+
 

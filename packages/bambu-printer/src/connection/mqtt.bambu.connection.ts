@@ -7,7 +7,6 @@ import {EventEmitter} from "events";
 import PrinterPlugin from "../main.js";
 import {BambuWebsocketConnection} from "websockets.manager.js";
 import {Filament, Light, MultiMaterial} from "@printweave/api-types";
-import {logger} from "@printweave/api/dist/main.js";
 
 export class MqttBambuConnection {
 
@@ -57,7 +56,7 @@ export class MqttBambuConnection {
                 return subscriber.printerId === this.printerId;
             })
 
-            logger.info(`Printer with id: ${this.printerId} received message on topic: ${topicName}`, data);
+            PrinterPlugin.logger.info(`Printer with id: ${this.printerId} received message on topic: ${topicName}`, data);
 
             if (topicName === 'print.push_status') {
                 await this.updatePrinterStatus(data[firstKey]);
@@ -189,7 +188,7 @@ export class MqttBambuConnection {
             ];
         }
 
-        logger.info(`Updating printer status for printer with id: ${this.printerId}`, status);
+        PrinterPlugin.logger.info(`Updating printer status for printer with id: ${this.printerId}`, status);
         PrinterPlugin.getApp().setPrinterStatusCache(printer, {status: status, statusType: null});
     }
 

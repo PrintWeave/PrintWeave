@@ -8,7 +8,7 @@ export default function createDb(models: ModelCtor[]): Sequelize {
     const db = new Sequelize({
         dialect: "sqlite",
         storage: path.resolve(process.cwd(), "printweave.sqlite"),
-        logging: true,
+        logging: false,
         models: [User, Printer, UserPrinter, ...models],
     });
 

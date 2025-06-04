@@ -1,7 +1,7 @@
 import {EventEmitter} from "events";
 import tls from "tls";
 import {VideoProcessor, VideoStream} from "@printweave/models/dist/models/video.model.js";
-
+import PrinterPlugin from "../main.js";
 
 interface FrameHeader {
     payloadSize: number;
@@ -31,12 +31,12 @@ export class BambuVideoProcessor extends VideoProcessor {
 
     async connect(): Promise<void> {
         return new Promise((resolve, reject) => {
-            console.log(`Connecting to printer at ${this.printerIp}:6000...`);
+            PrinterPlugin.logger.info(`Connecting to printer at ${this.printerIp}:6000...`);
 
             this.socket = tls.connect(6000, this.printerIp, {
                 rejectUnauthorized: false
             }, () => {
-                console.log('TLS connection established');
+                PrinterPlugin.logger.info('TLS connection established');
                 this.authenticate().then(resolve).catch(reject);
             });
 
@@ -45,12 +45,12 @@ export class BambuVideoProcessor extends VideoProcessor {
             });
 
             this.socket.on('error', (error: Error) => {
-                console.error('Socket error:', error);
+                PrinterPlugin.logger.error('Socket error:', error);
                 reject(error);
             });
 
             this.socket.on('close', () => {
-                console.log('Connection closed');
+                PrinterPlugin.logger.info('Connection closed');
                 this.isConnected = false;
                 this.cleanup();
             });
@@ -64,14 +64,14 @@ export class BambuVideoProcessor extends VideoProcessor {
                 return;
             }
 
-            console.log('Sending authentication packet...');
+            PrinterPlugin.logger.info('Sending authentication packet...');
 
             const authPacket = this.createAuthPacket('bblp', this.accessCode);
             this.socket.write(authPacket);
 
             setTimeout(() => {
                 this.isConnected = true;
-                console.log('Authentication successful, starting frame reception...');
+                PrinterPlugin.logger.info('Authentication successful, starting frame reception...');
                 resolve();
             }, 1000);
         });
@@ -100,7 +100,7 @@ export class BambuVideoProcessor extends VideoProcessor {
         const passwordBuffer = Buffer.from(password, 'ascii');
         passwordBuffer.copy(packet, offset, 0, Math.min(32, passwordBuffer.length));
 
-        console.log('Auth packet created');
+        PrinterPlugin.logger.info('Auth packet created');
         return packet;
     }
 
@@ -147,13 +147,13 @@ export class BambuVideoProcessor extends VideoProcessor {
     private processJpegFrame(jpegData: Buffer): void {
         // Verify JPEG magic bytes
         if (jpegData.length < 2 || jpegData[0] !== 0xFF || jpegData[1] !== 0xD8) {
-            console.warn('Invalid JPEG start marker');
+            PrinterPlugin.logger.warn('Invalid JPEG start marker');
             return;
         }
 
         const endIndex = jpegData.length - 2;
         if (jpegData[endIndex] !== 0xFF || jpegData[endIndex + 1] !== 0xD9) {
-            console.warn('Invalid JPEG end marker');
+            PrinterPlugin.logger.warn('Invalid JPEG end marker');
             return;
         }
 
@@ -186,7 +186,7 @@ export class BambuVideoProcessor extends VideoProcessor {
 
     async getSingleImage(): Promise<Buffer> {
         if (this.unresolvedRequest) {
-            console.warn('A request for a single image is already in progress. Please wait for it to complete.');
+            PrinterPlugin.logger.warn('A request for a single image is already in progress. Please wait for it to complete.');
             return Promise.reject(new Error('Unresolved request in progress'));
         }
 
@@ -214,7 +214,7 @@ export class BambuVideoProcessor extends VideoProcessor {
     }
 
     async getVideoFrames(stream: VideoStream): Promise<void> {
-        console.log('Starting video stream...');
+        PrinterPlugin.logger.info('Starting video stream...');
 
         if (!this.isConnected) {
             await this.connect()
@@ -230,12 +230,12 @@ export class BambuVideoProcessor extends VideoProcessor {
         });
 
         stream.on('error', (error: Error) => {
-            console.error('Stream error:', error);
+            PrinterPlugin.logger.error('Stream error:', error);
             this.disconnect();
         });
 
         stream.on('end', () => {
-            console.log('Stream ended');
+            PrinterPlugin.logger.info('Stream ended');
             this.disconnect();
         });
     }

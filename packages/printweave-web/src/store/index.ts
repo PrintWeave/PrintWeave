@@ -34,8 +34,8 @@ export const usePrinterStore = defineStore('printer', {
           this.printers = data.printers;
           console.log('Updated printers:', this.printers);
         } else if (data.type === 'printerStatus') {
-          this.printerStatuses[data.data.printerId] = data.data;
-          console.log('Updated printer status:', data.printerId, this.printerStatuses[data.printerId]);
+          this.printerStatuses[data['data'].printerId] = data['data'];
+          console.log('Updated printer status:', data['data'], this.printerStatuses[data['data'].printerId]);
         }
       };
 
@@ -65,8 +65,8 @@ export const usePrinterStore = defineStore('printer', {
       this.sendMessage({ type: 'get', subtype: 'printers' });
     },
 
-    fetchPrinterStatuses() {
-      getPrinterStatuses()
+    async fetchPrinterStatuses() {
+      await getPrinterStatuses()
     },
 
     resetState() {

@@ -62,25 +62,30 @@ const toggleDropdown = () => {
     </div>
     <!-- Progress bar      -->
     <div class="w-full bg-gray-200 h-8 relative">
-      <div class="w-full flex items-center justify-between px-3 h-8 z-1" v-if="printer.status?.progress.percentage">
-        <span class="text-sm text-gray-600">Progress</span>
-        <span class="text-sm text-gray-600">{{
-            printer.status?.progress.percentage ? `${printer.status.progress.percentage}%` : '0%'
-          }}</span>
-      </div>
-      <div class="bg-green-600 h-8 top-0 z-0 left-0 absolute"
-           :style="{ width: printer.status?.progress.percentage ? `${printer.status.progress.percentage}%` : '0%' }"></div>
-      <div v-if="printer.status?.progress.percentage"
-           class="w-full flex items-center justify-between px-3 h-8 absolute top-0 left-0 "
-           :style="'clip-path: polygon(0% 0%, ' + printer.status?.progress.percentage + '% 0%, ' + printer.status?.progress.percentage + '% 100%, 0% 100%)'">
-        <span class="text-sm text-white">Progress</span>
-        <span class="text-sm text-white">{{
-            printer.status?.progress.percentage ? `${printer.status.progress.percentage}%` : '0%'
-          }}</span>
-      </div>
-      <!-- Show offline      -->
-      <div v-if="printer.statusType === 'offline'" class="absolute top-0 left-0 w-full h-full bg-red-600 bg-opacity-50 flex items-center justify-center">
+      <div v-if="printer.statusType === 'offline'"
+           class="absolute top-0 left-0 w-full h-full bg-red-600 bg-opacity-50 flex items-center justify-center">
         <span class="text-white text-lg font-bold">Offline</span>
+      </div>
+      <div v-else>
+
+        <div class="w-full flex items-center justify-between px-3 h-8 z-1" v-if="printer.status?.progress.percentage">
+          <span class="text-sm text-gray-600">Progress</span>
+          <span class="text-sm text-gray-600">{{
+              printer.status?.progress.percentage ? `${printer.status.progress.percentage}%` : '0%'
+            }}</span>
+        </div>
+        <div class="bg-green-600 h-8 top-0 z-0 left-0 absolute"
+             :style="{ width: printer.status?.progress.percentage ? `${printer.status.progress.percentage}%` : '0%' }"></div>
+        <div v-if="printer.status?.progress.percentage"
+             class="w-full flex items-center justify-between px-3 h-8 absolute top-0 left-0 "
+             :style="'clip-path: polygon(0% 0%, ' + printer.status?.progress.percentage + '% 0%, ' + printer.status?.progress.percentage + '% 100%, 0% 100%)'">
+          <span class="text-sm text-white"> {{
+              printer.status?.progress.percentage == 100 ? 'Completed' : 'In Progress'
+            }}</span>
+          <span class="text-sm text-white">{{
+              printer.status?.progress.percentage ? `${printer.status.progress.percentage}%` : '0%'
+            }}</span>
+        </div>
       </div>
     </div>
   </div>

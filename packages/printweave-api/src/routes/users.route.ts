@@ -9,8 +9,6 @@ export function userRoutes(): Router {
     const router = Router();
     // Current User Route
     router.get('/me', authMiddleware, async (req: Request, res: Response): Promise<void> => {
-        logger.info("Gallo")
-
         try {
             const user = req.user as User;
 

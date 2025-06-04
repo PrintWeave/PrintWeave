@@ -166,6 +166,43 @@ export async function resumePrint(printerId: string): Promise<ApiResponse<{ succ
     return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/resume`, 'POST', undefined);
 }
 
+// Temperature and fan control functions
+export async function setHotendTemperature(printerId: string, temperature: number): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/temperature/hotend`, 'POST', {
+        temperature: Math.round(temperature)
+    });
+}
+
+export async function setBedTemperature(printerId: string, temperature: number): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/temperature/bed`, 'POST', {
+        temperature: Math.round(temperature)
+    });
+}
+
+export async function setFanSpeedApi(printerId: string, fanType: string, speed: number): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/fan/${fanType}`, 'POST', {
+        speed: Math.round(Number(speed))
+    });
+}
+
+export async function moveAxis(printerId: string, axis: string, distance: number): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/move/${axis}`, 'POST', {
+        distance: Math.round(distance * 10) / 10 // Round to 1 decimal place
+    });
+}
+
+export async function homeAxes(printerId: string, axes: string[]): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/home`, 'POST', {
+        axes
+    });
+}
+
+export async function extrudeFilament(printerId: string, amount: number): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/extrude`, 'POST', {
+        amount: Math.round(amount)
+    });
+}
+
 // User management functions
 export async function getUsers(): Promise<ApiResponse<User[]>> {
     return apiRequest<User[]>('/api/users', 'GET', undefined);

@@ -31,6 +31,7 @@ const routes: RouteRecordRaw[] = [
     {
         path: '/dashboard/printer/:printerId',
         name: 'printerDetails',
+        props: true,
         component: () => import('@/views/PrinterDetails.vue'),
         meta: {
             title: 'Printer Details',

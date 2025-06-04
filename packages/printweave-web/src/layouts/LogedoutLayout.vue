@@ -3,7 +3,7 @@ import Logo from "@/components/Logo.vue";
 </script>
 
 <template>
-  <header class="bg-gray-50 shadow">
+  <header class="bg-gray-50 shadow sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4 flex items-center justify-between">
       <router-link class="flex items-center gap-2" to="/">
         <Logo class="h-8 w-8 text-primary"/>

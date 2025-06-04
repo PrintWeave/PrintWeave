@@ -37,11 +37,12 @@ export interface Light {
 }
 
 export interface FanSpeed {
-    fan: "chamber" | "part" | "aux";
+    fan: "chamber" | "part" | "aux" | string;
+    name?: string;
     speed: number;
 }
 
-declare enum FilamentType {
+export declare enum FilamentType {
     PLA = "PLA",
     ABS = "ABS",
     TPU = "TPU",

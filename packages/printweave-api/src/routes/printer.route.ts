@@ -367,8 +367,6 @@ export class MJPEGVideoStream extends EventEmitter implements VideoStream {
     }
 
     addFrame(frame: Buffer): void {
-        console.log(`Adding frame of length: ${frame.length}`);
-
         this.res.write(`--myboundary\r\n`);
         this.res.write(`Content-Type: image/jpeg\r\n`);
         this.res.write(`Content-Length: ${frame.length}\r\n\r\n`);
