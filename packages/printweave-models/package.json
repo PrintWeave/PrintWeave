@@ -1,6 +1,6 @@
 {
   "name": "@printweave/models",
-  "version": "0.4.0",
+  "version": "0.5.0-beta.2",
   "description": "Data models for PrintWeave",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@printweave/api-types": "^0.4.0",
+    "@printweave/api-types": "^0.5.0-beta.2",
     "bcryptjs": "^2.4.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.0",
