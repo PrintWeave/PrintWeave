@@ -182,15 +182,15 @@ export class BambuVideoProcessor extends VideoProcessor {
     get connected(): boolean { return this.isConnected; }
     get currentFps(): number { return this.fps; }
 
-    private unresolvedRequest = false;
+    private lastUnresolvedRequest = 0;
 
     async getSingleImage(): Promise<Buffer> {
-        if (this.unresolvedRequest) {
+        if (this.lastUnresolvedRequest > 0 && (Date.now() - this.lastUnresolvedRequest) < 5000) {
             PrinterPlugin.logger.warn('A request for a single image is already in progress. Please wait for it to complete.');
             return Promise.reject(new Error('Unresolved request in progress'));
         }
 
-        this.unresolvedRequest = true;
+        this.lastUnresolvedRequest = Date.now();
 
         if (!this.isConnected) {
             await this.connect();
