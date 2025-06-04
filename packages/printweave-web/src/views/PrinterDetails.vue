@@ -129,7 +129,7 @@
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <button class="p-1 rounded-md hover:bg-gray-100" @click="adjustTemperature('hotend', -5)">
+                  <button class="p-1 rounded-md hover:bg-gray-100" @click="adjustTemperature('hotend'+ hotend.index +1, -5)">
                     <Minus class="h-4 w-4 text-gray-600"/>
                   </button>
                   <input
@@ -138,7 +138,7 @@
                       class="border rounded-md p-2 w-full text-center"
                       placeholder="215"
                   />
-                  <button class="p-1 rounded-md hover:bg-gray-100" @click="adjustTemperature('hotend', 5)">
+                  <button class="p-1 rounded-md hover:bg-gray-100" @click="adjustTemperature('hotend'+ hotend.index +1, 5)">
                     <Plus class="h-4 w-4 text-gray-600"/>
                   </button>
                 </div>
@@ -197,18 +197,18 @@
               <div class="grid grid-cols-5 gap-2 h-fit my-auto w-fit">
                 <div></div>
                 <button class="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center"
-                        @click="moveAxis('y', movementDistance)">
+                        @click="moveAxis('y', 1)">
                   <ArrowUp class="h-6 w-6 text-gray-700"/>
                 </button>
                 <div></div>
                 <div></div> <!-- Empty cell for alignment -->
                 <button class="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center"
-                        @click="moveAxis('z', movementDistance)">
+                        @click="moveAxis('z', 1)">
                   <ArrowUp class="h-6 w-6 text-gray-700"/>
                 </button>
                 <!--                <div></div>-->
                 <button class="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center"
-                        @click="moveAxis('x', -movementDistance)">
+                        @click="moveAxis('x', -1)">
                   <ArrowLeft class="h-6 w-6 text-gray-700"/>
                 </button>
                 <button class="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center"
@@ -216,7 +216,7 @@
                   <Home class="h-6 w-6 text-gray-700"/>
                 </button>
                 <button class="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center"
-                        @click="moveAxis('x', movementDistance)">
+                        @click="moveAxis('x', 1)">
                   <ArrowRight class="h-6 w-6 text-gray-700"/>
                 </button>
                 <div></div>
@@ -231,13 +231,13 @@
                                 </button>-->
                 <div></div>
                 <button class="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center"
-                        @click="moveAxis('y', -movementDistance)">
+                        @click="moveAxis('y', -1)">
                   <ArrowDown class="h-6 w-6 text-gray-700"/>
                 </button>
                 <div></div>
                 <div></div>
                 <button class="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center"
-                        @click="moveAxis('z', -movementDistance)">
+                        @click="moveAxis('z', -1)">
                   <ArrowDown class="h-6 w-6 text-gray-700"/>
                 </button>
               </div>
@@ -509,12 +509,15 @@ const connectCamera = () => {
 const adjustTemperature = (component, amount) => {
   console.log(`Adjusting ${component} temperature by ${amount}`);
 
-  const newTarget = Math.round(temperatures[component].target + amount);
 
-  if (component === 'hotend') {
-    setHotendTemperature(printerIdNum.value.toString(), newTarget);
+  if (component.startsWith('hotend')) {
+    const newTarget = Math.round(temperatures.hotends[parseInt(component.replace('hotend', '')) - 1].target + amount);
+    setHotendTemperature(printerIdNum.value.toString(), component, newTarget);
+    temperatures.hotends[parseInt(component.replace('hotend', '')) - 1].target = newTarget;
   } else if (component === 'bed') {
+    const newTarget = Math.round(temperatures.bed.target + amount);
     setBedTemperature(printerIdNum.value.toString(), newTarget);
+    temperatures.bed.target = newTarget;
   }
 }
 

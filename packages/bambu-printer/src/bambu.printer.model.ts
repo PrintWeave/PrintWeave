@@ -1,33 +1,47 @@
 // packages/printweave-api/src/models/printers/bambu.printer.model.ts
-import {Table, Column, DataType, ForeignKey} from 'sequelize-typescript';
+import {Column, DataType, Table} from 'sequelize-typescript';
 import {
     AMS,
     AMSTray,
+    Fan,
+    GCodeLineCommand,
     GetVersionCommand,
+    NumberRange,
     PushAllCommand,
-    PushAllResponse
+    PushAllResponse,
+    UpdateFanCommand
 } from 'bambu-node';
 import {PausePrintCommand} from './connection/mqtt/PausePrintCommand.js';
 import {ResumePrintCommand} from './connection/mqtt/ResumePrintCommand.js';
 import {StopPrintCommand} from './connection/mqtt/StopPrintCommand.js';
-import {Light, PrinterStatus, Filament, MultiMaterial, PrintFileReport, StatusType} from "@printweave/api-types";
+import {HomeAxesCommand} from './connection/mqtt/HomeAxesCommand.js';
+import {MoveAxisCommand} from './connection/mqtt/MoveAxisCommand.js';
+import {SetTemperatureCommand} from './connection/mqtt/SetTemperatureCommand.js';
+import {Filament, Light, MultiMaterial, PrinterStatus, PrintFileReport, StatusType} from "@printweave/api-types";
 import path from "path";
 import {Readable} from "node:stream";
-import {ConnectionManager, PrinterConnectionsBambu} from "./connection/ConnectionManager.js";
-import {
-    BasePrinter,
-    PrinterTimeOutError,
-    PrinterUnAuthorizedError,
-    PrintWeaveFile,
-} from "@printweave/models";
+import {PrinterConnectionsBambu} from "./connection/ConnectionManager.js";
+import {BasePrinter, PrinterTimeOutError, PrinterUnAuthorizedError, PrintWeaveFile,} from "@printweave/models";
 import PrinterPlugin from "./main.js";
-import {VideoProcessor, VideoStream} from "@printweave/models/dist/models/video.model.js";
+import {VideoProcessor} from "@printweave/models/dist/models/video.model.js";
+
+export enum BambuPrinterModels {
+    X1 = 'X1',
+    X1C = 'X1 Carbon',
+    X1E = 'X1 Enterprise',
+    H2D = 'H2D',
+    P1S = 'P1S',
+    P1P = 'P1P',
+    A1 = 'A1',
+    A1M = 'A1 Mini'
+}
 
 @Table({
     tableName: 'bambu_printers',
     timestamps: true
 })
 export class BambuPrinter extends BasePrinter {
+
     @Column({
         type: DataType.STRING,
         allowNull: false
@@ -52,6 +66,41 @@ export class BambuPrinter extends BasePrinter {
         allowNull: false
     })
     serial!: string;
+
+    async getPrinterModel(): Promise<BambuPrinterModels> {
+        const modelCode = this.dataValues.serial.substring(0, 3).toUpperCase();
+        switch (modelCode) {
+            case '00W':
+                return BambuPrinterModels.X1;
+            case '00M':
+                return BambuPrinterModels.X1C;
+            case '03W':
+                return BambuPrinterModels.X1E;
+            case '094':
+                return BambuPrinterModels.H2D;
+            case '01P':
+                return BambuPrinterModels.P1S;
+            case '01S':
+                return BambuPrinterModels.P1P;
+            case '039':
+                return BambuPrinterModels.A1;
+            case '030':
+                return BambuPrinterModels.A1M;
+            default:
+                throw new Error(`Unknown printer model: ${this.type}`);
+        }
+    }
+
+    async positiveZAxis(): Promise<boolean> {
+        let bambuPrinterModels = await this.getPrinterModel();
+        if (bambuPrinterModels === BambuPrinterModels.A1 || bambuPrinterModels === BambuPrinterModels.A1M) {
+            // A1 and A1M have a positive Z axis
+            return true;
+        }
+
+        // All other models have a negative Z axis
+        return false;
+    }
 
     async getVersion(): Promise<string> {
         const connection = await this.getConnection();
@@ -166,10 +215,12 @@ export class BambuPrinter extends BasePrinter {
         status.bedTargetTemp = response.bed_target_temper;
         status.bedTemp = response.bed_temper;
         status.wifiSignal = response.wifi_signal;
+        // use the above code to determine fan speeds
+        // use this multiplier to convert the fan speeds to a percentage: round(floor(cooling_fan_speed / float(1.5)) * float(25.5));
         status.fanSpeeds = [
-            {fan: 'chamber', speed: parseInt(response.big_fan2_speed)},
-            {fan: 'part', speed: parseInt(response.cooling_fan_speed)},
-            {fan: 'aux', speed: parseInt(response.big_fan1_speed)}
+            {fan: 'chamber', speed: Math.round(parseInt(response.big_fan2_speed) / 1.5 * 10)},
+            {fan: 'part', speed: Math.round(parseInt(response.cooling_fan_speed) / 1.5 * 10)},
+            {fan: 'aux', speed: Math.round(parseInt(response.big_fan1_speed) / 1.5 * 10)}
         ];
 
         status.status = response.gcode_state;
@@ -260,10 +311,10 @@ export class BambuPrinter extends BasePrinter {
     }
 
     override async uploadFile(file
-               :
-               PrintWeaveFile, report
-               :
-               PrintFileReport
+                              :
+                              PrintWeaveFile, report
+                              :
+                              PrintFileReport
     ):
         Promise<PrintFileReport> {
         const connection = await this.getConnection();
@@ -291,8 +342,8 @@ export class BambuPrinter extends BasePrinter {
     }
 
     async convertToReadable(webStream
-                      :
-                      ReadableStream<Uint8Array>
+                            :
+                            ReadableStream<Uint8Array>
     ):
         Promise<Readable> {
         const reader = webStream.getReader();
@@ -321,4 +372,83 @@ export class BambuPrinter extends BasePrinter {
 
         return connection.video;
     }
+
+    async moveAxis(axis: string, distance: number): Promise<string> {
+        try {
+            const connection = await this.getConnection();
+            if (axis.toLowerCase() === 'z' && !await this.positiveZAxis()) {
+                distance = -distance;
+            }
+
+            await connection.mqtt.client.executeCommand(new MoveAxisCommand(axis, distance), false);
+            return 'requested';
+        } catch (error) {
+            if (error instanceof PrinterTimeOutError) {
+                return 'timeout';
+            } else {
+                PrinterPlugin.logger.error('Error moving axis:', error);
+                throw error;
+            }
+        }
+    }
+
+    async homeAxes(axes: string[]): Promise<string> {
+        try {
+            const connection = await this.getConnection();
+            await connection.mqtt.client.executeCommand(new HomeAxesCommand(axes), false);
+            return 'requested';
+        } catch (error) {
+            if (error instanceof PrinterTimeOutError) {
+                return 'timeout';
+            } else {
+                PrinterPlugin.logger.error('Error homing axes:', error);
+                throw error;
+            }
+        }
+    }
+
+    async setTemperature(component: string, temperature: number): Promise<string> {
+        try {
+            const connection = await this.getConnection();
+
+            // Check for valid nozzle index if it's a hotend
+            if (component.startsWith('hotend')) {
+                const nozzleIndex = parseInt(component.replace('hotend', '')) - 1;
+                const {status} = await PrinterPlugin.getApp().getPrinterStatusCached(this.dataValues.printerId);
+
+                if (isNaN(nozzleIndex) || nozzleIndex < 0 || nozzleIndex >= (status?.nozzles?.length || 0)) {
+                    throw new Error(`Invalid nozzle index: ${nozzleIndex}`);
+                }
+            }
+
+            await connection.mqtt.client.executeCommand(new SetTemperatureCommand(component, temperature), component === 'bed');
+            return 'requested';
+        } catch (error) {
+            if (error instanceof PrinterTimeOutError) {
+                return 'timeout';
+            } else {
+                PrinterPlugin.logger.error('Error setting temperature:', error);
+                throw error;
+            }
+        }
+    }
+
+    async setFanSpeed(fan: string, speed: number): Promise<string> {
+        try {
+            const connection = await this.getConnection();
+            await connection.mqtt.client.executeCommand(new UpdateFanCommand({
+                fan: fan === 'aux' ? Fan.AUXILIARY_FAN : fan === 'chamber' ? Fan.CHAMBER_FAN : Fan.PART_COOLING_FAN,
+                speed: Math.round(Number(speed)) as NumberRange<0, 100>
+            }), false);
+            return 'requested';
+        } catch (error) {
+            if (error instanceof PrinterTimeOutError) {
+                return 'timeout';
+            } else {
+                PrinterPlugin.logger.error('Error setting fan speed:', error);
+                throw error;
+            }
+        }
+    }
 }
+

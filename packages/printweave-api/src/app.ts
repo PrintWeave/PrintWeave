@@ -8,6 +8,7 @@ class PrinterCache {
     public printerStatus: { status: PrinterStatus | null, statusType: StatusType | null } | null;
     public cachedAt: number;
     public cacheDuration: number; // in milliseconds
+    public cacheDurationNull: number = 5000; // Default cache duration for null status
     public imageLastUpdatedAt: number;
     public imageCacheDuration: number; // in milliseconds
 
@@ -23,7 +24,7 @@ class PrinterCache {
     }
 
     isValid(): boolean {
-        return (Date.now() - this.cachedAt) < this.cacheDuration;
+        return (Date.now() - this.cachedAt) < (this.printerStatus.status === null ? this.cacheDurationNull : this.cacheDuration);
     }
 
     update(printerStatus: { status: PrinterStatus | null, statusType: StatusType | null }): void {

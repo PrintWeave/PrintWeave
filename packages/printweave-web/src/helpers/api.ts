@@ -167,27 +167,31 @@ export async function resumePrint(printerId: string): Promise<ApiResponse<{ succ
 }
 
 // Temperature and fan control functions
-export async function setHotendTemperature(printerId: string, temperature: number): Promise<ApiResponse<{ success: boolean }>> {
-    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/temperature/hotend`, 'POST', {
+export async function setHotendTemperature(printerId: string, component: string, temperature: number): Promise<ApiResponse<{ success: boolean }>> {
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/temperature`, 'POST', {
+        component: component,
         temperature: Math.round(temperature)
     });
 }
 
 export async function setBedTemperature(printerId: string, temperature: number): Promise<ApiResponse<{ success: boolean }>> {
-    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/temperature/bed`, 'POST', {
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/temperature`, 'POST', {
+        component: 'bed',
         temperature: Math.round(temperature)
     });
 }
 
 export async function setFanSpeedApi(printerId: string, fanType: string, speed: number): Promise<ApiResponse<{ success: boolean }>> {
-    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/fan/${fanType}`, 'POST', {
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/fan`, 'POST', {
+        fan: fanType,
         speed: Math.round(Number(speed))
     });
 }
 
 export async function moveAxis(printerId: string, axis: string, distance: number): Promise<ApiResponse<{ success: boolean }>> {
-    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/move/${axis}`, 'POST', {
-        distance: Math.round(distance * 10) / 10 // Round to 1 decimal place
+    return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/move`, 'POST', {
+        axis,
+        distance: Math.round(distance * 10) / 10
     });
 }
 

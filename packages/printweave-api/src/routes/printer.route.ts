@@ -2,7 +2,8 @@ import {Router, Response as EResponse} from "express";
 import {UserPrinter, User, Printer, BasePrinter, PrinterTimeOutError, getPrinterAndUser} from "@printweave/models";
 import {
     GetPrinterError,
-    GetPrinterResponse, Invalid3mfFileError,
+    GetPrinterResponse,
+    Invalid3mfFileError,
     PrinterActionError,
     PrinterActionResponse,
     PrinterStatusError,
@@ -10,6 +11,10 @@ import {
     PrintFileReport,
     SimpleUnauthorizedError,
     UploadFileError,
+    InvalidMoveAxisError,
+    InvalidHomeAxesError,
+    InvalidTemperatureError,
+    InvalidFanSpeedError
 } from "@printweave/api-types";
 import {logger, storage} from "../main.js";
 import {BlobReader, BlobWriter, TextWriter, ZipReader} from "@zip.js/zip.js";
@@ -266,6 +271,150 @@ export function printerRoutes(printerId: number): Router {
         }
     });
 
+    /**
+     * Move printer axis
+     * POST /api/printers/:printerId/move
+     * Body: { axis: string, distance: number }
+     * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
+     */
+    router.post('/move', async (req, res) => {
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate']);
+
+        if (error) {
+            res.status(error.code).json(error.err);
+            return;
+        }
+
+        if (!userPrinter) {
+            res.status(403).json(new SimpleUnauthorizedError(403));
+            return;
+        }
+
+        const printer = await Printer.findByPk(printerId);
+        const { axis, distance } = req.body;
+
+        if (!axis || typeof distance !== 'number' || isNaN(distance)) {
+            res.status(400).json({message: 'Invalid parameters. Required: axis (string) and distance (number)', code: 400} as InvalidMoveAxisError);
+            return;
+        }
+
+        try {
+            const result = await app.getFullPrinter(printer).then(printer => {return  printer?.moveAxis(axis, distance)});
+
+            res.json({user, printer, result} as PrinterActionResponse);
+        } catch (error) {
+            res.status(500).json({message: 'Error', error: error.message, code: 500} as PrinterActionError);
+        }
+    });
+
+    /**
+     * Home printer axes
+     * POST /api/printers/:printerId/home
+     * Body: { axes: string[] }
+     * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
+     */
+    router.post('/home', async (req, res) => {
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate']);
+
+        if (error) {
+            res.status(error.code).json(error.err);
+            return;
+        }
+
+        if (!userPrinter) {
+            res.status(403).json(new SimpleUnauthorizedError(403));
+            return;
+        }
+
+        const printer = await Printer.findByPk(printerId);
+        const { axes } = req.body;
+
+        if (!axes || !Array.isArray(axes)) {
+            res.status(400).json({message: 'Invalid parameters. Required: axes (string[])', code: 400} as InvalidHomeAxesError);
+            return;
+        }
+
+        try {
+            const result = await app.getFullPrinter(printer).then(printer => printer?.homeAxes(axes));
+
+            res.json({user, printer, result} as PrinterActionResponse);
+        } catch (error) {
+            res.status(500).json({message: 'Error', error: error.message, code: 500} as PrinterActionError);
+        }
+    });
+
+    /**
+     * Set temperature for a specific component
+     * POST /api/printers/:printerId/temperature
+     * Body: { component: string, temperature: number }
+     * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
+     */
+    router.post('/temperature', async (req, res) => {
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate']);
+
+        if (error) {
+            res.status(error.code).json(error.err);
+            return;
+        }
+
+        if (!userPrinter) {
+            res.status(403).json(new SimpleUnauthorizedError(403));
+            return;
+        }
+
+        const printer = await Printer.findByPk(printerId);
+        const { component, temperature } = req.body;
+
+        if (!component || typeof temperature !== 'number' || isNaN(temperature)) {
+            res.status(400).json({message: 'Invalid parameters. Required: component (string) and temperature (number)', code: 400} as InvalidTemperatureError);
+            return;
+        }
+
+        try {
+            const result = await app.getFullPrinter(printer).then(printer => printer?.setTemperature(component, temperature));
+
+            res.json({user, printer, result} as PrinterActionResponse);
+        } catch (error) {
+            res.status(500).json({message: 'Error', error: error.message, code: 500} as PrinterActionError);
+        }
+    });
+
+    /**
+     * Set fan speed
+     * POST /api/printers/:printerId/fan
+     * Body: { fan: string, speed: number }
+     * Response: {@link PrinterActionResponse} | {@link PrinterActionError}
+     */
+    router.post('/fan', async (req, res) => {
+        const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate']);
+
+        if (error) {
+            res.status(error.code).json(error.err);
+            return;
+        }
+
+        if (!userPrinter) {
+            res.status(403).json(new SimpleUnauthorizedError(403));
+            return;
+        }
+
+        const printer = await Printer.findByPk(printerId);
+        const { fan, speed } = req.body;
+
+        if (!fan || typeof speed !== 'number' || isNaN(speed) || speed < 0 || speed > 100) {
+            res.status(400).json({message: 'Invalid parameters. Required: fan (string) and speed (number, 0-100)', code: 400} as InvalidFanSpeedError);
+            return;
+        }
+
+        try {
+            const result = await app.getFullPrinter(printer).then(printer => printer?.setFanSpeed(fan, speed));
+
+            res.json({user, printer, result} as PrinterActionResponse);
+        } catch (error) {
+            res.status(500).json({message: 'Error', error: error.message, code: 500} as PrinterActionError);
+        }
+    });
+
     router.post('/file', storage.single('file'), fileUploadLimiter, async (req, res) => {
         const {user, userPrinter, error} = await getPrinterAndUser(printerId, req.user, ['admin', 'operate']);
 
@@ -354,6 +503,8 @@ export function printerRoutes(printerId: number): Router {
             res.status(500).json({message: 'Error getting MJPEG stream', error: error.message, code: 500});
         }
     });
+
+
 
     return router;
 }

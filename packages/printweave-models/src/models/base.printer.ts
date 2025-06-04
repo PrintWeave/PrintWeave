@@ -26,6 +26,14 @@ export abstract class BasePrinter extends Model {
 
     abstract getVideoProcessor(): Promise<VideoProcessor | null>;
 
+    abstract moveAxis(axis: string, distance: number): Promise<string>;
+
+    abstract homeAxes(axes: string[]): Promise<string>;
+
+    abstract setTemperature(component: string, temperature: number): Promise<string>;
+
+    abstract setFanSpeed(fan: string, speed: number): Promise<string>;
+
     getCacheTime(): number {
         return 300000; // Default cache time of 5 minutes
     }

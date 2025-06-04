@@ -81,10 +81,11 @@ export class MqttBambuConnection {
             response.cooling_fan_speed !== undefined ||
             response.big_fan1_speed !== undefined
         ) {
+            // use this multiplier to convert the fan speeds to a percentage: round(floor(cooling_fan_speed / float(1.5)) * float(25.5));
             status.fanSpeeds = [
-                {fan: 'chamber', speed: response.big_fan2_speed !== undefined ? parseInt(response.big_fan2_speed) : status.fanSpeeds?.[0]?.speed ?? 0},
-                {fan: 'part', speed: response.cooling_fan_speed !== undefined ? parseInt(response.cooling_fan_speed) : status.fanSpeeds?.[1]?.speed ?? 0},
-                {fan: 'aux', speed: response.big_fan1_speed !== undefined ? parseInt(response.big_fan1_speed) : status.fanSpeeds?.[2]?.speed ?? 0}
+                {fan: 'chamber', speed: response.big_fan2_speed !== undefined ? Math.round(Math.floor(parseFloat(response.big_fan2_speed) / 1.5) * 10) : status.fanSpeeds?.[0]?.speed ?? 0},
+                {fan: 'part', speed: response.cooling_fan_speed !== undefined ? Math.round(Math.floor(parseFloat(response.cooling_fan_speed) / 1.5) * 10) : status.fanSpeeds?.[1]?.speed ?? 0},
+                {fan: 'aux', speed: response.big_fan1_speed !== undefined ? Math.round(Math.floor(parseFloat(response.big_fan1_speed) / 1.5) * 10) : status.fanSpeeds?.[2]?.speed ?? 0}
             ];
         }
 
