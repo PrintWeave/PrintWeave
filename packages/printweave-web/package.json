@@ -1,6 +1,6 @@
 {
   "name": "@printweave/web",
-  "version": "0.5.0-beta.3",
+  "version": "0.5.0-beta.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,7 @@
   },
   "main": "run.js",
   "dependencies": {
-    "@printweave/api-types": "^0.5.0-beta.3",
+    "@printweave/api-types": "^0.5.0-beta.4",
     "@tailwindcss/vite": "^4.1.8",
     "@types/axios": "^0.9.36",
     "axios": "^1.9.0",

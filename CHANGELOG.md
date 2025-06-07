@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.0-beta.4](https://github.com/PrintWeave/PrintWeave/compare/v0.5.0-beta.3...v0.5.0-beta.4) (2025-06-07)
+
+### 🐛 Bug Fixes
+
+* **bambu:** Fix the temperature command ([502f024](https://github.com/PrintWeave/PrintWeave/commit/502f0243d64229d45e0ce61933ccf569698d1f41))
+
 ## [0.5.0-beta.3](https://github.com/PrintWeave/PrintWeave/compare/v0.5.0-beta.2...v0.5.0-beta.3) (2025-06-04)
 
 ### ✨ Features
