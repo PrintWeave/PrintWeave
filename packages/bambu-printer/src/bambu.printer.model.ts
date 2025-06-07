@@ -421,7 +421,7 @@ export class BambuPrinter extends BasePrinter {
                 }
             }
 
-            await connection.mqtt.client.executeCommand(new SetTemperatureCommand(component, temperature), component === 'bed');
+            await connection.mqtt.client.executeCommand(new SetTemperatureCommand(component, temperature), false)
             return 'requested';
         } catch (error) {
             if (error instanceof PrinterTimeOutError) {

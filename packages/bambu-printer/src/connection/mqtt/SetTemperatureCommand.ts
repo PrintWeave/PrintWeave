@@ -1,8 +1,8 @@
 import {AbstractCommand, CommandResponse} from "bambu-node";
 
 export class SetTemperatureCommand extends AbstractCommand {
-    command: string = "gcode_line";
-    category: "info" | "pushing" | "system" | "print" = "print";
+    category: "print" | "info" | "pushing" | "system" = "print";
+    command: string;
 
     ownsResponse(command: CommandResponse): boolean {
         return command.command === "gcode_line" && (command.param.startsWith(`M140 S`) || command?.param.startsWith(`M104 S`));
@@ -33,7 +33,7 @@ export class SetTemperatureCommand extends AbstractCommand {
         }
 
         return {
-            "param": gcode,
+            param: gcode,
         };
     }
 }
