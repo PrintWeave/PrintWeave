@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.5.0-beta.3](https://github.com/PrintWeave/PrintWeave/compare/v0.5.0-beta.2...v0.5.0-beta.3) (2025-06-04)
+
+### ✨ Features
+
+* **api:** Added Move Axis, Set Temperature, Home Axis, Set Fan Speed ([5dae538](https://github.com/PrintWeave/PrintWeave/commit/5dae538b1f8b9e708bfbad9c66167f907bbd948a))
+
 ## [0.5.0-beta.2](https://github.com/PrintWeave/PrintWeave/compare/v0.5.0-beta.1...v0.5.0-beta.2) (2025-06-04)
 
 ### ✨ Features
