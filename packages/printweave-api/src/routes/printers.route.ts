@@ -6,8 +6,17 @@ import {
     UnauthorizedError,
     CreatePrinterResponse,
     CreatePrinterError,
-    CreateBambuPrinterError, RemovePrinterError, RemovePrinterResponse, GetPrintersError, SimpleUnauthorizedError,
-    GetPrinterStatusesResponse, GetPrinterStatusesError, PrinterStatusData, PrinterStatus, StatusType,
+    CreateBambuPrinterError,
+    RemovePrinterError,
+    RemovePrinterResponse,
+    GetPrintersError,
+    SimpleUnauthorizedError,
+    GetPrinterStatusesResponse,
+    GetPrinterStatusesError,
+    PrinterStatusData,
+    PrinterStatus,
+    StatusType,
+    GetBuilderOptionsResponse,
 } from "@printweave/api-types";
 import {BasePrinter, getPrinterAndUser, IPrintWeaveApp, Printer, User, UserPrinter} from "@printweave/models";
 import {logger, pluginManager, websocketsManager} from "../main.js";
@@ -98,6 +107,18 @@ export function printersRoutes(): Router {
         });
 
         res.json({message: 'Printer created', printer: printer} as CreatePrinterResponse);
+    });
+
+    // Route to get all printer type options for building printers
+    router.get('/options', (req: Request, res: Response) => {
+        // Get all registered plugins
+        const plugins = pluginManager.getPlugins();
+        // Build a map of printerType -> options
+        const options = {};
+        for (const plugin of plugins) {
+            options[plugin.printerType] = plugin.getOptionsBuildPrinter();
+        }
+        res.json({ message: 'Builder options retrieved', options: options } as GetBuilderOptionsResponse);
     });
 
     router.get('/statuses', async (req: Request, res: Response) => {

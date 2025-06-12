@@ -1,5 +1,11 @@
-import type {GetPrintersResponse, GetPrinterStatusesResponse} from "@printweave/api-types";
-import axios from 'axios';
+import type {
+    CreatePrinterResponse,
+    GetBuilderOptionsResponse,
+    GetPrintersResponse,
+    GetPrinterStatusesResponse
+} from "@printweave/api-types";
+import axios, {AxiosError} from 'axios';
+
 
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 export const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
@@ -84,16 +90,39 @@ async function apiRequest<T>(
             headers,
             withCredentials: true,
             data: data,
-        });
+        })
 
         return {
             data: response.data,
             status: response.status
         };
-    } catch (error) {
+    } catch (error: any | AxiosError) {
+        if (axios.isAxiosError(error)) {
+            // Handle Axios error
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                return {
+                    error: error.response.data.message || 'Request failed',
+                    status: error.response.status,
+                };
+            } else if (error.request) {
+                // The request was made but no response was received
+                return {
+                    error: 'No response received from server',
+                    status: 500,
+                };
+            } else {
+                // Something happened in setting up the request that triggered an Error
+                return {
+                    error: error.message,
+                    status: 500,
+                };
+            }
+        }
+        // Handle generic error
         return {
-            error: error instanceof Error ? error.message : 'Unknown error',
-            status: 500
+            error: (error as Error).message || 'An unexpected error occurred',
+            status: 500,
         };
     }
 }
@@ -124,8 +153,8 @@ export async function getPrinter(id: string): Promise<ApiResponse<Printer>> {
     return apiRequest<Printer>(`/api/printer/${id}`, 'GET', undefined);
 }
 
-export async function addPrinter(printerData: Partial<Printer>): Promise<ApiResponse<Printer>> {
-    return apiRequest<Printer>('/api/printer', 'POST', printerData);
+export async function addPrinter(printerData: Partial<Printer>): Promise<ApiResponse<CreatePrinterResponse>> {
+    return apiRequest<CreatePrinterResponse>('/api/printer', 'POST', printerData);
 }
 
 export async function updatePrinter(id: string, printerData: Partial<Printer>): Promise<ApiResponse<Printer>> {
@@ -205,6 +234,10 @@ export async function extrudeFilament(printerId: string, amount: number): Promis
     return apiRequest<{ success: boolean }>(`/api/printer/${printerId}/extrude`, 'POST', {
         amount: Math.round(amount)
     });
+}
+
+export async function getBuilderOptions(): Promise<ApiResponse<GetBuilderOptionsResponse>> {
+    return apiRequest<GetBuilderOptionsResponse>('/api/printer/options', 'GET', undefined);
 }
 
 // User management functions

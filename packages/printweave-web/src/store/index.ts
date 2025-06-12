@@ -8,6 +8,7 @@ export const usePrinterStore = defineStore('printer', {
     websocket: null as WebSocket | null,
     printers: [] as IPrinter[],
     printerStatuses: {} as Record<number, PrinterStatusData>,
+    createPrinterModalOpen: false,
   }),
 
   getters: {
@@ -19,6 +20,12 @@ export const usePrinterStore = defineStore('printer', {
   },
 
   actions: {
+    openCreatePrinterModal() {
+        this.createPrinterModalOpen = true;
+    },
+    closeCreatePrinterModal() {
+        this.createPrinterModalOpen = false;
+    },
     async initializeWebSocket() {
       if (this.websocket && this.websocket.readyState === WebSocket.OPEN) {
         console.warn('WebSocket is already connected');

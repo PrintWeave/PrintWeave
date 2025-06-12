@@ -15,3 +15,12 @@ export interface CreateBambuPrinterError {
     code: 400;
     message: "IP, code, serial are required";
 }
+
+export interface GetBuilderOptionsResponse {
+    message: "Builder options retrieved";
+    options: {
+        [printerType: string]: {
+            [option: string]: { type: string, required: boolean, description: string },
+        }
+    };
+}

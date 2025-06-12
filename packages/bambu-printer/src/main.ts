@@ -68,6 +68,26 @@ export default class PrinterPlugin extends Plugin {
         })
     }
 
+    getOptionsBuildPrinter(): any {
+        return {
+            ip: {
+                type: 'string',
+                required: true,
+                description: 'IP address of the Bambu printer'
+            },
+            code: {
+                type: 'string',
+                required: true,
+                description: 'Access code for the Bambu printer'
+            },
+            serial: {
+                type: 'string',
+                required: true,
+                description: 'Serial number of the Bambu printer'
+            }
+        };
+    }
+
     savePrinter(printer: BasePrinter): Promise<BasePrinter> {
         return printer.save();
     }

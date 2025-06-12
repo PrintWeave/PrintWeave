@@ -35,6 +35,7 @@ export abstract class Plugin {
 
     abstract buildPrinter(options: any): BasePrinter;
     abstract savePrinter(printer: BasePrinter): Promise<BasePrinter>;
+    abstract getOptionsBuildPrinter(): { [key: string]: { type: string, required: boolean, description: string } };
 
     static logger: Logger;
     static pluginManager: IPluginManager;

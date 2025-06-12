@@ -68,7 +68,7 @@ const toggleDropdown = () => {
       </div>
       <div v-else>
 
-        <div class="w-full flex items-center justify-between px-3 h-8 z-1" v-if="printer.status?.progress.percentage">
+        <div class="w-full flex items-center justify-between px-3 h-8 z-1" v-if="printer.status?.progress.percentage || printer.status?.progress.percentage === 0">
           <span class="text-sm text-gray-600">Progress</span>
           <span class="text-sm text-gray-600">{{
               printer.status?.progress.percentage ? `${printer.status.progress.percentage}%` : '0%'
@@ -76,7 +76,7 @@ const toggleDropdown = () => {
         </div>
         <div class="bg-green-600 h-8 top-0 z-0 left-0 absolute"
              :style="{ width: printer.status?.progress.percentage ? `${printer.status.progress.percentage}%` : '0%' }"></div>
-        <div v-if="printer.status?.progress.percentage"
+        <div v-if="printer.status?.progress.percentage || printer.status?.progress.percentage === 0"
              class="w-full flex items-center justify-between px-3 h-8 absolute top-0 left-0 "
              :style="'clip-path: polygon(0% 0%, ' + printer.status?.progress.percentage + '% 0%, ' + printer.status?.progress.percentage + '% 100%, 0% 100%)'">
           <span class="text-sm text-white"> {{
